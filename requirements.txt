@@ -1,0 +1,18 @@
+# Initial project dependencies
+# Exact versions will be pinned after the dataset and model stack are finalized.
+
+torch
+torchvision
+torchaudio
+transformers
+datasets
+numpy
+pandas
+matplotlib
+scikit-learn
+Pillow
+opencv-python
+jiwer
+jupyter
+ipykernel
+streamlit
