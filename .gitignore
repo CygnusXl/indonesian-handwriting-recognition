@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Testing / tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Model checkpoints / weights
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+checkpoints/
+
+# Large datasets
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Generated outputs
+results/figures/*
+results/tables/*
+results/models/*
+!results/figures/.gitkeep
+!results/tables/.gitkeep
+!results/models/.gitkeep
+
+# Temporary files
+*.tmp
+*.log
