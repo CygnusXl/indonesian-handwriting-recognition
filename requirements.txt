@@ -16,3 +16,4 @@ jiwer
 jupyter
 ipykernel
 streamlit
+requests
