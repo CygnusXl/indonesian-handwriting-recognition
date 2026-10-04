@@ -116,9 +116,9 @@ class CNNBiLSTM(nn.Module):
         #   [batch, 1, 128, 1024]
         #
         # Output:
-        #   [batch, 256, 8, 128]
+        #   [batch, 256, 8, 256]
         #
-        # We treat the width (128) as the time dimension.
+        # We treat the width (256) as the time dimension.
         #
 
         cnn_height = 8
@@ -163,7 +163,7 @@ class CNNBiLSTM(nn.Module):
         x = self.cnn(x)
 
         # Expected:
-        # [batch, 256, 8, 128]
+        # [batch, 256, 8, 256]
 
         batch_size = x.size(0)
         channels = x.size(1)
@@ -272,7 +272,7 @@ if __name__ == "__main__":
 
     # Expected:
     #
-    # 128 time steps
+    # 256 time steps
     # 4 batch
     # 70 classes
 
