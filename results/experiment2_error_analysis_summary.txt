@@ -1,0 +1,65 @@
+EXPERIMENT 2 ERROR ANALYSIS
+======================================================================
+
+Configuration
+Image height: 192
+Image width: 1024
+CTC time steps: 256
+
+Checkpoint epoch: 10
+Validation CER: 0.820600
+
+Test samples: 208
+Mean sample CER: 0.678400
+Mean sample CER (%): 67.84%
+Exact matches: 0/208
+Exact-match rate: 0.00%
+Severe prediction collapse: 71/208
+Prediction collapse rate: 34.13%
+
+CER BY NEATNESS
+======================================================================
+Very messy (50-60) | samples=15 | mean_CER=0.528000 | 52.80%
+Moderate (71-80) | samples=52 | mean_CER=0.649100 | 64.91%
+Messy (61-70) | samples=31 | mean_CER=0.668400 | 66.84%
+Very neat (91-95) | samples=45 | mean_CER=0.711800 | 71.18%
+Neat (81-90) | samples=65 | mean_CER=0.718300 | 71.83%
+
+CER BY NOISE
+======================================================================
+False | samples=106 | mean_CER=0.670900 | 67.09%
+True | samples=102 | mean_CER=0.686300 | 68.63%
+
+CER BY TEXT LENGTH
+======================================================================
+Medium (31-60) | samples=57 | mean_CER=0.554300 | 55.43%
+Short (1-30) | samples=84 | mean_CER=0.574900 | 57.49%
+Long (61-100) | samples=18 | mean_CER=0.846200 | 84.62%
+Very long (101+) | samples=49 | mean_CER=0.938700 | 93.87%
+
+CER BY MULTILINE
+======================================================================
+False | samples=137 | mean_CER=0.547500 | 54.75%
+True | samples=71 | mean_CER=0.931000 | 93.10%
+
+CER BY LINE WIDTH
+======================================================================
+6 | samples=5 | mean_CER=0.539600 | 53.96%
+5 | samples=8 | mean_CER=0.582000 | 58.20%
+3 | samples=54 | mean_CER=0.673900 | 67.39%
+2 | samples=49 | mean_CER=0.681100 | 68.11%
+4 | samples=49 | mean_CER=0.689300 | 68.93%
+1 | samples=43 | mean_CER=0.702800 | 70.28%
+
+CER BY SOURCE
+======================================================================
+tatoeba | samples=99 | mean_CER=0.495200 | 49.52%
+faker-name | samples=20 | mean_CER=0.585700 | 58.57%
+faker-date | samples=18 | mean_CER=0.792700 | 79.27%
+tatoeba-multiline | samples=71 | mean_CER=0.931000 | 93.10%
+
+Interpretation
+- Multiline and very long text remain the dominant failure conditions.
+- Noise has a comparatively small effect in this experiment.
+- The model also degraded on single-line and short/medium text relative to the baseline.
+- Increasing vertical resolution is therefore not supported as an effective improvement for this configuration.
