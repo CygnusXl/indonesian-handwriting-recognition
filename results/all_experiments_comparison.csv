@@ -1,0 +1,4 @@
+model,test_loss,cer,cer_percent,wer,wer_percent,exact_match,exact_match_percent
+Baseline,1.4498,0.4128,41.28,0.7382,73.82,0.0625,6.25
+Experiment 1,1.5640,0.4718,47.18,0.8233,82.33,0.0433,4.33
+Experiment 2,2.1445,0.6784,67.84,0.9900,99.00,0.0000,0.00
