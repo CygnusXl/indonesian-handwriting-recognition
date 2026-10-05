@@ -7,59 +7,347 @@ Image width: 1024
 CTC time steps: 256
 
 Checkpoint epoch: 10
-Validation CER: 0.820600
+Validation CER: 0.820563
 
 Test samples: 208
-Mean sample CER: 0.678400
+Mean sample CER: 0.678436
 Mean sample CER (%): 67.84%
 Exact matches: 0/208
 Exact-match rate: 0.00%
 Severe prediction collapse: 71/208
 Prediction collapse rate: 34.13%
 
+======================================================================
 CER BY NEATNESS
 ======================================================================
-Very messy (50-60) | samples=15 | mean_CER=0.528000 | 52.80%
-Moderate (71-80) | samples=52 | mean_CER=0.649100 | 64.91%
-Messy (61-70) | samples=31 | mean_CER=0.668400 | 66.84%
-Very neat (91-95) | samples=45 | mean_CER=0.711800 | 71.18%
-Neat (81-90) | samples=65 | mean_CER=0.718300 | 71.83%
+Very messy (50-60) | samples=15 | mean_CER=0.528021 | 52.80%
+Moderate (71-80) | samples=52 | mean_CER=0.649060 | 64.91%
+Messy (61-70) | samples=31 | mean_CER=0.668437 | 66.84%
+Very neat (91-95) | samples=45 | mean_CER=0.711842 | 71.18%
+Neat (81-90) | samples=65 | mean_CER=0.718288 | 71.83%
 
+======================================================================
 CER BY NOISE
 ======================================================================
-False | samples=106 | mean_CER=0.670900 | 67.09%
-True | samples=102 | mean_CER=0.686300 | 68.63%
+False | samples=106 | mean_CER=0.670905 | 67.09%
+True | samples=102 | mean_CER=0.686261 | 68.63%
 
+======================================================================
 CER BY TEXT LENGTH
 ======================================================================
-Medium (31-60) | samples=57 | mean_CER=0.554300 | 55.43%
-Short (1-30) | samples=84 | mean_CER=0.574900 | 57.49%
-Long (61-100) | samples=18 | mean_CER=0.846200 | 84.62%
+Medium (31-60) | samples=57 | mean_CER=0.554251 | 55.43%
+Short (1-30) | samples=84 | mean_CER=0.574923 | 57.49%
+Long (61-100) | samples=18 | mean_CER=0.846249 | 84.62%
 Very long (101+) | samples=49 | mean_CER=0.938700 | 93.87%
 
+======================================================================
 CER BY MULTILINE
 ======================================================================
-False | samples=137 | mean_CER=0.547500 | 54.75%
-True | samples=71 | mean_CER=0.931000 | 93.10%
+False | samples=137 | mean_CER=0.547534 | 54.75%
+True | samples=71 | mean_CER=0.931021 | 93.10%
 
+======================================================================
 CER BY LINE WIDTH
 ======================================================================
 6 | samples=5 | mean_CER=0.539600 | 53.96%
-5 | samples=8 | mean_CER=0.582000 | 58.20%
-3 | samples=54 | mean_CER=0.673900 | 67.39%
-2 | samples=49 | mean_CER=0.681100 | 68.11%
-4 | samples=49 | mean_CER=0.689300 | 68.93%
-1 | samples=43 | mean_CER=0.702800 | 70.28%
+5 | samples=8 | mean_CER=0.581969 | 58.20%
+3 | samples=54 | mean_CER=0.673863 | 67.39%
+2 | samples=49 | mean_CER=0.681088 | 68.11%
+4 | samples=49 | mean_CER=0.689324 | 68.93%
+1 | samples=43 | mean_CER=0.702840 | 70.28%
 
+======================================================================
 CER BY SOURCE
 ======================================================================
-tatoeba | samples=99 | mean_CER=0.495200 | 49.52%
-faker-name | samples=20 | mean_CER=0.585700 | 58.57%
-faker-date | samples=18 | mean_CER=0.792700 | 79.27%
-tatoeba-multiline | samples=71 | mean_CER=0.931000 | 93.10%
+tatoeba | samples=99 | mean_CER=0.495246 | 49.52%
+faker-name | samples=20 | mean_CER=0.585713 | 58.57%
+faker-date | samples=18 | mean_CER=0.792698 | 79.27%
+tatoeba-multiline | samples=71 | mean_CER=0.931021 | 93.10%
 
-Interpretation
-- Multiline and very long text remain the dominant failure conditions.
-- Noise has a comparatively small effect in this experiment.
-- The model also degraded on single-line and short/medium text relative to the baseline.
-- Increasing vertical resolution is therefore not supported as an effective improvement for this configuration.
+======================================================================
+WRITER VARIATION
+======================================================================
+Writer 121 | samples=1 | mean_CER=0.985185
+Writer 140 | samples=1 | mean_CER=0.983333
+Writer 163 | samples=1 | mean_CER=0.981132
+Writer 68 | samples=1 | mean_CER=0.975962
+Writer 79 | samples=1 | mean_CER=0.965517
+Writer 148 | samples=1 | mean_CER=0.965517
+Writer 133 | samples=1 | mean_CER=0.964286
+Writer 165 | samples=1 | mean_CER=0.960352
+Writer 53 | samples=2 | mean_CER=0.952931
+Writer 211 | samples=2 | mean_CER=0.951667
+Writer 108 | samples=2 | mean_CER=0.950625
+Writer 113 | samples=1 | mean_CER=0.947368
+Writer 130 | samples=1 | mean_CER=0.933333
+Writer 42 | samples=1 | mean_CER=0.928177
+Writer 100 | samples=1 | mean_CER=0.926829
+Writer 21 | samples=1 | mean_CER=0.926606
+Writer 202 | samples=2 | mean_CER=0.920054
+Writer 4 | samples=1 | mean_CER=0.910256
+Writer 149 | samples=1 | mean_CER=0.907407
+Writer 60 | samples=1 | mean_CER=0.905882
+Writer 167 | samples=1 | mean_CER=0.900000
+Writer 143 | samples=1 | mean_CER=0.900000
+Writer 17 | samples=1 | mean_CER=0.900000
+Writer 147 | samples=1 | mean_CER=0.895706
+Writer 141 | samples=3 | mean_CER=0.887711
+Writer 49 | samples=1 | mean_CER=0.886792
+Writer 104 | samples=1 | mean_CER=0.884211
+Writer 184 | samples=1 | mean_CER=0.882353
+Writer 92 | samples=1 | mean_CER=0.881356
+Writer 58 | samples=2 | mean_CER=0.880072
+Writer 170 | samples=2 | mean_CER=0.877790
+Writer 43 | samples=1 | mean_CER=0.865385
+Writer 91 | samples=2 | mean_CER=0.865271
+Writer 73 | samples=3 | mean_CER=0.842292
+Writer 1 | samples=2 | mean_CER=0.837622
+Writer 56 | samples=2 | mean_CER=0.819465
+Writer 94 | samples=3 | mean_CER=0.819049
+Writer 111 | samples=2 | mean_CER=0.818376
+Writer 20 | samples=1 | mean_CER=0.812500
+Writer 194 | samples=2 | mean_CER=0.808076
+Writer 23 | samples=2 | mean_CER=0.806333
+Writer 213 | samples=1 | mean_CER=0.800000
+Writer 181 | samples=1 | mean_CER=0.800000
+Writer 63 | samples=1 | mean_CER=0.800000
+Writer 119 | samples=2 | mean_CER=0.788144
+Writer 39 | samples=1 | mean_CER=0.777778
+Writer 169 | samples=1 | mean_CER=0.769231
+Writer 122 | samples=2 | mean_CER=0.762778
+Writer 89 | samples=3 | mean_CER=0.756179
+Writer 32 | samples=3 | mean_CER=0.751287
+Writer 62 | samples=1 | mean_CER=0.750000
+Writer 155 | samples=1 | mean_CER=0.740741
+Writer 137 | samples=1 | mean_CER=0.739130
+Writer 209 | samples=4 | mean_CER=0.727145
+Writer 138 | samples=2 | mean_CER=0.719846
+Writer 164 | samples=2 | mean_CER=0.714706
+Writer 90 | samples=2 | mean_CER=0.712451
+Writer 85 | samples=3 | mean_CER=0.708764
+Writer 208 | samples=4 | mean_CER=0.708467
+Writer 10 | samples=2 | mean_CER=0.705392
+Writer 191 | samples=2 | mean_CER=0.699831
+Writer 12 | samples=2 | mean_CER=0.699132
+Writer 15 | samples=2 | mean_CER=0.694505
+Writer 126 | samples=2 | mean_CER=0.691937
+Writer 210 | samples=1 | mean_CER=0.681818
+Writer 46 | samples=1 | mean_CER=0.681818
+Writer 151 | samples=2 | mean_CER=0.680214
+Writer 157 | samples=4 | mean_CER=0.680049
+Writer 196 | samples=2 | mean_CER=0.679524
+Writer 81 | samples=3 | mean_CER=0.675623
+Writer 198 | samples=2 | mean_CER=0.674462
+Writer 173 | samples=2 | mean_CER=0.667526
+Writer 76 | samples=1 | mean_CER=0.666667
+Writer 83 | samples=1 | mean_CER=0.666667
+Writer 145 | samples=2 | mean_CER=0.665517
+Writer 200 | samples=2 | mean_CER=0.658333
+Writer 115 | samples=2 | mean_CER=0.658128
+Writer 158 | samples=1 | mean_CER=0.655172
+Writer 78 | samples=3 | mean_CER=0.642001
+Writer 88 | samples=3 | mean_CER=0.640417
+Writer 116 | samples=1 | mean_CER=0.636364
+Writer 97 | samples=1 | mean_CER=0.636364
+Writer 179 | samples=1 | mean_CER=0.636364
+Writer 218 | samples=2 | mean_CER=0.628472
+Writer 59 | samples=3 | mean_CER=0.626930
+Writer 174 | samples=1 | mean_CER=0.621622
+Writer 109 | samples=1 | mean_CER=0.605263
+Writer 101 | samples=1 | mean_CER=0.605263
+Writer 135 | samples=1 | mean_CER=0.589286
+Writer 144 | samples=3 | mean_CER=0.585820
+Writer 24 | samples=2 | mean_CER=0.582011
+Writer 9 | samples=1 | mean_CER=0.578947
+Writer 204 | samples=1 | mean_CER=0.578947
+Writer 93 | samples=1 | mean_CER=0.571429
+Writer 142 | samples=1 | mean_CER=0.567568
+Writer 176 | samples=2 | mean_CER=0.552224
+Writer 75 | samples=2 | mean_CER=0.544737
+Writer 205 | samples=3 | mean_CER=0.528754
+Writer 48 | samples=1 | mean_CER=0.526316
+Writer 74 | samples=1 | mean_CER=0.512195
+Writer 25 | samples=1 | mean_CER=0.500000
+Writer 177 | samples=1 | mean_CER=0.500000
+Writer 65 | samples=1 | mean_CER=0.500000
+Writer 45 | samples=2 | mean_CER=0.490000
+Writer 159 | samples=1 | mean_CER=0.480000
+Writer 72 | samples=1 | mean_CER=0.473684
+Writer 82 | samples=1 | mean_CER=0.471698
+Writer 105 | samples=1 | mean_CER=0.469388
+Writer 118 | samples=2 | mean_CER=0.464286
+Writer 214 | samples=1 | mean_CER=0.450000
+Writer 98 | samples=1 | mean_CER=0.447368
+Writer 66 | samples=2 | mean_CER=0.440476
+Writer 212 | samples=2 | mean_CER=0.433036
+Writer 216 | samples=2 | mean_CER=0.425494
+Writer 197 | samples=2 | mean_CER=0.423295
+Writer 40 | samples=1 | mean_CER=0.414634
+Writer 26 | samples=2 | mean_CER=0.411877
+Writer 14 | samples=1 | mean_CER=0.390244
+Writer 114 | samples=1 | mean_CER=0.384615
+Writer 34 | samples=1 | mean_CER=0.377778
+Writer 19 | samples=1 | mean_CER=0.375000
+Writer 132 | samples=2 | mean_CER=0.367898
+Writer 52 | samples=2 | mean_CER=0.361345
+Writer 162 | samples=1 | mean_CER=0.333333
+Writer 134 | samples=1 | mean_CER=0.304348
+Writer 203 | samples=2 | mean_CER=0.303360
+Writer 250 | samples=2 | mean_CER=0.276709
+Writer 217 | samples=2 | mean_CER=0.276667
+Writer 124 | samples=1 | mean_CER=0.266667
+Writer 161 | samples=1 | mean_CER=0.263158
+
+======================================================================
+10 WORST SAMPLES
+======================================================================
+
+#1
+CER: 0.985185
+Writer: 121
+Neatness: 70
+Noise: True
+Line width: 1
+Text length: 135
+Prediction length: 3
+Prediction ratio: 0.022
+Multiline: True
+Reference:
+Ribuan orang mengunjungi kota itu.\nDia tepat di sini.\nMereka menjanjikan perubahan.\nKejelasan lebih penting\ndaripada kesederhanaan.
+Prediction:
+Aa.
+
+#2
+CER: 0.983333
+Writer: 140
+Neatness: 81
+Noise: False
+Line width: 3
+Text length: 60
+Prediction length: 2
+Prediction ratio: 0.033
+Multiline: True
+Reference:
+Tahun ini tahun kabisat.\nDalam satu tahun\nada empat musim.
+Prediction:
+B.
+
+#3
+CER: 0.983051
+Writer: 89
+Neatness: 95
+Noise: False
+Line width: 1
+Text length: 59
+Prediction length: 2
+Prediction ratio: 0.034
+Multiline: True
+Reference:
+Ambulans tiba beberapa menit kemudian.\nSaya\nterlalu muda.
+Prediction:
+B.
+
+#4
+CER: 0.981651
+Writer: 141
+Neatness: 83
+Noise: True
+Line width: 4
+Text length: 218
+Prediction length: 4
+Prediction ratio: 0.018
+Multiline: True
+Reference:
+Kenapa menurutmu itu tidak mungkin?\nOrang itu siapa?\nDi mana sweterku?\nAku akan berusaha semaksimal\nmungkin untuk melakukan pekerjaan itu.\nKejadian ini\nterjadi\nsebelum aku\nmenerima suratmu.\nGunakan kalkulator.
+Prediction:
+Aaa.
+
+#5
+CER: 0.981132
+Writer: 163
+Neatness: 95
+Noise: True
+Line width: 4
+Text length: 159
+Prediction length: 3
+Prediction ratio: 0.019
+Multiline: True
+Reference:
+Cepatlah! Kami sudah menunggumu.\nAku melihatnya terakhir kali sepuluh\ntahun yang lalu.\nKe mana perginya pria ini?\nAku gagal.\nSemuanya akan baik-baik saja.
+Prediction:
+Aa.
+
+#6
+CER: 0.979592
+Writer: 1
+Neatness: 86
+Noise: False
+Line width: 2
+Text length: 245
+Prediction length: 5
+Prediction ratio: 0.020
+Multiline: True
+Reference:
+Siapa lagi kalau\nbukan\nkita?\nKapan lagi kalau bukan sekarang?\nApa yang membuat pikiranmu berubah?\nAku pergi ke kota untuk membeli roti.\nLepas kaosmu dan berbaringlah.\nAyah saya tidak minum sake. "Saya juga."\nPak Basri mencintai istrinya.
+Prediction:
+Aaaa.
+
+#7
+CER: 0.978836
+Writer: 108
+Neatness: 78
+Noise: True
+Line width: 3
+Text length: 189
+Prediction length: 4
+Prediction ratio: 0.021
+Multiline: True
+Reference:
+Buku-buku ini milik kami.\nMalam ini kemungkinan akan turun\nhujan.\nMakasih banyak.\nAku ingin kembali ke desamu.\nMarina menari di atas menara.\nJangan lupa untuk bertemu saya di stasiun.
+Prediction:
+Aaa.
+
+#8
+CER: 0.978610
+Writer: 191
+Neatness: 95
+Noise: False
+Line width: 3
+Text length: 187
+Prediction length: 4
+Prediction ratio: 0.021
+Multiline: True
+Reference:
+Dia sangat terlilit hutang. Dan dia dan keluarganya melewatkan kota.\nAku sedang merokok.\nMaria seorang dokter gigi.\nSebenarnya, aku\nbelum\npernah melihatnya.\nItu\nbukan nama aslinya.
+Prediction:
+Aaa.
+
+#9
+CER: 0.976959
+Writer: 56
+Neatness: 95
+Noise: True
+Line width: 1
+Text length: 217
+Prediction length: 6
+Prediction ratio: 0.028
+Multiline: True
+Reference:
+Bersatu kita teguh. Bercerai kita runtuh\nKami telah melakukan yang kami bisa.\nSenapanku kosong.\nKami\nsemua\nmendapat bonus Hari Natal.\nDia tidak bisa melihat apa-apa tanpa kacamata.\nBayi ini usianya tiga minggu.
+Prediction:
+Aaaaa.
+
+#10
+CER: 0.975962
+Writer: 68
+Neatness: 80
+Noise: True
+Line width: 2
+Text length: 208
+Prediction length: 5
+Prediction ratio: 0.024
+Multiline: True
+Reference:
+Apakah kamu ingin tetap muda selamanya?\nSatu, dua, tiga...\nPekerjaan saya\nmencuci.\nKamu\nboleh pergi ke mana pun yang kamu\nsuka.\nUna lebih tua daripada Sakila.\nKalian harus menolong teman-teman kalian.
+Prediction:
+Aaaa.

@@ -305,13 +305,14 @@ class IndonesianHandwritingDataset(Dataset):
     """
 
     def __init__(
-        self,
-        split="train",
-        vocabulary=None,
-        image_width=IMAGE_WIDTH,
-        ctc_timesteps=CTC_TIMESTEPS
+    self,
+    split="train",
+    vocabulary=None,
+    image_height=IMAGE_HEIGHT,
+    image_width=IMAGE_WIDTH,
+    ctc_timesteps=CTC_TIMESTEPS
     ):
-
+        self.image_height = image_height
         self.image_width = image_width
         self.ctc_timesteps = ctc_timesteps
 
@@ -322,7 +323,7 @@ class IndonesianHandwritingDataset(Dataset):
 
         print(
             f"Image size: "
-            f"{IMAGE_HEIGHT} x "
+            f"{self.image_height} x "
             f"{self.image_width}"
         )
 
@@ -447,7 +448,7 @@ class IndonesianHandwritingDataset(Dataset):
 
         image = preprocess_image(
             sample["image"],
-            target_height=IMAGE_HEIGHT,
+            target_height=self.image_height,
             target_width=self.image_width
         )
 

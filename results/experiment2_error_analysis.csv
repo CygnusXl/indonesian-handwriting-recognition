@@ -1,0 +1,209 @@
+dataset_index,writer_id,source,neatness,neatness_category,line_width,augmented_noise,multiline,text_length,length_category,prediction_length,prediction_ratio,collapsed_prediction,reference,prediction,cer,exact_match
+14,100,tatoeba-multiline,67,Messy (61-70),1,False,True,82,Long (61-100),7,0.08536585365853659,True,Beri tahu aku!\nBesok pagi aku\nberangkat menuju London.\nAku memberinya alamatmu.,Aaaaaa.,0.926829268292683,False
+40,85,tatoeba,69,Messy (61-70),3,False,False,36,Medium (31-60),28,0.7777777777777778,False,Di mana tempat pemberhentian busnya?,Ai mana tempak pebltian bus?,0.3055555555555556,False
+46,52,tatoeba,95,Very neat (91-95),4,False,False,34,Medium (31-60),29,0.8529411764705882,False,Pekerjaannya terlihat kurang baik.,Bkeiaanya kelihak kuran kaik.,0.29411764705882354,False
+76,217,tatoeba,95,Very neat (91-95),6,True,False,30,Short (1-30),25,0.8333333333333334,False,Dia memiliki rumahnya sendiri.,Dia mitiki smahnya seiri.,0.23333333333333334,False
+104,75,tatoeba,72,Moderate (71-80),3,True,False,38,Medium (31-60),30,0.7894736842105263,False,Aku tidak dapat hidup tanpa sebuah TV.,Aku tiak dapak kip tapa sah i.,0.2894736842105263,False
+172,24,tatoeba,72,Moderate (71-80),2,True,False,27,Short (1-30),15,0.5555555555555556,False,Kapan pertunjukannya mulai?,Ap petjkay hki.,0.5925925925925926,False
+178,104,tatoeba-multiline,95,Very neat (91-95),4,False,True,190,Very long (101+),23,0.12105263157894737,True,"Jam berapa kegiatan sekolah akan dimulai?\nAkhir-akhir ini, dia tidur lebih awal dan bangun lebih awal demi kesehatannya.\nDia sudah berusia lebih dari 20\ntahun.\nAda kucing di bawah\nmeja.",Aeua a a a a a a a a a.,0.8842105263157894,False
+185,157,tatoeba-multiline,80,Moderate (71-80),2,False,True,123,Very long (101+),4,0.032520325203252036,True,"Waktu adalah uang.\nAku kira dia perempuan.\nDia sering bersama kalian.\nMaaf, sekarang\npukul berapa?\nDan terus berjalan.",Aaa.,0.967479674796748,False
+205,205,tatoeba-multiline,82,Neat (81-90),1,False,True,131,Very long (101+),13,0.09923664122137404,True,Saya punya seekor anjing hitam dan seekor anjing putih.\nApakah kamu ingat apa yang dia katakan?\nBisakah kami duduk di\nmeja luar?,Aa aa aa  a .,0.9083969465648855,False
+315,32,tatoeba,75,Moderate (71-80),1,False,False,31,Medium (31-60),19,0.6129032258064516,False,Adikku berumur dua puluh tahun.,Aitu ka da ptt tat.,0.5806451612903226,False
+369,116,faker-date,73,Moderate (71-80),4,True,False,22,Short (1-30),10,0.45454545454545453,False,Senin 24 Februari 1298,Bia  brri ,0.6363636363636364,False
+416,90,faker-name,89,Neat (81-90),2,False,False,22,Short (1-30),8,0.36363636363636365,False,"Halim Adriansyah, M.Pd","Ali al,l",0.7727272727272727,False
+468,205,tatoeba,88,Neat (81-90),4,False,False,27,Short (1-30),21,0.7777777777777778,False,Kaci datang ke rumah Kaysa.,Kai atag k umah taya.,0.25925925925925924,False
+481,130,tatoeba-multiline,63,Messy (61-70),3,False,True,135,Very long (101+),9,0.06666666666666667,True,"Gadis itu terkenal bukan karena kecantikannya, tapi karena kebaikannya.\nAmpunilah dosa-dosaku.\nIni sepeda siapa?\nItu bukan penyakit.",Aaaaa aa.,0.9333333333333333,False
+482,98,tatoeba,71,Moderate (71-80),4,True,False,38,Medium (31-60),31,0.8157894736842105,False,Hanya ada tiga orang di ruang tersebut,Aaka ada tika sakang di sag ta.,0.4473684210526316,False
+504,145,tatoeba-multiline,68,Messy (61-70),3,True,True,58,Medium (31-60),5,0.08620689655172414,True,Saya akan menunjukkan gambarnya.\nKamu tidak punya sepeda.,Bia .,0.9310344827586207,False
+512,97,faker-name,64,Messy (61-70),3,True,False,22,Short (1-30),15,0.6818181818181818,False,"Uchita Mustofa, S.Farm","Akika tsk, S a.",0.6363636363636364,False
+523,196,tatoeba,73,Moderate (71-80),3,False,False,21,Short (1-30),13,0.6190476190476191,False,Suhu tubuhnya normal.,Sul tlaa mrk.,0.6190476190476191,False
+539,94,tatoeba-multiline,50,Very messy (50-60),1,True,True,115,Very long (101+),4,0.034782608695652174,True,Kalian ke sini naik kereta apa bus?\nIbu sedang\nmasak di dapur.\nAmbil madu dan mentega!\nIni hanya masalah waktu.,Aaa.,0.9652173913043478,False
+575,76,tatoeba,95,Very neat (91-95),2,True,False,21,Short (1-30),14,0.6666666666666666,False,Mereka memborgol Tom.,Drka senket r.,0.6666666666666666,False
+633,52,faker-name,89,Neat (81-90),3,False,False,14,Short (1-30),10,0.7142857142857143,False,Malika Nasyiah,Blika tsih,0.42857142857142855,False
+694,144,tatoeba,80,Moderate (71-80),1,False,False,25,Short (1-30),18,0.72,False,Tambahkan sedikit minyak.,Bkahla seii miyat.,0.44,False
+735,4,tatoeba-multiline,81,Neat (81-90),4,False,True,78,Long (61-100),8,0.10256410256410256,True,Beri makan burungnya!\nAku membiarkan dia\nmendapatkan itu.\nitu tidak penting,Aaua aa.,0.9102564102564102,False
+749,12,tatoeba,85,Neat (81-90),3,True,False,34,Medium (31-60),23,0.6764705882352942,False,Jawabannya selalu ada di dekatnya.,Bakpa sekla ak di dkka.,0.5294117647058824,False
+750,108,tatoeba-multiline,78,Moderate (71-80),3,True,True,189,Very long (101+),4,0.021164021164021163,True,Buku-buku ini milik kami.\nMalam ini kemungkinan akan turun\nhujan.\nMakasih banyak.\nAku ingin kembali ke desamu.\nMarina menari di atas menara.\nJangan lupa untuk bertemu saya di stasiun.,Aaa.,0.9788359788359788,False
+751,59,tatoeba-multiline,72,Moderate (71-80),1,False,True,38,Medium (31-60),9,0.23684210526315788,True,Dia terlihat sedikit letih.\nMustahil!,D bkk kk.,0.868421052631579,False
+756,208,tatoeba,75,Moderate (71-80),1,False,False,65,Long (61-100),27,0.4153846153846154,False,"Dia tidak beralas kaki, dan pakaiannya tipis dan compang-camping.",A tdk kk kk d pl iy d apn .,0.676923076923077,False
+874,85,tatoeba-multiline,87,Neat (81-90),4,False,True,69,Long (61-100),7,0.10144927536231885,True,Siapakah pria\nyang berdiri di samping Tom?\nAku tidak boleh merokok.,Baaaaa.,0.9130434782608695,False
+924,10,tatoeba,59,Very messy (50-60),3,False,False,41,Medium (31-60),30,0.7317073170731707,False,Apa peraturan atau lainnya sudah berubah?,Apa peluaanalauu taima sh bkh?,0.4634146341463415,False
+937,108,tatoeba-multiline,73,Moderate (71-80),2,True,True,116,Very long (101+),10,0.08620689655172414,True,"Jangan\npernah pergi\nke daerah itu, daerah itu sarang penjahat.\nDia ingin berhasil.\nSaya rasa saya butuh bantuan.",Aaa a aa .,0.9224137931034483,False
+970,56,tatoeba-multiline,95,Very neat (91-95),1,True,True,217,Very long (101+),6,0.027649769585253458,True,Bersatu kita teguh. Bercerai kita runtuh\nKami telah melakukan yang kami bisa.\nSenapanku kosong.\nKami\nsemua\nmendapat bonus Hari Natal.\nDia tidak bisa melihat apa-apa tanpa kacamata.\nBayi ini usianya tiga minggu.,Aaaaa.,0.9769585253456221,False
+980,170,tatoeba-multiline,95,Very neat (91-95),3,True,True,128,Very long (101+),14,0.109375,True,Mobil itu di depan garasi.\nDia baru saja melahirkan.\nKerana saya tidak berfikir bahawa orang akan percaya seorang wanita mati.,Aaa a aiaaa a.,0.8984375,False
+999,198,faker-name,50,Very messy (50-60),3,True,False,23,Short (1-30),19,0.8260869565217391,False,"T. Agus Hastuti, M.Kom.","2 us tastuti, t bn.",0.43478260869565216,False
+1080,196,tatoeba,76,Moderate (71-80),2,False,False,50,Medium (31-60),22,0.44,False,"Minggu lalu, aku menerima surat berbahasa Prancis.",Aa kka aka me sk kds .,0.74,False
+1093,213,faker-date,78,Moderate (71-80),4,False,False,10,Short (1-30),3,0.3,False,12.10.1718,104,0.8,False
+1098,59,tatoeba,67,Messy (61-70),1,False,False,43,Medium (31-60),33,0.7674418604651163,False,Bahasa Polandia adalah bahasa yang menarik.,Badaaa lad adk kadasa yang muaak.,0.3953488372093023,False
+1138,34,tatoeba,60,Very messy (50-60),4,False,False,45,Medium (31-60),35,0.7777777777777778,False,Dia menyesal telah meminjam buku itu darinya.,Aa menyesat teluh mey ku iiuu daya.,0.37777777777777777,False
+1241,15,faker-name,74,Moderate (71-80),4,True,False,13,Short (1-30),3,0.23076923076923078,False,Raina Nababan,J a,0.8461538461538461,False
+1286,73,tatoeba-multiline,81,Neat (81-90),4,True,True,75,Long (61-100),6,0.08,True,Kamu punya\nuang?\nIkan ini besar.\nAku harus pergi berbelanja.\nHebuatela.,Aaaaa.,0.92,False
+1341,111,faker-name,68,Messy (61-70),1,False,False,13,Short (1-30),6,0.46153846153846156,False,Novi Palastri,Aii lt,0.6923076923076923,False
+1349,155,tatoeba,92,Very neat (91-95),2,False,False,27,Short (1-30),8,0.2962962962962963,False,Anda tidak melanggar hukum.,A  g ak.,0.7407407407407407,False
+1407,218,tatoeba,90,Neat (81-90),4,False,False,16,Short (1-30),12,0.75,False,Ambil dan pergi!,Amkit an pei,0.375,False
+1421,191,tatoeba-multiline,95,Very neat (91-95),3,False,True,187,Very long (101+),4,0.0213903743315508,True,"Dia sangat terlilit hutang. Dan dia dan keluarganya melewatkan kota.\nAku sedang merokok.\nMaria seorang dokter gigi.\nSebenarnya, aku\nbelum\npernah melihatnya.\nItu\nbukan nama aslinya.",Aaa.,0.9786096256684492,False
+1469,135,tatoeba,77,Moderate (71-80),1,True,False,56,Medium (31-60),34,0.6071428571428571,False,Sebagian besar siswa lelah setiap waktu mengikuti ujian.,Bka kaar sia klh slp ulh mggkt ka.,0.5892857142857143,False
+1504,81,faker-name,95,Very neat (91-95),3,False,False,15,Short (1-30),9,0.6,False,Elon Widiastuti,2 tiistti,0.5333333333333333,False
+1525,73,tatoeba-multiline,67,Messy (61-70),2,True,True,119,Very long (101+),11,0.09243697478991597,True,Saya akan mencatat kehadiran terlebih dahulu.\nAku takut dengan gempa bumi.\nDia sangat suka sepak bola.\nAku menyerah.,Baaaa aa a.,0.9159663865546218,False
+1535,58,tatoeba,83,Neat (81-90),1,False,False,64,Long (61-100),17,0.265625,False,Suaranya tenggelam oleh teriakan tiba-tiba dari sesosok makhluk.,Aa iia du  a d  .,0.8125,False
+1562,79,tatoeba-multiline,84,Neat (81-90),2,True,True,174,Very long (101+),6,0.034482758620689655,True,Aku tidak tahan dengan iklim panas ini.\nKalimat ini\ntidak jelas.\nSemua ini telah terjadi\nsebelumnya.\nPria itu bukan hanya bisa berbahasa Inggris tapi juga Bahasa Jerman.,Aaa a.,0.9655172413793104,False
+1588,157,tatoeba,86,Neat (81-90),1,False,False,23,Short (1-30),15,0.6521739130434783,False,Saya lahir di Atlantis.,Bya tahi dahhh.,0.5652173913043478,False
+1593,157,tatoeba,74,Moderate (71-80),4,False,False,16,Short (1-30),10,0.625,False,siapa kaptennya?,Aya taphy.,0.6875,False
+1626,94,tatoeba-multiline,91,Very neat (91-95),1,True,True,144,Very long (101+),8,0.05555555555555555,True,"Kita mempunyai banyak kompetisi sekarang.\nYa ampun, arsitek\ngedung ini pasti\nsedang mabuk saat itu.\nDia bersolek.\nAku anak yang imut,\nkan?",Aaa a a.,0.9513888888888888,False
+1668,88,tatoeba-multiline,81,Neat (81-90),2,False,True,73,Long (61-100),6,0.0821917808219178,True,Malam ini dingin sekali!\nMary mengajar di sekolah Kurcaci di hutan Peri.,Aaa  .,0.9315068493150684,False
+1705,148,tatoeba-multiline,91,Very neat (91-95),2,True,True,174,Very long (101+),7,0.040229885057471264,True,Pemanas air itu berbahan bakar gas.\nMereka membayar bea masuk.\nLuas ya!\nKucing ini sangat gemuk.\nKami memiliki pasokan produk yang cukup untuk memenuhi\npermintaan lokal.,Aaaaaa.,0.9655172413793104,False
+1737,92,tatoeba-multiline,85,Neat (81-90),1,False,True,118,Very long (101+),14,0.11864406779661017,True,Ada kucing.\nAku baru saja mulai.\nKami selalu patuh terhadap peraturan.\nKuncinya\nada di\natas meja.\nBisa berjalan.,Aaa a aa aaaa.,0.8813559322033898,False
+1792,126,tatoeba-multiline,95,Very neat (91-95),4,False,True,190,Very long (101+),16,0.08421052631578947,True,"Apa Anda merasa sakit saat kencing?\nKalau cuacanya bagus, saya akan pergi.\nKita harus selalu melakukan yang terbaik.\npasswordnya adalah ""Muiriel"".\nDia membunuh dua ekor merpati pagi ini.",Aaa aaaa a aaaa.,0.9157894736842105,False
+1806,197,tatoeba,95,Very neat (91-95),4,False,False,16,Short (1-30),12,0.75,False,Kami makan nasi.,Akri ak asi.,0.4375,False
+1925,45,tatoeba,78,Moderate (71-80),4,False,False,18,Short (1-30),12,0.6666666666666666,False,Aku tahu alamatmu.,Aka tla aau.,0.5,False
+1935,81,faker-name,78,Moderate (71-80),3,False,False,16,Short (1-30),10,0.625,False,T. Narji Prayoga,D Nrjip rg,0.5625,False
+1997,12,tatoeba-multiline,61,Messy (61-70),2,False,True,61,Long (61-100),9,0.14754098360655737,True,Biarkan saya yang membayar.\nKamu tidak bisa hidup\ndi Venus.,Aa aa aa.,0.8688524590163934,False
+2002,118,faker-name,73,Moderate (71-80),2,False,False,26,Short (1-30),23,0.8846153846153846,False,"R.M. Lukita Suryatmi, S.Pt","D t tkita Suigatuai, S?",0.5,False
+2079,126,tatoeba,58,Very messy (50-60),4,False,False,47,Medium (31-60),31,0.6595744680851063,False,Dulu kami suka berkemah ketika aku masih kecil.,Ah bi eka beal klkaak mai keil.,0.46808510638297873,False
+2099,91,tatoeba-multiline,82,Neat (81-90),3,False,True,145,Very long (101+),8,0.05517241379310345,True,"Kau meremehkan dia.\nAda di\nmana stasiunnya?\nHati-hati jangan sampai telurnya jatuh, ya.\nNaruto\nadalah anime favoritku.\nApa kamu punya satu?",Aa a aa.,0.9448275862068966,False
+2117,72,tatoeba,95,Very neat (91-95),4,False,False,38,Medium (31-60),29,0.7631578947368421,False,Ini bukan soal rasa tetapi soal usaha.,A kaa kak tasa tlapt sai sai.,0.47368421052631576,False
+2144,1,tatoeba-multiline,86,Neat (81-90),2,False,True,245,Very long (101+),5,0.02040816326530612,True,"Siapa lagi kalau\nbukan\nkita?\nKapan lagi kalau bukan sekarang?\nApa yang membuat pikiranmu berubah?\nAku pergi ke kota untuk membeli roti.\nLepas kaosmu dan berbaringlah.\nAyah saya tidak minum sake. ""Saya juga.""\nPak Basri mencintai istrinya.",Aaaa.,0.9795918367346939,False
+2173,164,faker-name,74,Moderate (71-80),2,True,False,17,Short (1-30),12,0.7058823529411765,False,"Opan Farida, M.M.","Jan rira, tt",0.5294117647058824,False
+2204,137,tatoeba,87,Neat (81-90),3,True,False,46,Medium (31-60),18,0.391304347826087,False,Dia membelikan saudara perempuannya baju baru.,K mka baa bgg ga .,0.7391304347826086,False
+2265,109,tatoeba,69,Messy (61-70),3,False,False,38,Medium (31-60),21,0.5526315789473685,False,"Jangan-jangan, uangnya jatuh di jalan.","Snnknn, ingjihsdi pa.",0.6052631578947368,False
+2298,56,tatoeba,76,Moderate (71-80),1,False,False,71,Long (61-100),28,0.39436619718309857,False,Ada banyak apel di dalam kotak itu. Ada yang merah dan ada yang kuning.,A bak  dh kalk it dpmlaaykn.,0.6619718309859155,False
+2308,165,tatoeba-multiline,56,Very messy (50-60),5,True,True,227,Very long (101+),9,0.039647577092511016,True,"Setelah berolahraga seluruh badanku sakit.\nSaya\nselalu merasa seperti orang Algeria.\nBisakah kau memanggilkanku seorang dokter?\nYa, ini rumahku.\nNegara kita kekurangan\ndelapan puluh ribu guru.\nKue ini enak. Coba dimakan.",Aa a aaa.,0.960352422907489,False
+2329,144,tatoeba,78,Moderate (71-80),6,True,False,18,Short (1-30),14,0.7777777777777778,False,Kenapa harus saya?,Kaya tau saya.,0.3888888888888889,False
+2368,90,tatoeba,86,Neat (81-90),4,True,False,23,Short (1-30),13,0.5652173913043478,False,Sudah jam setengah dua.,Sat  elayat .,0.6521739130434783,False
+2430,211,tatoeba-multiline,90,Neat (81-90),4,False,True,151,Very long (101+),4,0.026490066225165563,True,Bicara jangan dengan bibirmu.\nMungkin dia lupa hari ulang tahunku.\nItu palsu.\nAku akan meminjamkanmu buku catatanku.\nAku membutuhkan sedikit saran.,Aaa.,0.9735099337748344,False
+2443,167,faker-date,91,Very neat (91-95),3,True,False,10,Short (1-30),2,0.2,False,1157-01-01,14,0.9,False
+2524,9,tatoeba,82,Neat (81-90),1,False,False,19,Short (1-30),8,0.42105263157894735,False,Sekarang giliranmu.,Sekaag .,0.5789473684210527,False
+2548,26,tatoeba,79,Moderate (71-80),4,True,False,29,Short (1-30),27,0.9310344827586207,False,Apakah kamu dokter sungguhan?,Apakak kaua ddkkr sungekar.,0.3793103448275862,False
+2612,217,tatoeba,73,Moderate (71-80),3,True,False,50,Medium (31-60),38,0.76,False,Saya tidak melihat ada yang salah dengan yang ini.,Saya tiak mlhk a yyan saah daan yan i.,0.32,False
+2683,202,tatoeba-multiline,80,Moderate (71-80),2,False,True,99,Long (61-100),12,0.12121212121212122,True,Emas dapat menaklukkan benteng manapun.\nYang kamu\nmakan itu tidak sehat.\nTolong tunggu sebentar.,Aaa aaaaaaa.,0.8888888888888888,False
+2713,210,tatoeba,71,Moderate (71-80),1,False,False,22,Short (1-30),11,0.5,False,"""Apa ini? """"Neraka.""""""",Dpa ii sttk,0.6818181818181818,False
+2830,209,faker-name,66,Messy (61-70),3,False,False,11,Short (1-30),6,0.5454545454545454,False,Elma Mansur,Jma ts,0.6363636363636364,False
+2855,73,tatoeba,81,Neat (81-90),6,True,False,55,Medium (31-60),25,0.45454545454545453,False,Mengapa kamu tidak menghubungiku untuk meminta bantuan?,Ap b dak eghpa adk ea da.,0.6909090909090909,False
+2866,122,tatoeba-multiline,76,Moderate (71-80),3,True,True,200,Very long (101+),6,0.03,True,Bagaimana menurutmu pestanya?\nAku akan melakukannya\ndengan lebih baik lain kali.\nDi mana kamu memfoto itu?\nApakah kamu pernah melihat UFO?\nMereka memutuskan untuk pindah ke kota yang lebih kecil.,Aaaaa.,0.97,False
+2920,198,tatoeba-multiline,82,Neat (81-90),3,False,True,198,Very long (101+),17,0.08585858585858586,True,Ada seekor laba-laba di\ndinding.\nApakah saya menghubungi anda pada saat yang kurang tepat?\nTanganku capek\npegang HP berat.\nKursinya lebih sedikit daripada tamunya.\nIni adalah manna dari surga.,Aa aa aa aaa aaa.,0.9141414141414141,False
+2986,149,tatoeba-multiline,70,Messy (61-70),4,True,True,54,Medium (31-60),5,0.09259259259259259,True,Bisa tolong bantu saya sebentar?\nKemarin lebih panas.,Ba a.,0.9074074074074074,False
+3011,48,tatoeba,95,Very neat (91-95),4,False,False,19,Short (1-30),13,0.6842105263157895,False,Kamulah malaikatku.,Ath mataitak.,0.5263157894736842,False
+3042,78,tatoeba,83,Neat (81-90),4,False,False,54,Medium (31-60),35,0.6481481481481481,False,Saya akan memberi hadiah sepeda di hari ulang tahunmu.,Baaa akaa mki badik sda d kakag ku.,0.5185185185185185,False
+3060,200,faker-date,65,Messy (61-70),2,True,False,10,Short (1-30),3,0.3,False,09-10-1799,204,0.9,False
+3087,216,tatoeba,86,Neat (81-90),3,True,False,59,Medium (31-60),31,0.5254237288135594,False,Kau akan mendapatkan keuntungan jika bergabung dengan kami.,A aka meplkan bla jk bkn da ka.,0.559322033898305,False
+3099,212,faker-name,83,Neat (81-90),3,True,False,16,Short (1-30),12,0.75,False,R. Limar Saptono,2 kimar Spkn,0.4375,False
+3112,250,tatoeba,95,Very neat (91-95),2,True,False,26,Short (1-30),23,0.8846153846153846,False,"Saya tidak semuda itu, lo.",Saya tidak semlda it k.,0.19230769230769232,False
+3271,21,tatoeba-multiline,94,Very neat (91-95),2,False,True,109,Very long (101+),10,0.09174311926605505,True,"Apakah anak Anda belajar di universitas?\nHari ini tanggal 18 Juni,\nhari ini adalah hari Ulang tahun Muiriel",D  a a a .,0.926605504587156,False
+3312,82,tatoeba,95,Very neat (91-95),1,True,False,53,Medium (31-60),37,0.6981132075471698,False,Kita memiliki pekerjaan penting yang harus dilakukan.,Aka mik pk kaa ptiang pag kaa dilkka.,0.4716981132075472,False
+3324,124,tatoeba,78,Moderate (71-80),3,True,False,15,Short (1-30),12,0.8,False,Ini suami saya.,Ai suai saa.,0.26666666666666666,False
+3351,144,faker-date,89,Neat (81-90),1,True,False,14,Short (1-30),3,0.21428571428571427,False,5 Agustus 1452,2 .,0.9285714285714286,False
+3364,214,tatoeba,50,Very messy (50-60),5,True,False,20,Short (1-30),14,0.7,False,Rumahnya kebanjiran.,Bmhmya kekjia.,0.45,False
+3416,161,tatoeba,67,Messy (61-70),5,False,False,19,Short (1-30),15,0.7894736842105263,False,Dia terlihat suram.,Dia tetiat sra.,0.2631578947368421,False
+3432,59,tatoeba,80,Moderate (71-80),3,True,False,47,Medium (31-60),22,0.46808510638297873,False,Aku tidak percaya padamu. Kau selalu berbohong.,A dk paa p ta sad baa.,0.6170212765957447,False
+3473,203,tatoeba,88,Neat (81-90),2,True,False,46,Medium (31-60),39,0.8478260869565217,False,Aku tidak suka memakai sepatu tanpa kaus kaki.,Ak tidak suka memakai spa tana kas kak.,0.15217391304347827,False
+3489,25,tatoeba,53,Very messy (50-60),4,True,False,30,Short (1-30),24,0.8,False,"Biar lambat laga, asal menang.",Dia taaak tasa ksat msa.,0.5,False
+3566,164,faker-date,70,Messy (61-70),4,False,False,10,Short (1-30),2,0.2,False,03.03.1954,24,0.9,False
+3673,68,tatoeba-multiline,80,Moderate (71-80),2,True,True,208,Very long (101+),5,0.02403846153846154,True,"Apakah kamu ingin tetap muda selamanya?\nSatu, dua, tiga...\nPekerjaan saya\nmencuci.\nKamu\nboleh pergi ke mana pun yang kamu\nsuka.\nUna lebih tua daripada Sakila.\nKalian harus menolong teman-teman kalian.",Aaaa.,0.9759615384615384,False
+3691,111,tatoeba-multiline,90,Neat (81-90),4,True,True,36,Medium (31-60),3,0.08333333333333333,True,Kamu mati.\nAnakin tidak suka pasir.,D .,0.9444444444444444,False
+3707,151,tatoeba,71,Moderate (71-80),1,False,False,33,Medium (31-60),26,0.7878787878787878,False,Kereta mana yang akan kamu naiki?,Aaat mu yang ka tmu mdiki.,0.45454545454545453,False
+3741,138,tatoeba-multiline,85,Neat (81-90),4,False,True,57,Medium (31-60),9,0.15789473684210525,True,Tidak ada yang ingin duduk di sebelah Tom.\nIni\nes batu.,Aaa k k .,0.8771929824561403,False
+3754,140,tatoeba-multiline,81,Neat (81-90),3,False,True,60,Medium (31-60),2,0.03333333333333333,True,Tahun ini tahun kabisat.\nDalam satu tahun\nada empat musim.,B.,0.9833333333333333,False
+3773,83,faker-date,89,Neat (81-90),3,True,False,18,Short (1-30),8,0.4444444444444444,False,Selasa 7 Juli 1739,Sts  li8,0.6666666666666666,False
+3822,122,tatoeba,94,Very neat (91-95),2,True,False,27,Short (1-30),15,0.5555555555555556,False,Dia dipecat karena mencuri.,Dia ak kaa maa.,0.5555555555555556,False
+3848,66,faker-date,71,Moderate (71-80),3,False,False,18,Short (1-30),12,0.6666666666666666,False,Senin 6 Maret 1167,Sai t Mk tik,0.6666666666666666,False
+3853,88,tatoeba,83,Neat (81-90),5,False,False,39,Medium (31-60),24,0.6153846153846154,False,Saya harus pergi memberitahukan mereka.,Baa kaaa pi makeikadk k.,0.5897435897435898,False
+3857,119,tatoeba-multiline,66,Messy (61-70),2,True,True,97,Long (61-100),13,0.13402061855670103,True,Ayahku tidak akan membiarkanku menikahinya.\nDia sedang sibuk mempersiapkan diri\nuntuk berlibur.,B  aaaiiaaaa.,0.8762886597938144,False
+3860,105,tatoeba,74,Moderate (71-80),1,False,False,49,Medium (31-60),34,0.6938775510204082,False,Mahir sekali sampai kukira dia sudah profesional.,Ahi sdlali sampai bll dasulh ppsi.,0.46938775510204084,False
+3864,14,tatoeba,89,Neat (81-90),2,False,False,41,Medium (31-60),31,0.7560975609756098,False,Anda tidak perlu menjawab pertanyaan ini.,Anda tdak pahu mepah pelapan i.,0.3902439024390244,False
+3869,197,tatoeba,95,Very neat (91-95),1,False,False,22,Short (1-30),18,0.8181818181818182,False,Saya bisa bermain ski.,Baya kisa krrrai .,0.4090909090909091,False
+3880,121,tatoeba-multiline,70,Messy (61-70),1,True,True,135,Very long (101+),3,0.022222222222222223,True,Ribuan orang mengunjungi kota itu.\nDia tepat di sini.\nMereka menjanjikan perubahan.\nKejelasan lebih penting\ndaripada kesederhanaan.,Aa.,0.9851851851851852,False
+3891,78,tatoeba-multiline,92,Very neat (91-95),4,True,True,185,Very long (101+),10,0.05405405405405406,True,Buku itu\nkecil.\nApa kau\nsudah menghabiskan sarapanmu?\nPesawat kami lepas landas tepat jam 6 malam.\nSaya mendengarkan lagu ini\nketika saya sedih.\nOleh karena itulah aku berbohong.,Aa a a aa.,0.9459459459459459,False
+3955,89,tatoeba-multiline,95,Very neat (91-95),1,False,True,59,Medium (31-60),2,0.03389830508474576,True,Ambulans tiba beberapa menit kemudian.\nSaya\nterlalu muda.,B.,0.9830508474576272,False
+3985,78,tatoeba,86,Neat (81-90),2,True,False,39,Medium (31-60),29,0.7435897435897436,False,Tam bilang dia ingin kegiatan kelompok.,Ba kilag dia eia beika blepk.,0.46153846153846156,False
+3986,53,tatoeba-multiline,67,Messy (61-70),1,True,True,124,Very long (101+),6,0.04838709677419355,True,Aku sudah jenuh akan hal itu.\nAwasi mereka!\nTerdapat lebih dari\nempat puluh\nribu gereja di Prancis.\nKamu sudah sarapan?,Aaa a.,0.9516129032258065,False
+4031,218,tatoeba-multiline,85,Neat (81-90),1,False,True,144,Very long (101+),17,0.11805555555555555,True,Anjing ini menggigit.\nAyahku membantuku mengerjakan PRku.\nJangan diajar\norang tua makan dadih.\nBuku-buku ini ditulis dalam bahasa Indonesia.,Aaa aaaa aaaaa a.,0.8819444444444444,False
+4034,118,tatoeba,79,Moderate (71-80),2,True,False,21,Short (1-30),16,0.7619047619047619,False,Itu mimpi yang indah.,Au miupi au tah.,0.42857142857142855,False
+4036,85,tatoeba-multiline,74,Moderate (71-80),3,True,True,130,Very long (101+),13,0.1,True,"Kenapa kamu sering pindah rumah?\nTerakhir kali\naku melihat kamu, kamu berjenggot.\nKamu tidak lapar, kan?\nTulis nama lengkapmu!",Aaaaa aaa a .,0.9076923076923077,False
+4066,216,faker-name,89,Neat (81-90),2,True,False,24,Short (1-30),20,0.8333333333333334,False,"Rika Simanjuntak, M.Farm","Dika Simajutak, tPrm",0.2916666666666667,False
+4098,58,tatoeba-multiline,95,Very neat (91-95),3,False,True,191,Very long (101+),10,0.05235602094240838,True,"Buku ini diterbitkan pada tahun 2005.\nApa kau tidak bertugas malam ini?\nSungguh,\ningin belajar bahasa Jepang bersama-sama.\nJangan baca buku seperti itu!\nAku ingin\nmenunjukkannya padamu.",Aa a a aa.,0.9476439790575916,False
+4136,143,faker-date,84,Neat (81-90),1,True,False,10,Short (1-30),2,0.2,False,1866-09-02,14,0.9,False
+4137,89,tatoeba-multiline,78,Moderate (71-80),2,True,True,165,Very long (101+),6,0.03636363636363636,True,Bibiku membawakanku beberapa bunga.\nBisa tolong untuk tidak merokok tidak ruangan\nini?\nSudah\ndua kali kamu melakukan hal itu.\nApakah sekarang sudah hari Selasa?,Aa aa.,0.9696969696969697,False
+4155,132,tatoeba,95,Very neat (91-95),3,False,False,44,Medium (31-60),34,0.7727272727272727,False,"Ben, kamu yang nyuci piring piringnya nanti.",Ba kaa yag mgai piigg piiggg maat.,0.45454545454545453,False
+4164,46,faker-name,95,Very neat (91-95),1,True,False,22,Short (1-30),14,0.6363636363636364,False,"Mala Budiyanto, S.Farm",At kiant S Sn.,0.6818181818181818,False
+4170,42,tatoeba-multiline,81,Neat (81-90),3,True,True,181,Very long (101+),14,0.07734806629834254,True,Terkadang ia berperilaku aneh.\nBagaimana cuacanya di New York?\nSami tidak datang ke sini.\nDia pacarku.\nPedih rasanya melihat anak-anak yang menderita karena kelaparan di Afrika.,Aeua a a aaaa.,0.9281767955801105,False
+4205,141,tatoeba-multiline,83,Neat (81-90),4,True,True,218,Very long (101+),4,0.01834862385321101,True,Kenapa menurutmu itu tidak mungkin?\nOrang itu siapa?\nDi mana sweterku?\nAku akan berusaha semaksimal\nmungkin untuk melakukan pekerjaan itu.\nKejadian ini\nterjadi\nsebelum aku\nmenerima suratmu.\nGunakan kalkulator.,Aaa.,0.981651376146789,False
+4214,60,tatoeba-multiline,95,Very neat (91-95),4,False,True,85,Long (61-100),9,0.10588235294117647,True,Kau sembrono.\nDia berbicara singkat.\nKamu harus pergi.\nJangan\nbicara saat\nmakan!,Aaua aaa.,0.9058823529411765,False
+4248,138,tatoeba,82,Neat (81-90),4,True,False,16,Short (1-30),8,0.5,False,Tidak ada tuhan.,Dak a u.,0.5625,False
+4261,212,tatoeba,78,Moderate (71-80),2,True,False,21,Short (1-30),15,0.7142857142857143,False,Ini rumah yang bagus.,Ai pah yag bat.,0.42857142857142855,False
+4300,163,tatoeba-multiline,95,Very neat (91-95),4,True,True,159,Very long (101+),3,0.018867924528301886,True,Cepatlah! Kami sudah menunggumu.\nAku melihatnya terakhir kali sepuluh\ntahun yang lalu.\nKe mana perginya pria ini?\nAku gagal.\nSemuanya akan baik-baik saja.,Aa.,0.9811320754716981,False
+4344,119,tatoeba,71,Moderate (71-80),2,False,False,10,Short (1-30),4,0.4,False,Cium saya.,2m a,0.7,False
+4385,15,tatoeba,65,Messy (61-70),2,True,False,35,Medium (31-60),17,0.4857142857142857,False,Aku sama sekali tidak memahami ini.,A aa seal  maa k.,0.5428571428571428,False
+4407,194,tatoeba-multiline,93,Very neat (91-95),2,True,True,148,Very long (101+),11,0.07432432432432433,True,Penyihir itu mengubahnya menjadi kecoak.\nAda awan.\nDi sini sangat berisik.\nPara tentara membunuh banyak warga\ndesa.\nAku menulis apa yang kumau.,Aaaaaaaaaa.,0.9256756756756757,False
+4434,32,tatoeba,82,Neat (81-90),3,True,False,27,Short (1-30),18,0.6666666666666666,False,Sekolah sangat membosankan.,Bkatk aakakaaakaa.,0.7037037037037037,False
+4448,101,tatoeba,71,Moderate (71-80),3,False,False,76,Long (61-100),36,0.47368421052631576,False,"Kalau para tamu tidak keberatan, mereka dipersilahkan tidur di lantai dasar.",Kaa pa ka tak khah mka apaa ua a a .,0.6052631578947368,False
+4470,23,tatoeba-multiline,95,Very neat (91-95),2,False,True,219,Very long (101+),15,0.0684931506849315,True,Makan banyak sayuran.\ndimana kah tempat yang paling bagus di dunia?\nAku akan bersamamu selama yang kamu mau.\nAnakku belum bisa berhitung penjumlahan dengan baik.\nApakah\nkamu penerjemah?\nJangan memerah! Minum obat!,Aaa a a a a aa.,0.9315068493150684,False
+4522,173,tatoeba,72,Moderate (71-80),1,True,False,42,Medium (31-60),26,0.6190476190476191,False,Ayahku pergi ke Jerman saat ia masih muda.,Al pni ka ama sat kamih m.,0.5,False
+4536,177,tatoeba,87,Neat (81-90),4,False,False,54,Medium (31-60),35,0.6481481481481481,False,Tidak ada yang tahu mengapa dia menolak pertolonganku.,Sa aaa yag th mgap ma misk pelsdsk.,0.5,False
+4547,74,tatoeba,59,Very messy (50-60),3,False,False,41,Medium (31-60),27,0.6585365853658537,False,Aku ingin Mary mencintaiku dan bukan Tom.,Au iai tng meilaik d kka k.,0.5121951219512195,False
+4566,134,tatoeba,59,Very messy (50-60),2,False,False,23,Short (1-30),23,1.0,False,Saya sudah membayarnya.,Saya s dak memka janta.,0.30434782608695654,False
+4571,132,tatoeba,95,Very neat (91-95),4,False,False,32,Medium (31-60),25,0.78125,False,Saya tidak menganggap dia jujur.,Saa tidak mgagga dia iiu.,0.28125,False
+4578,159,tatoeba,66,Messy (61-70),4,False,False,50,Medium (31-60),29,0.58,False,Aku tidak dapat melupakanku ketika aku mencobanya.,Ak tiak dapak mka kkk dk mea.,0.48,False
+4639,209,tatoeba,71,Moderate (71-80),6,True,False,32,Medium (31-60),22,0.6875,False,Selamat datang di San Fransisco.,Saak dalag d sa Sasis.,0.4375,False
+4683,184,tatoeba-multiline,87,Neat (81-90),4,False,True,85,Long (61-100),11,0.12941176470588237,True,Kenapa kau membutuhkan ini?\nApakah itu anjingmu?\nAku suka semangka.\nMereka menang!,Aaaaaaaaaa.,0.8823529411764706,False
+4684,49,tatoeba-multiline,90,Neat (81-90),4,True,True,53,Medium (31-60),7,0.1320754716981132,True,Dia pikir dia siapa?\nKami semua mendapat THR\nNatal.,B u pa.,0.8867924528301887,False
+4697,174,tatoeba,89,Neat (81-90),3,False,False,37,Medium (31-60),16,0.43243243243243246,False,Saya melakukannya setiap Minggu pagi.,Saa mla sapy yg.,0.6216216216216216,False
+4717,170,tatoeba-multiline,75,Moderate (71-80),1,False,True,112,Very long (101+),17,0.15178571428571427,True,Gratis\nuntuk masyarakat Uni Eropa.\nKami selesai sebelum matahari terbit kok.\nAyah kami merokok di malam hari.,Aaaa a aa aa a a.,0.8571428571428571,False
+4745,94,tatoeba,95,Very neat (91-95),1,False,False,37,Medium (31-60),25,0.6756756756756757,False,Dia membawakanku secangkir teh tawar.,Aia mkaat ak seeaa ta aa.,0.5405405405405406,False
+4753,157,tatoeba,85,Neat (81-90),3,True,False,16,Short (1-30),9,0.5625,False,Aku butuh taksi!,Ak tuh tl,0.5,False
+4824,88,tatoeba,95,Very neat (91-95),3,True,False,5,Short (1-30),3,0.6,False,Aksi!,Aki,0.4,False
+4848,209,tatoeba-multiline,91,Very neat (91-95),2,True,True,190,Very long (101+),12,0.06315789473684211,True,Dia akan duduk di sini.\nMereka belum memberitahuku.\nSetelah ini aku akan banyak merepotkan nih.\nJangan takut. Aku tidak akan melukaimu.\nBerhenti!\nKita tidak bisa melakukan ini tanpanya.,Aaa a aaa a.,0.9368421052631579,False
+4880,19,tatoeba,72,Moderate (71-80),3,False,False,32,Medium (31-60),27,0.84375,False,Bagaimana jika orang tuamu tahu?,Sapaimaa iika ag taaaa tal?,0.375,False
+4900,23,tatoeba,75,Moderate (71-80),2,True,False,69,Long (61-100),27,0.391304347826087,False,Semua bayangan kebahagiaannya hilang begitu saja dalam waktu singkat.,Ba a keha ika ka sa d aa s.,0.6811594202898551,False
+5079,158,tatoeba,82,Neat (81-90),2,True,False,58,Medium (31-60),30,0.5172413793103449,False,Makanan dengan kalori tinggi tidak baik untuk kesehatanku.,Aa da tla pa dk kak mlk kadka.,0.6551724137931034,False
+5145,113,tatoeba-multiline,80,Moderate (71-80),6,False,True,190,Very long (101+),11,0.05789473684210526,True,Buka maskermu.\nKupikir kau akan senang.\nDia terlihat bosan saat kita bercinta.\nSepertinya mengada-ada.\nKita tersesat dalam perjalanan ke sini.\nIni adalah salah satu hidangan kesukaanku.,Aa a aaaaa.,0.9473684210526315,False
+5178,147,tatoeba-multiline,88,Neat (81-90),4,True,True,163,Very long (101+),17,0.10429447852760736,True,"Aku\nakan memperkenalkanmu kepada orang tuaku.\nSeluruh kota langsung gaduh.\nHendak seribu daya, tak hendak\nseribu dalih.\nMurah dan enak, tiap hari aku ke sana.",Aaua a a a a aaa.,0.8957055214723927,False
+5187,203,tatoeba,50,Very messy (50-60),3,False,False,44,Medium (31-60),32,0.7272727272727273,False,Ia memberitahunya untuk bekerja lebih keras.,A membeitahnya mlk kekgy kkih k.,0.45454545454545453,False
+5218,32,tatoeba-multiline,94,Very neat (91-95),3,False,True,164,Very long (101+),5,0.03048780487804878,True,"Mana yang lebih kamu suka, wine putih atau merah?\nMaafkan aku.\nSaya merasa buruk hari\nini.\nKami lapar.\nApakah kamu religius?\nMaria sering memakai rok panjang.",Aaaa.,0.9695121951219512,False
+5219,114,tatoeba,82,Neat (81-90),1,False,False,26,Short (1-30),21,0.8076923076923077,False,Ini suamimu yang keberapa?,Ai suii ypang kekapa?,0.38461538461538464,False
+5230,145,tatoeba,83,Neat (81-90),1,False,False,25,Short (1-30),21,0.84,False,Kemarin tidur jam berapa?,Kmai titun ian krapa.,0.4,False
+5260,169,tatoeba,82,Neat (81-90),4,True,False,13,Short (1-30),5,0.38461538461538464,False,Nyalakan CNN.,Ala t,0.7692307692307693,False
+5274,141,faker-name,76,Moderate (71-80),3,False,False,15,Short (1-30),3,0.2,False,Vanya Sihombing,B S,0.8666666666666667,False
+5289,17,faker-date,90,Neat (81-90),3,True,False,10,Short (1-30),2,0.2,False,05-06-1504,24,0.9,False
+5302,91,faker-name,65,Messy (61-70),4,True,False,14,Short (1-30),7,0.5,False,Intan Simbolon,Ala Stt,0.7857142857142857,False
+5320,115,tatoeba,50,Very messy (50-60),3,False,False,29,Short (1-30),20,0.6896551724137931,False,Dia mengenakan sarung tangan.,Dia malan saug tann.,0.3448275862068966,False
+5528,24,faker-date,62,Messy (61-70),1,False,False,21,Short (1-30),10,0.47619047619047616,False,Jumat 12 Agustus 1244,Jat  1sts ,0.5714285714285714,False
+5573,200,faker-name,68,Messy (61-70),2,True,False,12,Short (1-30),9,0.75,False,Restu Sinaga,Dstu imaa,0.4166666666666667,False
+5604,208,faker-date,95,Very neat (91-95),3,True,False,10,Short (1-30),2,0.2,False,04-03-1813,24,0.9,False
+5679,53,tatoeba-multiline,81,Neat (81-90),1,False,True,153,Very long (101+),8,0.05228758169934641,True,Mentega dan keju dibuat dari susu.\nKita tidak bisa melihatnya dari sini.\nKamu\ncapek kan? Gimana\nkalau kamu cepat tidur?\nDoni membelah buah semangka.,Aaa a a.,0.954248366013072,False
+5701,179,tatoeba,67,Messy (61-70),3,True,False,11,Short (1-30),7,0.6363636363636364,False,Ini gratis?,Dmipati,0.6363636363636364,False
+5723,75,faker-date,93,Very neat (91-95),5,False,False,15,Short (1-30),5,0.3333333333333333,False,10 October 2070,1 Sk ,0.8,False
+5801,181,faker-date,73,Moderate (71-80),4,True,False,10,Short (1-30),2,0.2,False,1776-10-14,14,0.8,False
+5858,173,tatoeba-multiline,79,Moderate (71-80),3,False,True,97,Long (61-100),19,0.1958762886597938,True,Mungkin untuk beberapa hari ini cuacanya akan tetap dingin.\nMary dapat memahami bahasa Mandarin.,Baaaaaaaaaa k th d.,0.8350515463917526,False
+5901,176,tatoeba,92,Very neat (91-95),2,False,False,47,Medium (31-60),32,0.6808510638297872,False,Sepuluh lembar piring kertas harganya 10 dolar.,Sph emka yiig kilas bannya t dl.,0.46808510638297873,False
+5911,115,tatoeba-multiline,89,Neat (81-90),2,True,True,70,Long (61-100),3,0.04285714285714286,True,Orang ini tidak tinggal di sini.\nYumi bermain tenis pada hari Minggu.,B .,0.9714285714285714,False
+5930,10,tatoeba-multiline,92,Very neat (91-95),1,True,True,133,Very long (101+),8,0.06015037593984962,True,"Mereka tidak\npunya uang.\nSekalipun ia mendapatkan beasiswa, aku tidak bisa menghormatinya.\nBolehkah aku berbicara dengan Tn. Sato?",Aaaaaaa.,0.9473684210526315,False
+5962,62,faker-date,94,Very neat (91-95),3,True,False,16,Short (1-30),5,0.3125,False,20 November 1724,2 Nk ,0.75,False
+5970,39,faker-name,81,Neat (81-90),2,True,False,27,Short (1-30),9,0.3333333333333333,False,"Hj. Hilda Winarsih, S.I.Kom","1 Nia ti,",0.7777777777777778,False
+5974,204,tatoeba,95,Very neat (91-95),4,False,False,19,Short (1-30),9,0.47368421052631576,False,Berhenti berteriak.,Bbti btik,0.5789473684210527,False
+5996,202,tatoeba-multiline,59,Very messy (50-60),1,False,True,205,Very long (101+),10,0.04878048780487805,True,"Aku\ntidak suka kalau adikku mendaki\ngunung.\nMusim dingin kali ini lebih banyak salju, tidak seperti biasaya.\nAku lelah.\nAku mengaku kalah.\nApakah ada kehidupan di Mars?\nKucing kecil itu ingin tidur.",Aaa a a a.,0.9512195121951219,False
+6072,93,faker-name,77,Moderate (71-80),2,True,False,14,Short (1-30),11,0.7857142857142857,False,Puput Latupono,Bput ka pr.,0.5714285714285714,False
+6079,205,tatoeba,76,Moderate (71-80),2,False,False,43,Medium (31-60),33,0.7674418604651163,False,Virus adalah agen penyebab banyak penyakit.,Aus aalah apa pepkak baak paakil.,0.4186046511627907,False
+6112,208,faker-name,57,Very messy (50-60),5,True,False,16,Short (1-30),14,0.875,False,Talia Nainggolan,Blia ainggahan,0.3125,False
+6122,250,tatoeba,88,Neat (81-90),1,True,False,36,Medium (31-60),29,0.8055555555555556,False,Tokyo adalah kota yang sangat besar.,Dka adalah kala ang snak ksa.,0.3611111111111111,False
+6147,211,tatoeba-multiline,89,Neat (81-90),3,False,True,57,Medium (31-60),5,0.08771929824561403,True,Semalam hujan turun dengan deras.\nDia datang menolongku.,Dkaa.,0.9298245614035088,False
+6148,151,tatoeba-multiline,72,Moderate (71-80),3,True,True,170,Very long (101+),16,0.09411764705882353,True,Dia bekerja di bank.\nAnda penyewa\natau pemilik ?\nKapan kamu akan melakukan itu?\nSuhunya turun dengan begitu cepat akibat hujan.\nSulit untukku mempercayai berita itu.,Aa a a aa aa aa.,0.9058823529411765,False
+6191,26,tatoeba,95,Very neat (91-95),2,True,False,18,Short (1-30),12,0.6666666666666666,False,Dia bukan pacarku!,2ia bka pku.,0.4444444444444444,False
+6251,191,tatoeba,60,Very messy (50-60),2,False,False,19,Short (1-30),12,0.631578947368421,False,"Jangan dimakan, ya?","Saa imaka,ya",0.42105263157894735,False
+6276,141,tatoeba,95,Very neat (91-95),2,False,False,27,Short (1-30),10,0.37037037037037035,False,Pernahkah kamu melihat ini?,B k aa aa.,0.8148148148148148,False
+6285,43,tatoeba-multiline,70,Messy (61-70),2,False,True,104,Very long (101+),14,0.1346153846153846,True,Mereka kasihan.\nAku sudah muak denganmu.\nIbuku adalah seorang guru SMA.\nSiapa pun bisa melakukan itu.,Aaaaaaaaaa aa.,0.8653846153846154,False
+6359,194,tatoeba,82,Neat (81-90),3,False,False,42,Medium (31-60),26,0.6190476190476191,False,Resesi menyebabkan banyak bisnis bangkrut.,Sa mpkalka bapk taaka aka?,0.6904761904761905,False
+6379,89,tatoeba,67,Messy (61-70),1,True,False,38,Medium (31-60),35,0.9210526315789473,False,Ini kali pertamaku mengemudikan mobil.,Ai kaaii pertaakuu megeuaikan mkit.,0.3157894736842105,False
+6383,142,tatoeba,92,Very neat (91-95),1,True,False,37,Medium (31-60),23,0.6216216216216216,False,Dia tidak akan mengakui kesalahannya.,Aa kk kaa megaka aakdp.,0.5675675675675675,False
+6450,45,tatoeba,70,Messy (61-70),5,True,False,25,Short (1-30),18,0.72,False,Semua orang mencintainya.,Seaa eaaag meeiiy.,0.48,False
+6570,81,tatoeba-multiline,89,Neat (81-90),4,True,True,116,Very long (101+),9,0.07758620689655173,True,"Bolehkah saya mencoba mengenakan\nini?\nKita makan untuk hidup, bukan hidup\nuntuk makan\nTernyata itu memang benar.",Aaaaaa a.,0.9310344827586207,False
+6572,40,tatoeba,82,Neat (81-90),4,True,False,41,Medium (31-60),34,0.8292682926829268,False,Aku melontarkannya dengan kekuatan penuh.,Aka meiantarkaaga dna seeauaa pau.,0.4146341463414634,False
+6573,63,faker-date,86,Neat (81-90),5,True,False,10,Short (1-30),4,0.4,False,2 Mei 1722,2p 4,0.8,False
+6589,66,tatoeba,65,Messy (61-70),4,False,False,28,Short (1-30),25,0.8928571428571429,False,Kami sarapan roti dan telur.,Aami sarapan sti an tlrr.,0.21428571428571427,False
+6611,20,faker-date,70,Messy (61-70),4,True,False,16,Short (1-30),3,0.1875,False,11 Desember 1695,1  ,0.8125,False
+6637,65,tatoeba,88,Neat (81-90),3,True,False,22,Short (1-30),13,0.5909090909090909,False,Aku tidak mencintaimu.,Ak kiak miki.,0.5,False
+6672,209,tatoeba-multiline,82,Neat (81-90),4,True,True,235,Very long (101+),25,0.10638297872340426,True,Jangan buat keputusan\nsekarang!\nCium ini.\nKamu harus selalu ketuk pintu sebelum masuk ke kamar saya.\nKedengarannya menghabiskan waktu seorang diri selalu menyenangkan bagimu.\nTerima kasih atas sarannya!\nApa yang dilakukan ayahmu?,Aa a a aa aa aa aaaaa aa.,0.8978723404255319,False
+6723,162,tatoeba,69,Messy (61-70),2,True,False,30,Short (1-30),22,0.7333333333333333,False,Aku sudah mencicipinya sebiji.,Ak ah meieipiny sekii.,0.3333333333333333,False
+6739,133,tatoeba-multiline,88,Neat (81-90),1,False,True,84,Long (61-100),3,0.03571428571428571,True,Dia memiliki kata-kata yang bagus untuk menghina dirinya\nsendiri.\nAlam\nitu kejam.,Aa.,0.9642857142857143,False
+6743,208,tatoeba-multiline,95,Very neat (91-95),4,False,True,162,Very long (101+),10,0.06172839506172839,True,Kami ingin kalimat lengkap.\nKamu\nboleh mengambil apapun yang kamu suka.\nSaya jurnalis Polandia.\nJaraknya dua kilometer\ndari sini.\nDi luar sudah mulai gelap.,Aa a a aa.,0.9444444444444444,False
+6778,1,tatoeba,84,Neat (81-90),2,False,False,46,Medium (31-60),22,0.4782608695652174,False,"Seperti sapi, jerapah adalah hewan ruminansia.",Sa aag pa akka k eaka.,0.6956521739130435,False
+6780,176,faker-date,68,Messy (61-70),1,False,False,22,Short (1-30),12,0.5454545454545454,False,Rabu 17 September 1732,D i Septek t,0.6363636363636364,False

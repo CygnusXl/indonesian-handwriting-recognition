@@ -1,48 +1,39 @@
 ALL EXPERIMENTS COMMON TEST SET COMPARISON
 ======================================================================
 
-All three models were evaluated on the same 208 CTC-feasible Indonesian test samples.
+All models were evaluated on the same 208 CTC-feasible Indonesian test samples.
 
-Baseline:
-  Input: 128 x 1024
+Baseline:       128 x 1024
+Experiment 1:   128 x 1536
+Experiment 2:   192 x 1024
+
+Baseline
   Test loss: 1.4498
-  Macro-CER: 41.28%
+  CER: 41.28%
   WER: 73.82%
   Exact match: 6.25%
 
-Experiment 1:
-  Input: 128 x 1536
+Experiment 1
   Test loss: 1.5640
-  Macro-CER: 47.18%
+  CER: 47.18%
   WER: 82.33%
   Exact match: 4.33%
 
-Experiment 2:
-  Input: 192 x 1024
+Experiment 2
   Test loss: 2.1445
-  Macro-CER: 67.84%
+  CER: 67.84%
   WER: 99.00%
   Exact match: 0.00%
 
-Changes relative to baseline:
+Changes relative to baseline
+----------------------------------------------------------------------
 
-Experiment 1:
-  CER change: +5.89 percentage points
-  WER change: +8.51 percentage points
-  Exact-match change: -1.92 percentage points
+Experiment 1
+  CER change: +5.89 pp
+  WER change: +8.51 pp
+  Exact-match change: -1.92 pp
 
-Experiment 2:
-  CER change: +26.56 percentage points
-  WER change: +25.17 percentage points
-  Exact-match change: -6.25 percentage points
-
-Conclusion:
-The baseline is currently the strongest of the three tested configurations.
-Neither increased horizontal resolution nor increased vertical resolution
-improved common-test performance.
-
-Metric note:
-The comparison values above use mean per-sample (macro) CER. The earlier
-evaluator also produced a corpus-level CER. The final report should choose
-and consistently document one aggregation methodology, with macro-CER kept
-for error-analysis breakdowns if desired.
+Experiment 2
+  CER change: +26.56 pp
+  WER change: +25.17 pp
+  Exact-match change: -6.25 pp
