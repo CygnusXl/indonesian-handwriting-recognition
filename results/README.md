@@ -4,9 +4,21 @@ This directory contains generated figures, tables, experiment histories, and exp
 
 All metrics below come from actual project runs.
 
+## Metric standardization
+
+For the final report, the **primary overall metrics** will be:
+
+- **Corpus CER:** total character edit distance divided by total reference characters.
+- **Corpus WER:** total word edit distance divided by total reference words.
+- **Exact match:** proportion of samples whose complete prediction exactly matches the reference.
+
+**Macro-CER** (mean of per-sample CER values) remains a secondary diagnostic metric for subgroup/error analysis because it weights each sample equally.
+
+The earlier comparison mixed aggregation conventions. To avoid that inconsistency, run \`src/compare_experiments.py\` after Experiment 3 is trained. It recomputes Baseline, Experiment 1, Experiment 2, and Experiment 3 on the same common test sample indices and writes one standardized table using corpus-level CER/WER.
+
 ## Current common-test comparison
 
-The three models were evaluated on the same **208 CTC-feasible Indonesian test samples**.
+The existing comparison used the same **208 CTC-feasible Indonesian test samples**.
 
 | Model | Input | Test macro-CER | Test WER | Exact match |
 | --- | --- | ---: | ---: | ---: |
@@ -14,14 +26,7 @@ The three models were evaluated on the same **208 CTC-feasible Indonesian test s
 | Experiment 1 | 128 x 1536 | 47.18% | 82.33% | 4.33% |
 | Experiment 2 | 192 x 1024 | 67.84% | 99.00% | 0.00% |
 
-### Changes relative to baseline
-
-- Experiment 1 CER: +5.89 percentage points
-- Experiment 1 WER: +8.51 percentage points
-- Experiment 1 exact match: -1.92 percentage points
-- Experiment 2 CER: +26.56 percentage points
-- Experiment 2 WER: +25.17 percentage points
-- Experiment 2 exact match: -6.25 percentage points
+These are **legacy macro-CER comparison values** retained for traceability. Do not mix them with the final standardized corpus-level comparison.
 
 ## Experiment 2 error analysis
 
@@ -34,14 +39,14 @@ The three models were evaluated on the same **208 CTC-feasible Indonesian test s
 - Long mean sample CER: 84.62%
 - Very long mean sample CER: 93.87%
 
-## Metric note
-
-The common comparison currently reports mean per-sample (macro) CER. The earlier evaluator also produced a corpus-level CER. The final report will standardize one aggregation methodology across models and retain macro-CER for subgroup error analysis where appropriate.
-
 ## Files
 
-- `all_experiments_comparison.csv`
-- `all_experiments_comparison_summary.txt`
-- `experiment2_history.csv`
-- `experiment2_error_analysis_summary.txt`
-- `experiment_2.md` in `experiments/`
+- \`all_experiments_standardized.csv\`
+- \`all_experiments_standardized_summary.txt\`
+- \`all_experiments_comparison.csv\`
+- \`all_experiments_comparison_summary.txt\`
+- \`experiment3_history.csv\`
+- \`experiment2_history.csv\`
+- \`experiment2_error_analysis_summary.txt\`
+- \`experiment_2.md\` in \`experiments/\`
+- \`experiment_3.md\` in \`experiments/\`
