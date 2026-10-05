@@ -15,7 +15,6 @@ from dataset import (
 from dataloader import collate_fn
 from model import CNNBiLSTM
 
-
 # ============================================================
 # CONFIGURATION
 # ============================================================

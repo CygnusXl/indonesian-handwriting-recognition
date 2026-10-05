@@ -17,6 +17,9 @@ IMAGE_HEIGHT = 128
 # Maximum width after resizing/padding.
 IMAGE_WIDTH = 1024
 
+# The CNN-BiLSTM model produces 256 CTC time steps.
+CTC_TIMESTEPS = 256
+
 
 # ============================================================
 # VOCABULARY
@@ -31,6 +34,7 @@ class CharacterVocabulary:
 
         characters = set()
 
+        # Collect all characters used by Indonesian samples.
         for text, language in zip(
             dataset["text"],
             dataset["language"]
@@ -58,6 +62,7 @@ class CharacterVocabulary:
         # CTC needs one additional blank class.
         self.blank_id = self.num_characters
 
+        # Total number of classes = characters + CTC blank.
         self.num_classes = self.num_characters + 1
 
     def encode(self, text):
@@ -79,7 +84,7 @@ class CharacterVocabulary:
 
         for index in ids:
 
-            # Ignore CTC blank.
+            # Ignore the CTC blank token.
             if index == self.blank_id:
                 continue
 
@@ -89,6 +94,48 @@ class CharacterVocabulary:
                 )
 
         return "".join(result)
+
+
+# ============================================================
+# CTC FEASIBILITY
+# ============================================================
+
+def calculate_ctc_required_timesteps(text):
+    """
+    Calculate the minimum number of CTC time steps required
+    for a target text.
+
+    Normally, a target with N characters requires at least N
+    time steps.
+
+    However, when two identical characters appear next to each
+    other, CTC requires an additional blank between them.
+
+    Example:
+
+        "ab"  -> 2 time steps minimum
+
+        "aa"  -> 3 time steps minimum
+                 a, blank, a
+
+    Therefore:
+
+        required_timesteps =
+            text_length + adjacent_repeated_characters
+    """
+
+    repeated_characters = sum(
+        1
+        for i in range(1, len(text))
+        if text[i] == text[i - 1]
+    )
+
+    required_timesteps = (
+        len(text)
+        + repeated_characters
+    )
+
+    return required_timesteps
 
 
 # ============================================================
@@ -103,24 +150,27 @@ def preprocess_image(
     """
     Convert an image into a fixed-size grayscale tensor.
 
-    The original aspect ratio is preserved.
+    Processing steps:
 
-    Steps:
-        RGB
-        ↓
-        grayscale
-        ↓
-        resize while preserving aspect ratio
-        ↓
-        pad remaining width
-        ↓
-        normalize to [0, 1]
-        ↓
+        Original image
+              ↓
+        Convert to grayscale
+              ↓
+        Resize while preserving aspect ratio
+              ↓
+        Pad to 128 x 1024
+              ↓
+        Normalize pixels to [0, 1]
+              ↓
         PyTorch tensor
+
+    Output shape:
+
+        [1, 128, 1024]
     """
 
     # --------------------------------------------------------
-    # Convert RGB → grayscale
+    # Convert RGB/RGBA/etc. to grayscale.
     # --------------------------------------------------------
 
     image = image.convert("L")
@@ -128,7 +178,7 @@ def preprocess_image(
     original_width, original_height = image.size
 
     # --------------------------------------------------------
-    # Calculate new dimensions
+    # Calculate resized dimensions.
     # --------------------------------------------------------
 
     scale = target_height / original_height
@@ -137,7 +187,8 @@ def preprocess_image(
         original_width * scale
     )
 
-    # Prevent images from becoming wider than target width.
+    # If the resized image is wider than our maximum width,
+    # scale it down so that it fits.
     if new_width > target_width:
 
         new_width = target_width
@@ -153,7 +204,7 @@ def preprocess_image(
         new_height = target_height
 
     # --------------------------------------------------------
-    # Resize
+    # Resize image.
     # --------------------------------------------------------
 
     image = image.resize(
@@ -162,7 +213,7 @@ def preprocess_image(
     )
 
     # --------------------------------------------------------
-    # Convert to NumPy
+    # Convert image to NumPy array.
     # --------------------------------------------------------
 
     image_array = np.array(
@@ -170,11 +221,19 @@ def preprocess_image(
         dtype=np.float32
     )
 
-    # Normalize pixels to [0, 1].
+    # Normalize pixel values:
+    #
+    #   0   -> black
+    #   255 -> white
+    #
+    # becomes:
+    #
+    #   0.0 -> black
+    #   1.0 -> white
     image_array = image_array / 255.0
 
     # --------------------------------------------------------
-    # Create padded image
+    # Create white padded canvas.
     # --------------------------------------------------------
 
     padded = np.ones(
@@ -182,31 +241,32 @@ def preprocess_image(
         dtype=np.float32
     )
 
-    # Center vertically.
+    # Center the image vertically.
     y_offset = (
         target_height - new_height
     ) // 2
 
+    # Place resized image on the white canvas.
     padded[
         y_offset:y_offset + new_height,
         :new_width
     ] = image_array
 
     # --------------------------------------------------------
-    # Convert to PyTorch tensor
+    # Convert to PyTorch tensor.
     # --------------------------------------------------------
 
     tensor = torch.from_numpy(
         padded
     )
 
-    # Add channel dimension.
+    # Add channel dimension:
     #
-    # From:
-    #     [height, width]
+    # [128, 1024]
     #
-    # To:
-    #     [1, height, width]
+    # becomes:
+    #
+    # [1, 128, 1024]
     tensor = tensor.unsqueeze(0)
 
     return tensor
@@ -219,6 +279,12 @@ def preprocess_image(
 class IndonesianHandwritingDataset(Dataset):
     """
     PyTorch Dataset for Indonesian handwriting recognition.
+
+    The dataset performs two filtering operations:
+
+    1. Keep only Indonesian samples.
+    2. Remove samples that require more CTC time steps
+       than the model can produce.
     """
 
     def __init__(
@@ -232,25 +298,88 @@ class IndonesianHandwritingDataset(Dataset):
             f"split='{split}'..."
         )
 
+        # ----------------------------------------------------
+        # Load the requested dataset split.
+        # ----------------------------------------------------
+
         self.dataset = load_dataset(
             DATASET_NAME,
             split=split
         )
 
-        # Keep only Indonesian samples.
-        self.indices = [
-            index
-            for index, language
-            in enumerate(self.dataset["language"])
-            if language == "ind"
-        ]
+        # ----------------------------------------------------
+        # Filter Indonesian samples and CTC-infeasible samples.
+        # ----------------------------------------------------
+
+        self.indices = []
+
+        total_indonesian = 0
+        excluded_ctc = 0
+
+        for index, language in enumerate(
+            self.dataset["language"]
+        ):
+
+            # ------------------------------------------------
+            # Only keep Indonesian samples.
+            # ------------------------------------------------
+
+            if language != "ind":
+                continue
+
+            total_indonesian += 1
+
+            # Get target transcription.
+            text = self.dataset["text"][index]
+
+            # ------------------------------------------------
+            # Determine how many CTC time steps are required.
+            # ------------------------------------------------
+
+            required_timesteps = (
+                calculate_ctc_required_timesteps(text)
+            )
+
+            # ------------------------------------------------
+            # Keep sample only if it fits the model output.
+            # ------------------------------------------------
+
+            if required_timesteps <= CTC_TIMESTEPS:
+
+                self.indices.append(index)
+
+            else:
+
+                excluded_ctc += 1
+
+        # ----------------------------------------------------
+        # Display filtering results.
+        # ----------------------------------------------------
 
         print(
-            f"Indonesian samples: "
+            f"Indonesian samples before CTC filtering: "
+            f"{total_indonesian}"
+        )
+
+        print(
+            f"CTC-infeasible samples excluded: "
+            f"{excluded_ctc}"
+        )
+
+        print(
+            f"Indonesian samples after CTC filtering: "
             f"{len(self.indices)}"
         )
 
-        # Build vocabulary if one wasn't supplied.
+        # ----------------------------------------------------
+        # Vocabulary
+        # ----------------------------------------------------
+
+        # Build a vocabulary if one was not provided.
+        #
+        # In train.py, we create the vocabulary once and pass
+        # the same vocabulary to the training and validation
+        # datasets.
         if vocabulary is None:
 
             self.vocabulary = CharacterVocabulary(
@@ -267,6 +396,7 @@ class IndonesianHandwritingDataset(Dataset):
 
     def __getitem__(self, index):
 
+        # Convert filtered index into the original dataset index.
         dataset_index = self.indices[index]
 
         sample = self.dataset[
@@ -286,6 +416,10 @@ class IndonesianHandwritingDataset(Dataset):
         # ----------------------------------------------------
 
         text = sample["text"]
+
+        # ----------------------------------------------------
+        # Convert text to character IDs.
+        # ----------------------------------------------------
 
         label = self.vocabulary.encode(
             text
@@ -314,18 +448,23 @@ def main():
     print("=" * 70)
 
     # --------------------------------------------------------
-    # Load dataset
+    # Load training dataset.
     # --------------------------------------------------------
 
     dataset = IndonesianHandwritingDataset(
         split="train"
     )
 
-    print("\nDataset information")
+    # --------------------------------------------------------
+    # Dataset information.
+    # --------------------------------------------------------
+
+    print("\n" + "-" * 70)
+    print("DATASET INFORMATION")
     print("-" * 70)
 
     print(
-        f"Number of samples: "
+        f"Number of usable samples: "
         f"{len(dataset)}"
     )
 
@@ -344,11 +483,25 @@ def main():
         f"{dataset.vocabulary.blank_id}"
     )
 
+    print(
+        f"CTC time steps: "
+        f"{CTC_TIMESTEPS}"
+    )
+
     # --------------------------------------------------------
-    # Test samples
+    # Test up to 5 samples.
     # --------------------------------------------------------
 
-    for i in range(5):
+    number_of_samples = min(
+        5,
+        len(dataset)
+    )
+
+    print("\n" + "-" * 70)
+    print("SAMPLE TEST")
+    print("-" * 70)
+
+    for i in range(number_of_samples):
 
         sample = dataset[i]
 
@@ -356,68 +509,71 @@ def main():
         label = sample["label"]
         text = sample["text"]
 
-        print("\n" + "-" * 70)
-        print(f"SAMPLE {i + 1}")
-        print("-" * 70)
-
-        print(f"Text:")
-        print(text)
+        print()
+        print(
+            f"Sample {i}"
+        )
 
         print(
-            f"\nImage tensor shape: "
+            f"Image shape: "
             f"{tuple(image.shape)}"
         )
 
         print(
-            f"Image dtype: "
-            f"{image.dtype}"
+            f"Original text: "
+            f"{text}"
         )
 
         print(
-            f"Image range: "
-            f"{image.min():.3f} "
-            f"to "
-            f"{image.max():.3f}"
+            f"Text length: "
+            f"{len(text)}"
         )
 
         print(
-            f"Label length: "
+            f"Required CTC time steps: "
+            f"{calculate_ctc_required_timesteps(text)}"
+        )
+
+        print(
+            f"Encoded label length: "
             f"{len(label)}"
         )
 
-        print(
-            f"Encoded label:"
-        )
+        # ----------------------------------------------------
+        # Decode the label.
+        # ----------------------------------------------------
 
-        print(
-            label.tolist()
-        )
-
-        # Decode again.
         decoded = dataset.vocabulary.decode(
             label.tolist()
         )
 
         print(
-            f"\nDecoded text:"
+            f"Decoded text: "
+            f"{decoded}"
         )
 
-        print(decoded)
+        # ----------------------------------------------------
+        # Verify encoding/decoding.
+        # ----------------------------------------------------
 
         if decoded == text:
+
             print(
-                "\nLabel encoding test: PASS"
+                "Verification: PASS"
             )
+
         else:
+
             print(
-                "\nLabel encoding test: FAIL"
+                "Verification: FAIL"
             )
 
     # --------------------------------------------------------
-    # Complete
+    # Complete.
     # --------------------------------------------------------
 
-    print("\n" + "=" * 70)
+    print()
+    print("=" * 70)
     print("PYTORCH DATASET TEST COMPLETE")
     print("=" * 70)
 

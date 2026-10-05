@@ -1,0 +1,12 @@
+BASELINE TEST-SET EVALUATION
+========================================
+Checkpoint epoch: 10
+Validation CER: 0.695600
+Test loss: 1.449787
+Test CER: 0.687888
+Test CER (%): 68.79%
+Test WER: 0.850755
+Test WER (%): 85.08%
+Exact-match rate: 0.062500
+Exact-match rate (%): 6.25%
+Test samples: 208
