@@ -56,3 +56,6 @@ results/models/*
 # Temporary files
 *.tmp
 *.log
+
+results/line_segmentation_preview/
+results/line_segmentation_v2/
