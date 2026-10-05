@@ -1,0 +1,11 @@
+EXPERIMENT 1 TEST-SET EVALUATION
+======================================================================
+Epoch: 10
+Validation CER: 0.729627
+Test loss: 1.570527
+Test CER: 0.722713
+Test WER: 0.895608
+Exact-match rate: 0.043062
+Test samples: 209
+Image width: 1536
+CTC time steps: 384

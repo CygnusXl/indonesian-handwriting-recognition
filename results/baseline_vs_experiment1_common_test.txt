@@ -1,0 +1,23 @@
+BASELINE VS EXPERIMENT 1
+COMMON TEST-SET COMPARISON
+======================================================================
+
+Common test samples: 208
+Baseline image width: 1024
+Experiment 1 image width: 1536
+Common CTC feasibility threshold: 256
+
+Baseline test loss: 1.449787
+Experiment 1 test loss: 1.564020
+
+Baseline test CER: 0.687888
+Experiment 1 test CER: 0.718021
+CER change: 0.030133
+
+Baseline test WER: 0.850755
+Experiment 1 test WER: 0.893728
+WER change: 0.042973
+
+Baseline exact match: 0.062500
+Experiment 1 exact match: 0.043269
+Exact match change: -0.019231

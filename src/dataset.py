@@ -11,14 +11,24 @@ import numpy as np
 
 DATASET_NAME = "to-be/OpenHand-Synth"
 
-# Height that every image will be resized to.
+# Image height remains fixed for all experiments.
 IMAGE_HEIGHT = 128
 
-# Maximum width after resizing/padding.
+# ------------------------------------------------------------
+# BASELINE configuration
+# ------------------------------------------------------------
+
 IMAGE_WIDTH = 1024
 
-# The CNN-BiLSTM model produces 256 CTC time steps.
-CTC_TIMESTEPS = 256
+# The current CNN reduces width by a factor of 4:
+#
+# 1024
+#   ↓ /2
+# 512
+#   ↓ /2
+# 256
+#
+CTC_TIMESTEPS = IMAGE_WIDTH // 4
 
 
 # ============================================================
@@ -48,22 +58,31 @@ class CharacterVocabulary:
         # Character -> ID
         self.char_to_id = {
             character: index
-            for index, character in enumerate(characters)
+            for index, character in enumerate(
+                characters
+            )
         }
 
         # ID -> Character
         self.id_to_char = {
             index: character
-            for character, index in self.char_to_id.items()
+            for character, index
+            in self.char_to_id.items()
         }
 
-        self.num_characters = len(self.char_to_id)
+        self.num_characters = len(
+            self.char_to_id
+        )
 
-        # CTC needs one additional blank class.
-        self.blank_id = self.num_characters
+        # CTC blank token.
+        self.blank_id = (
+            self.num_characters
+        )
 
-        # Total number of classes = characters + CTC blank.
-        self.num_classes = self.num_characters + 1
+        # Characters + blank.
+        self.num_classes = (
+            self.num_characters + 1
+        )
 
     def encode(self, text):
         """
@@ -84,7 +103,7 @@ class CharacterVocabulary:
 
         for index in ids:
 
-            # Ignore the CTC blank token.
+            # Ignore CTC blank.
             if index == self.blank_id:
                 continue
 
@@ -102,40 +121,43 @@ class CharacterVocabulary:
 
 def calculate_ctc_required_timesteps(text):
     """
-    Calculate the minimum number of CTC time steps required
+    Calculate the minimum CTC sequence length required
     for a target text.
 
-    Normally, a target with N characters requires at least N
-    time steps.
+    For normal characters:
 
-    However, when two identical characters appear next to each
-    other, CTC requires an additional blank between them.
+        required = text length
+
+    For adjacent repeated characters, CTC needs an
+    additional blank between them.
 
     Example:
 
-        "ab"  -> 2 time steps minimum
+        "ab" -> 2
 
-        "aa"  -> 3 time steps minimum
-                 a, blank, a
+        "aa" -> 3
 
     Therefore:
 
-        required_timesteps =
-            text_length + adjacent_repeated_characters
+        required =
+            text_length
+            +
+            adjacent_repeated_characters
     """
 
     repeated_characters = sum(
         1
-        for i in range(1, len(text))
+        for i in range(
+            1,
+            len(text)
+        )
         if text[i] == text[i - 1]
     )
 
-    required_timesteps = (
+    return (
         len(text)
         + repeated_characters
     )
-
-    return required_timesteps
 
 
 # ============================================================
@@ -150,50 +172,48 @@ def preprocess_image(
     """
     Convert an image into a fixed-size grayscale tensor.
 
-    Processing steps:
+    The aspect ratio of the original image is preserved.
 
-        Original image
-              ↓
-        Convert to grayscale
-              ↓
-        Resize while preserving aspect ratio
-              ↓
-        Pad to 128 x 1024
-              ↓
-        Normalize pixels to [0, 1]
-              ↓
-        PyTorch tensor
+    Output:
 
-    Output shape:
-
-        [1, 128, 1024]
+        [1, target_height, target_width]
     """
 
     # --------------------------------------------------------
-    # Convert RGB/RGBA/etc. to grayscale.
+    # Convert to grayscale.
     # --------------------------------------------------------
 
     image = image.convert("L")
 
-    original_width, original_height = image.size
+    original_width, original_height = (
+        image.size
+    )
 
     # --------------------------------------------------------
-    # Calculate resized dimensions.
+    # Resize according to target height.
     # --------------------------------------------------------
 
-    scale = target_height / original_height
+    scale = (
+        target_height
+        / original_height
+    )
 
     new_width = int(
         original_width * scale
     )
 
-    # If the resized image is wider than our maximum width,
-    # scale it down so that it fits.
+    # --------------------------------------------------------
+    # Prevent width from exceeding target.
+    # --------------------------------------------------------
+
     if new_width > target_width:
 
         new_width = target_width
 
-        scale = target_width / original_width
+        scale = (
+            target_width
+            / original_width
+        )
 
         new_height = int(
             original_height * scale
@@ -204,7 +224,7 @@ def preprocess_image(
         new_height = target_height
 
     # --------------------------------------------------------
-    # Resize image.
+    # Resize.
     # --------------------------------------------------------
 
     image = image.resize(
@@ -213,7 +233,7 @@ def preprocess_image(
     )
 
     # --------------------------------------------------------
-    # Convert image to NumPy array.
+    # Convert to NumPy.
     # --------------------------------------------------------
 
     image_array = np.array(
@@ -221,52 +241,42 @@ def preprocess_image(
         dtype=np.float32
     )
 
-    # Normalize pixel values:
-    #
-    #   0   -> black
-    #   255 -> white
-    #
-    # becomes:
-    #
-    #   0.0 -> black
-    #   1.0 -> white
-    image_array = image_array / 255.0
+    # Normalize [0,255] -> [0,1].
+    image_array = (
+        image_array / 255.0
+    )
 
     # --------------------------------------------------------
     # Create white padded canvas.
     # --------------------------------------------------------
 
     padded = np.ones(
-        (target_height, target_width),
+        (
+            target_height,
+            target_width
+        ),
         dtype=np.float32
     )
 
-    # Center the image vertically.
+    # Center vertically.
     y_offset = (
         target_height - new_height
     ) // 2
 
-    # Place resized image on the white canvas.
     padded[
         y_offset:y_offset + new_height,
         :new_width
     ] = image_array
 
     # --------------------------------------------------------
-    # Convert to PyTorch tensor.
+    # Convert to tensor.
     # --------------------------------------------------------
 
     tensor = torch.from_numpy(
         padded
     )
 
-    # Add channel dimension:
-    #
-    # [128, 1024]
-    #
-    # becomes:
-    #
-    # [1, 128, 1024]
+    # [H,W] -> [1,H,W]
     tensor = tensor.unsqueeze(0)
 
     return tensor
@@ -280,26 +290,49 @@ class IndonesianHandwritingDataset(Dataset):
     """
     PyTorch Dataset for Indonesian handwriting recognition.
 
-    The dataset performs two filtering operations:
+    The dataset can be configured with different image widths
+    and corresponding CTC sequence lengths.
 
-    1. Keep only Indonesian samples.
-    2. Remove samples that require more CTC time steps
-       than the model can produce.
+    Baseline:
+
+        image_width = 1024
+        ctc_timesteps = 256
+
+    Experiment 1:
+
+        image_width = 1536
+        ctc_timesteps = 384
     """
 
     def __init__(
         self,
         split="train",
-        vocabulary=None
+        vocabulary=None,
+        image_width=IMAGE_WIDTH,
+        ctc_timesteps=CTC_TIMESTEPS
     ):
+
+        self.image_width = image_width
+        self.ctc_timesteps = ctc_timesteps
 
         print(
             f"Loading OpenHand-Synth "
             f"split='{split}'..."
         )
 
+        print(
+            f"Image size: "
+            f"{IMAGE_HEIGHT} x "
+            f"{self.image_width}"
+        )
+
+        print(
+            f"CTC time steps: "
+            f"{self.ctc_timesteps}"
+        )
+
         # ----------------------------------------------------
-        # Load the requested dataset split.
+        # Load dataset.
         # ----------------------------------------------------
 
         self.dataset = load_dataset(
@@ -308,7 +341,7 @@ class IndonesianHandwritingDataset(Dataset):
         )
 
         # ----------------------------------------------------
-        # Filter Indonesian samples and CTC-infeasible samples.
+        # Filter samples.
         # ----------------------------------------------------
 
         self.indices = []
@@ -320,44 +353,43 @@ class IndonesianHandwritingDataset(Dataset):
             self.dataset["language"]
         ):
 
-            # ------------------------------------------------
-            # Only keep Indonesian samples.
-            # ------------------------------------------------
-
+            # Only Indonesian.
             if language != "ind":
                 continue
 
             total_indonesian += 1
 
-            # Get target transcription.
-            text = self.dataset["text"][index]
-
-            # ------------------------------------------------
-            # Determine how many CTC time steps are required.
-            # ------------------------------------------------
+            text = self.dataset[
+                "text"
+            ][index]
 
             required_timesteps = (
-                calculate_ctc_required_timesteps(text)
+                calculate_ctc_required_timesteps(
+                    text
+                )
             )
 
-            # ------------------------------------------------
-            # Keep sample only if it fits the model output.
-            # ------------------------------------------------
+            # Keep only CTC-feasible samples.
+            if (
+                required_timesteps
+                <= self.ctc_timesteps
+            ):
 
-            if required_timesteps <= CTC_TIMESTEPS:
-
-                self.indices.append(index)
+                self.indices.append(
+                    index
+                )
 
             else:
 
                 excluded_ctc += 1
 
         # ----------------------------------------------------
-        # Display filtering results.
+        # Filtering information.
         # ----------------------------------------------------
 
         print(
-            f"Indonesian samples before CTC filtering: "
+            f"Indonesian samples before "
+            f"CTC filtering: "
             f"{total_indonesian}"
         )
 
@@ -367,23 +399,21 @@ class IndonesianHandwritingDataset(Dataset):
         )
 
         print(
-            f"Indonesian samples after CTC filtering: "
+            f"Indonesian samples after "
+            f"CTC filtering: "
             f"{len(self.indices)}"
         )
 
         # ----------------------------------------------------
-        # Vocabulary
+        # Vocabulary.
         # ----------------------------------------------------
 
-        # Build a vocabulary if one was not provided.
-        #
-        # In train.py, we create the vocabulary once and pass
-        # the same vocabulary to the training and validation
-        # datasets.
         if vocabulary is None:
 
-            self.vocabulary = CharacterVocabulary(
-                self.dataset
+            self.vocabulary = (
+                CharacterVocabulary(
+                    self.dataset
+                )
             )
 
         else:
@@ -392,33 +422,43 @@ class IndonesianHandwritingDataset(Dataset):
 
     def __len__(self):
 
-        return len(self.indices)
+        return len(
+            self.indices
+        )
 
-    def __getitem__(self, index):
+    def __getitem__(
+        self,
+        index
+    ):
 
-        # Convert filtered index into the original dataset index.
-        dataset_index = self.indices[index]
+        # Translate filtered index to original
+        # OpenHand-Synth index.
+        dataset_index = (
+            self.indices[index]
+        )
 
         sample = self.dataset[
             dataset_index
         ]
 
         # ----------------------------------------------------
-        # Image
+        # Image.
         # ----------------------------------------------------
 
         image = preprocess_image(
-            sample["image"]
+            sample["image"],
+            target_height=IMAGE_HEIGHT,
+            target_width=self.image_width
         )
 
         # ----------------------------------------------------
-        # Text
+        # Text.
         # ----------------------------------------------------
 
         text = sample["text"]
 
         # ----------------------------------------------------
-        # Convert text to character IDs.
+        # Encode text.
         # ----------------------------------------------------
 
         label = self.vocabulary.encode(
@@ -448,18 +488,21 @@ def main():
     print("=" * 70)
 
     # --------------------------------------------------------
-    # Load training dataset.
+    # Baseline/default configuration.
     # --------------------------------------------------------
 
-    dataset = IndonesianHandwritingDataset(
-        split="train"
+    dataset = (
+        IndonesianHandwritingDataset(
+            split="train"
+        )
     )
 
     # --------------------------------------------------------
     # Dataset information.
     # --------------------------------------------------------
 
-    print("\n" + "-" * 70)
+    print()
+    print("-" * 70)
     print("DATASET INFORMATION")
     print("-" * 70)
 
@@ -484,12 +527,17 @@ def main():
     )
 
     print(
+        f"Image width: "
+        f"{dataset.image_width}"
+    )
+
+    print(
         f"CTC time steps: "
-        f"{CTC_TIMESTEPS}"
+        f"{dataset.ctc_timesteps}"
     )
 
     # --------------------------------------------------------
-    # Test up to 5 samples.
+    # Test samples.
     # --------------------------------------------------------
 
     number_of_samples = min(
@@ -497,17 +545,28 @@ def main():
         len(dataset)
     )
 
-    print("\n" + "-" * 70)
+    print()
+    print("-" * 70)
     print("SAMPLE TEST")
     print("-" * 70)
 
-    for i in range(number_of_samples):
+    for i in range(
+        number_of_samples
+    ):
 
         sample = dataset[i]
 
-        image = sample["image"]
-        label = sample["label"]
-        text = sample["text"]
+        image = sample[
+            "image"
+        ]
+
+        label = sample[
+            "label"
+        ]
+
+        text = sample[
+            "text"
+        ]
 
         print()
         print(
@@ -539,22 +598,17 @@ def main():
             f"{len(label)}"
         )
 
-        # ----------------------------------------------------
-        # Decode the label.
-        # ----------------------------------------------------
-
-        decoded = dataset.vocabulary.decode(
-            label.tolist()
+        # Decode.
+        decoded = (
+            dataset.vocabulary.decode(
+                label.tolist()
+            )
         )
 
         print(
             f"Decoded text: "
             f"{decoded}"
         )
-
-        # ----------------------------------------------------
-        # Verify encoding/decoding.
-        # ----------------------------------------------------
 
         if decoded == text:
 
@@ -567,10 +621,6 @@ def main():
             print(
                 "Verification: FAIL"
             )
-
-    # --------------------------------------------------------
-    # Complete.
-    # --------------------------------------------------------
 
     print()
     print("=" * 70)
