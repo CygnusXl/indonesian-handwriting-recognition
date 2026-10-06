@@ -163,123 +163,13 @@ def calculate_ctc_required_timesteps(text):
 # ============================================================
 # IMAGE PREPROCESSING
 # ============================================================
+#
+# The preprocessing function now lives in htr_common.py so that
+# training, evaluation, error analysis and the application all use
+# exactly the same code. It is imported here unchanged
+# (see tests/test_htr_common.py::test_preprocess_matches_original).
 
-def preprocess_image(
-    image,
-    target_height=IMAGE_HEIGHT,
-    target_width=IMAGE_WIDTH
-):
-    """
-    Convert an image into a fixed-size grayscale tensor.
-
-    The aspect ratio of the original image is preserved.
-
-    Output:
-
-        [1, target_height, target_width]
-    """
-
-    # --------------------------------------------------------
-    # Convert to grayscale.
-    # --------------------------------------------------------
-
-    image = image.convert("L")
-
-    original_width, original_height = (
-        image.size
-    )
-
-    # --------------------------------------------------------
-    # Resize according to target height.
-    # --------------------------------------------------------
-
-    scale = (
-        target_height
-        / original_height
-    )
-
-    new_width = int(
-        original_width * scale
-    )
-
-    # --------------------------------------------------------
-    # Prevent width from exceeding target.
-    # --------------------------------------------------------
-
-    if new_width > target_width:
-
-        new_width = target_width
-
-        scale = (
-            target_width
-            / original_width
-        )
-
-        new_height = int(
-            original_height * scale
-        )
-
-    else:
-
-        new_height = target_height
-
-    # --------------------------------------------------------
-    # Resize.
-    # --------------------------------------------------------
-
-    image = image.resize(
-        (new_width, new_height),
-        Image.Resampling.LANCZOS
-    )
-
-    # --------------------------------------------------------
-    # Convert to NumPy.
-    # --------------------------------------------------------
-
-    image_array = np.array(
-        image,
-        dtype=np.float32
-    )
-
-    # Normalize [0,255] -> [0,1].
-    image_array = (
-        image_array / 255.0
-    )
-
-    # --------------------------------------------------------
-    # Create white padded canvas.
-    # --------------------------------------------------------
-
-    padded = np.ones(
-        (
-            target_height,
-            target_width
-        ),
-        dtype=np.float32
-    )
-
-    # Center vertically.
-    y_offset = (
-        target_height - new_height
-    ) // 2
-
-    padded[
-        y_offset:y_offset + new_height,
-        :new_width
-    ] = image_array
-
-    # --------------------------------------------------------
-    # Convert to tensor.
-    # --------------------------------------------------------
-
-    tensor = torch.from_numpy(
-        padded
-    )
-
-    # [H,W] -> [1,H,W]
-    tensor = tensor.unsqueeze(0)
-
-    return tensor
+from htr_common import preprocess_image  # noqa: E402,F401
 
 
 # ============================================================

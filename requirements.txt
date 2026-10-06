@@ -1,19 +1,21 @@
-# Initial project dependencies
-# Exact versions will be pinned after the dataset and model stack are finalized.
-
+# Core (training / evaluation)
 torch
-torchvision
-torchaudio
-transformers
 datasets
 numpy
-pandas
 matplotlib
-scikit-learn
 Pillow
 opencv-python
-jiwer
-jupyter
-ipykernel
+
+# Application and evaluation
 streamlit
-requests
+jiwer
+pytest
+
+# Optional: only if you run notebooks/ or earlier exploration scripts
+pandas
+scikit-learn
+
+# Reproducibility: after your final run, record exact versions with
+#   python src/record_environment.py     (writes results/environment.json)
+#   pip freeze > requirements-lock.txt
+# (torchaudio and transformers were removed: nothing in the repository imports them.)

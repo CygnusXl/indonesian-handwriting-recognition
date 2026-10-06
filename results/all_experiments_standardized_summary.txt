@@ -1,0 +1,46 @@
+STANDARDIZED EXPERIMENT COMPARISON
+======================================================================
+
+All models use the same common test samples (208 samples), selected with the same CTC feasibility threshold of 256.
+Primary comparison metrics are corpus-level CER and corpus-level WER. Macro-CER is retained as a secondary per-sample diagnostic.
+
+Baseline
+  Input: 128 x 1024
+  Checkpoint epoch: 10
+  Test loss: 1.449787
+  Corpus CER: 0.687888 (68.79%)
+  Corpus WER: 0.850755 (85.08%)
+  Macro-CER: 0.412835 (41.28%)
+  Exact match: 0.062500 (6.25%)
+
+Experiment 1
+  Input: 128 x 1536
+  Checkpoint epoch: 10
+  Test loss: 1.564020
+  Corpus CER: 0.718021 (71.80%)
+  Corpus WER: 0.893728 (89.37%)
+  Macro-CER: 0.471766 (47.18%)
+  Exact match: 0.043269 (4.33%)
+
+Experiment 2
+  Input: 192 x 1024
+  Checkpoint epoch: 10
+  Test loss: 2.144472
+  Corpus CER: 0.816987 (81.70%)
+  Corpus WER: 0.990708 (99.07%)
+  Macro-CER: 0.678436 (67.84%)
+  Exact match: 0.000000 (0.00%)
+
+Experiment 3
+  Input: 128 x 1024
+  Checkpoint epoch: 10
+  Test loss: 2.194548
+  Corpus CER: 0.813589 (81.36%)
+  Corpus WER: 0.983740 (98.37%)
+  Macro-CER: 0.700872 (70.09%)
+  Exact match: 0.000000 (0.00%)
+
+Changes relative to baseline using corpus metrics:
+Experiment 1: CER +3.01 pp, WER +4.30 pp, Exact match -1.92 pp
+Experiment 2: CER +12.91 pp, WER +14.00 pp, Exact match -6.25 pp
+Experiment 3: CER +12.57 pp, WER +13.30 pp, Exact match -6.25 pp

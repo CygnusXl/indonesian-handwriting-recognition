@@ -1,16 +1,7 @@
 # Report
 
-The technical report will document:
+- `REPORT_SKELETON.md`: ten-section structure, each section linked to the file or command that provides its evidence, plus a checklist of figures and tables.
+- `AI_USAGE_LOG.md`: AI usage declaration, log and reflection (complete the parts marked with a pen).
 
-1. Introduction
-2. Dataset and Data Preparation
-3. Deep Learning Fundamentals and Model
-4. System Design and Implementation
-5. Experimental Methodology
-6. Results
-7. Analysis and Discussion
-8. Real-World Evaluation
-9. Conclusion
-10. AI Usage Declaration and Log
-
-Report claims will be supported by the project's actual experiments and evidence.
+The final report must contain only results that exist in `results/` or `evaluation/results/`.
+Generate figures/tables with `python src/report_assets.py` after `python src/analyze_model.py --model all`.

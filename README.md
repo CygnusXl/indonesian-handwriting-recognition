@@ -1,149 +1,149 @@
-# Indonesian Handwritten Academic Notes Recognition
+# Deep Learning-Based Recognition of Indonesian Handwritten Text Under Real-World Image Conditions
 
-Deep learning-based recognition of Indonesian handwritten text under real-world image conditions.
+BINUS University · COMP6826001 Deep Learning · Odd Semester 2026/2027
 
-## Project status
+A CNN + BiLSTM + CTC system that converts an image of Indonesian handwriting
+into digital text, with a controlled investigation of where and why it fails
+(long and multiline handwriting) and a working Streamlit application.
 
-**Experimental phase — baseline established, Experiment 1 completed, Experiment 2 completed, Experiment 3 planned**
+> **Honest scope.** The model is trained and tested on **synthetic** handwriting
+> (OpenHand-Synth), *not* on real student notes. Results on synthetic data do not
+> predict accuracy on real photos; the real-world evaluation protocol in
+> [`evaluation/`](evaluation/PROTOCOL.md) exists to measure that gap.
 
-The project now has a working CNN-BiLSTM handwriting-recognition pipeline, baseline training/evaluation, two controlled experiments, and detailed error analysis.
+## 1. Problem and motivation
 
-## Problem
+Students take handwritten notes, but searching, sharing and editing them requires
+digital text. Handwriting varies by writer, and photos add noise, blur and uneven
+lighting. We ask:
 
-Students commonly write academic notes by hand, but handwriting styles differ substantially. Photos of handwritten notes can also contain blur, noise, uneven lighting, rotation, shadows, corrections, and other visual degradation.
+> **How well can a deep learning model recognise Indonesian handwritten text when
+> handwriting style, text length and layout change — and what limits it?**
 
-The project investigates whether a deep learning handwriting-recognition system can convert Indonesian handwritten text into digital text and how recognition performance changes under different handwriting styles, text lengths, and image conditions.
+The baseline error analysis showed that **long and multiline text is the dominant
+weakness**, so Experiments 1–3 test three different ideas for addressing it.
 
-## Target scenario
+## 2. Pipeline
 
-A student takes or uploads a photo of handwritten Indonesian notes. The system processes the image and produces recognized digital text.
+```
+image → grayscale → resize to height, pad to 128×1024 white canvas
+      → CNN (4 conv blocks, width kept as the sequence axis)
+      → 2-layer BiLSTM (hidden 256)
+      → linear classifier (70 classes = 69 characters + CTC blank)
+      → CTC greedy decoding → text
+```
 
-## Core research question
+Baseline: 7,296,710 parameters; AdamW (lr 3e-4, weight decay 1e-4), batch size 4,
+10 epochs, gradient clipping 5, CTC loss. Model code: `src/model.py`.
+Preprocessing, decoding and metrics are defined once in `src/htr_common.py` and
+shared by training, evaluation and the app.
 
-> How well can a deep learning model recognize Indonesian handwritten text when handwriting style and image conditions change?
+## 3. Dataset
 
-Current error analysis shows that long and multiline text is the dominant observed weakness of the baseline system.
+[OpenHand-Synth](https://huggingface.co/datasets/to-be/OpenHand-Synth), Indonesian
+(`ind`) subset: 1,665 train / 207 validation / 209 test images (after dropping
+samples that cannot be emitted within the CTC length: 1,655 train and 208 test
+for the 256-step models). Metadata: writer, neatness, line width, colour, augmented noise,
+text source. **Limitations:** synthetic handwriting; machine-generated text
+sources (Tatoeba sentences, Faker names/dates); about half the samples carry
+synthetic noise; neatness is confounded with other variables and is *not*
+interpreted causally. Generate the exact statistics with
+`python src/dataset_stats.py`.
 
-## Current workflow
+## 4. Experiments
 
-1. Define the real-world problem and target scenario.
-2. Verify and analyze the dataset.
-3. Prepare and preprocess the data.
-4. Construct and train a CNN-BiLSTM baseline.
-5. Evaluate the baseline.
-6. Run controlled experiments.
-7. Analyze training behavior and recognition errors.
-8. Compare approaches and document trade-offs.
-9. Build a working application.
-10. Perform real-world/practical evaluation.
+All models are evaluated on the **same 208 test samples**.
+Primary metrics: **corpus CER, corpus WER, exact match**. Secondary: macro-CER
+(mean of per-sample CER) for subgroup diagnostics. Never mix the two CERs.
 
-## Dataset
+| Model | Change from baseline | Corpus CER | Corpus WER | Exact | Macro-CER |
+|---|---|---:|---:|---:|---:|
+| **Baseline** | – | **68.79%** | **85.08%** | **6.25%** | **41.28%** |
+| Exp 1 | width 1024→1536, 256→384 CTC steps | 71.80% | 89.37% | 4.33% | 47.18% |
+| Exp 2 | height 128→192 | 81.70% | 99.07% | 0.00% | 67.84% |
+| Exp 3 | 50/50 multiline-balanced sampling | 81.36% | 98.37% | 0.00% | 70.09% |
 
-The current benchmark is OpenHand-Synth (to-be/OpenHand-Synth), filtered to Indonesian (ind) samples.
+Regenerate every table and figure from the saved predictions:
 
-Current Indonesian split sizes after CTC-feasibility filtering:
+```bash
+python src/analyze_model.py --model all      # needs checkpoints + dataset
+python src/report_assets.py                  # -> results/tables, results/figures
+```
 
-- Train: 1,655 usable samples
-- Validation: 206 usable samples
-- Test: 208 usable samples for the common experiment comparison
+**Observations** (measured, baseline): single-line macro-CER 17.1% vs multiline
+88.0%; all 49 "very long" test samples are multiline; 60/208 predictions collapse
+to under 25% of the reference length. **Inference, not proven:** configurations
+that change the input size or sampling stopped while validation CER was still
+falling, so part of their deficit may be under-training; the optional control
+`src/train_baseline_extended.py` tests this. Each configuration was trained once
+(no seed variance estimate). See [`FINAL_MODEL.md`](FINAL_MODEL.md) and the report
+for the full analysis.
 
-The dataset includes handwriting-style metadata such as writer ID, neatness, line width, color, augmented noise, and source.
+## 5. Application
 
-A major limitation is that the dataset is synthetic rather than a collection of real university lecture notes. This is documented as a limitation rather than being represented as real student-note data.
+```bash
+python src/export_final_model.py --model baseline   # creates models/final_model.pt
+streamlit run app/app.py
+```
 
-## Baseline model
+Upload an image → preview → *Recognize text* → editable recognised text, a
+heuristic confidence, warnings for tall/dark/low-contrast inputs, and the
+preprocessed canvas the model sees. The sidebar states the model's measured
+synthetic-test numbers and that it was trained on synthetic data and is meant for
+**one line per image**. An optional form logs practical-evaluation results.
 
-CNN-BiLSTM with CTC loss:
+## 6. Real-world evaluation
 
-- Input: 128 x 1024 grayscale image
-- CNN feature extractor
-- 2-layer bidirectional LSTM
-- CTC output with 70 classes (69 characters + blank)
-- Parameters: approximately 7.3 million
+[`evaluation/PROTOCOL.md`](evaluation/PROTOCOL.md): (A) a photo test set written by
+real people under real capture conditions, scored with
+`python src/evaluate_realworld.py`; (B) a usability session with the SUS
+questionnaire, scored with `python src/summarize_usability.py`.
+**Results appear in the report only once collected.**
 
-Baseline training uses AdamW, learning rate 0.0003, weight decay 0.0001, effective batch size 4, and 10 epochs.
+## 7. Reproducing
 
-## Experiments completed
+```bash
+pip install -r requirements.txt
+python -m pytest tests -q                  # 52 tests, no dataset/GPU needed
+python src/train.py                        # baseline  -> checkpoints/baseline_best.pt
+python src/train_experiment1.py
+python src/train_experiment2.py
+python src/train_experiment3.py
+python src/analyze_model.py --model all
+python src/report_assets.py
+python src/record_environment.py           # versions + checkpoint hashes
+```
 
-### Experiment 1 — Increased horizontal resolution
+Run everything from the repository root. Hardware used: RTX 3060 Ti (8 GB), Ubuntu.
+Seeds: Experiment 3 uses seed 42; `train.py` now sets seed 42 too, but the reported
+baseline was trained before that was added (checkpoint hash recorded in
+`results/analysis/baseline_analysis.json`). Checkpoints are git-ignored.
 
-Question: Does increasing horizontal image resolution and CTC sequence capacity improve recognition of long and multiline handwriting?
+## 8. Repository layout
 
-Configuration: 128 x 1536 input, 384 CTC timesteps, same CNN-BiLSTM design, physical batch size 2, gradient accumulation 2, effective batch size 4.
+```
+src/htr_common.py          shared preprocessing / decoding / metrics / model loading
+src/dataset.py, dataloader.py, model.py, model_experiment2.py
+src/train*.py              baseline + Experiments 1-3 (+ optional extended control)
+src/analyze_model.py       unified evaluation + error analysis for any model
+src/report_assets.py       report tables and figures from real outputs
+src/export_final_model.py  slim deployment checkpoint with provenance
+src/evaluate_realworld.py, summarize_usability.py
+app/                       Streamlit app (app.py, app_logic.py, evaluation_log.py)
+evaluation/                real-world protocol, prompts, questionnaire, templates
+experiments/               per-experiment write-ups
+results/                   histories, predictions, tables, figures
+report/                    report skeleton, evidence map, AI usage log
+tests/                     pytest suite
+```
 
-On the same 208 test samples, Experiment 1 performed worse than the baseline:
+Legacy per-experiment scripts (`error_analysis*.py`, `evaluate*.py`,
+`compare_*.py`) are kept for traceability; `analyze_model.py` reproduces their
+numbers (verified by tests on the committed predictions).
 
-- Baseline macro-CER: 41.28%
-- Experiment 1 macro-CER: 47.18%
+## 9. Current limitations
 
-### Experiment 2 — Increased vertical resolution
-
-Question: Does increasing vertical image resolution preserve more multiline information and improve recognition?
-
-Configuration: 192 x 1024 input, 256 CTC timesteps, same horizontal resolution as baseline, with the corresponding larger CNN feature representation.
-
-On the same 208 test samples:
-
-- Baseline macro-CER: 41.28%
-- Experiment 2 macro-CER: 67.84%
-- Baseline WER: 73.82%
-- Experiment 2 WER: 99.00%
-- Baseline exact match: 6.25%
-- Experiment 2 exact match: 0.00%
-
-Experiment 2 therefore did not improve recognition. Error analysis shows that performance degradation affects both single-line and multiline samples, although multiline and long text remain especially difficult.
-
-## Error analysis
-
-For Experiment 2:
-
-- Mean sample CER: 67.84%
-- Exact matches: 0/208
-- Severe prediction collapse: 71/208 (34.13%)
-- Single-line mean sample CER: 54.75%
-- Multiline mean sample CER: 93.10%
-- Short mean sample CER: 57.49%
-- Medium mean sample CER: 55.43%
-- Long mean sample CER: 84.62%
-- Very long mean sample CER: 93.87%
-
-The strongest observed failure pattern remains long/multiline sequence recognition.
-
-## Next experiment
-
-**Experiment 3 — Multiline-balanced training**
-
-The next controlled experiment will keep the baseline image size and architecture unchanged while increasing the training exposure to multiline samples. This directly tests whether the severe multiline weakness is partly related to the training sample distribution.
-
-The validation and test sets will remain unchanged for fair comparison.
-
-## Evaluation
-
-The project uses:
-
-- Character Error Rate (CER)
-- Word Error Rate (WER)
-- Exact-match rate
-- Training/validation loss
-- Metadata-based error analysis
-- Representative failure examples
-
-The report will standardize the final CER/WER aggregation methodology across all models before presenting the final Results chapter.
-
-## Application
-
-Planned system:
-
-Handwritten note image -> preprocessing -> trained DL model -> recognized Indonesian text
-
-The application is the demonstration layer. The main academic contribution is the model construction, controlled experimentation, error analysis, and evaluation of practical limitations.
-
-## Reproducibility
-
-Training configurations, preprocessing choices, experiment settings, evaluation results, and relevant code are recorded in this repository.
-
-No experimental metric, user feedback, or benchmark result will be reported until it has actually been obtained.
-
-## Academic project
-
-This repository supports the BINUS Deep Learning final project and documents the complete experimental workflow and working application.
+Synthetic training data; one line per image is the supported use; multiline and
+long text mostly fail; single training run per configuration; models trained for
+10 epochs only; greedy decoding without a language model; no line segmentation
+(simple attempts were unreliable); performance on real photos not yet measured.
