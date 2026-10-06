@@ -1,0 +1,155 @@
+ERROR ANALYSIS: Experiment 2 (taller input) (experiment2)
+======================================================================
+Checkpoint:        checkpoints/experiment2_best.pt
+Checkpoint SHA256: 623ec5f6823cf22302cac9d46308db76d181d782ceef9a42e90bb3a2fa083445
+Checkpoint epoch:  10
+Best validation CER (from checkpoint): 0.8205627057767135
+Parameters:        9,393,862
+Input:             192 x 1024 (CTC time steps 256)
+Test set:          208 common samples (CTC-feasible at 256 time steps)
+Inference speed:   7.0 ms/image on NVIDIA GeForce RTX 3060 Ti (batch size 2)
+
+PRIMARY METRICS (corpus-level)
+----------------------------------------------------------------------
+Corpus CER:  81.70%
+Corpus WER:  99.07%
+Exact match: 0.00%
+
+SECONDARY METRICS
+----------------------------------------------------------------------
+Macro-CER (mean of per-sample CER): 67.84%
+Severe prediction collapse: 71/208 (34.13%)
+Empty predictions: 0
+Mean prediction/reference length ratio: 0.426
+
+MULTILINE
+----------------------------------------------------------------------
+group                                 n   cCER%   mCER%   cWER%   EM%  coll
+False                               137   52.99   54.75   97.34   0.0     0
+True                                 71   93.67   93.10  100.00   0.0    71
+
+TEXT LENGTH
+----------------------------------------------------------------------
+group                                 n   cCER%   mCER%   cWER%   EM%  coll
+Short (1-30)                         84   54.49   57.49   99.59   0.0     0
+Medium (31-60)                       57   57.34   55.43   95.62   0.0     9
+Long (61-100)                        18   85.07   84.62  100.58   0.0    13
+Very long (101+)                     49   94.15   93.87  100.00   0.0    49
+
+AUGMENTED NOISE
+----------------------------------------------------------------------
+group                                 n   cCER%   mCER%   cWER%   EM%  coll
+False                               106   80.17   67.09   99.20   0.0    37
+True                                102   83.25   68.63   98.94   0.0    34
+
+TEXT SOURCE
+----------------------------------------------------------------------
+group                                 n   cCER%   mCER%   cWER%   EM%  coll
+faker-date                           18   76.19   79.27  100.00   0.0     0
+faker-name                           20   58.24   58.57  109.43   0.0     0
+tatoeba                              99   50.71   49.52   95.85   0.0     0
+tatoeba-multiline                    71   93.67   93.10  100.00   0.0    71
+
+NEATNESS (CONFOUNDED)
+----------------------------------------------------------------------
+group                                 n   cCER%   mCER%   cWER%   EM%  coll
+Messy (61-70)                        31   77.53   66.84   98.39   0.0    10
+Moderate (71-80)                     52   78.13   64.91   99.27   0.0    13
+Neat (81-90)                         65   83.10   71.83   98.73   0.0    26
+Very messy (50-60)                   15   74.27   52.80  100.00   0.0     3
+Very neat (91-95)                    45   86.52   71.18   99.34   0.0    19
+
+PEN LINE WIDTH
+----------------------------------------------------------------------
+group                                 n   cCER%   mCER%   cWER%   EM%  coll
+1                                    43   81.84   70.28  100.00   0.0    16
+2                                    49   83.08   68.11   98.86   0.0    18
+3                                    54   81.19   67.39   99.07   0.0    16
+4                                    49   81.58   68.93   98.73   0.0    19
+5                                     8   78.71   58.20   97.78   0.0     1
+6                                     5   75.69   53.96   97.50   0.0     1
+
+MULTILINE X TEXT LENGTH
+----------------------------------------------------------------------
+group                                 n   cCER%   mCER%   cWER%   EM%  coll
+multiline / Long (61-100)            13   90.52   90.73  100.00   0.0    13
+multiline / Medium (31-60)            9   92.58   92.35  100.00   0.0     9
+multiline / Very long (101+)         49   94.15   93.87  100.00   0.0    49
+single-line / Long (61-100)           5   68.41   68.76  101.96   0.0     0
+single-line / Medium (31-60)         48   49.22   48.50   94.75   0.0     0
+single-line / Short (1-30)           84   54.49   57.49   99.59   0.0     0
+
+WRITERS
+----------------------------------------------------------------------
+130 writers in the test set (max 4 samples per writer).
+Per-writer macro-CER: min 26.3% / median 68.2% / max 98.5%
+Most writers have very few test samples; per-writer values are descriptive only.
+
+REPRESENTATIVE EXAMPLES (reference -> prediction, CER)
+----------------------------------------------------------------------
+[single_line_best]
+  idx=3473  CER=0.152
+  REF:  Aku tidak suka memakai sepatu tanpa kaus kaki.
+  PRED: Ak tidak suka memakai spa tana kas kak.
+  idx=3112  CER=0.192
+  REF:  Saya tidak semuda itu, lo.
+  PRED: Saya tidak semlda it k.
+  idx=6589  CER=0.214
+  REF:  Kami sarapan roti dan telur.
+  PRED: Aami sarapan sti an tlrr.
+
+[single_line_median]
+  idx=749  CER=0.529
+  REF:  Jawabannya selalu ada di dekatnya.
+  PRED: Bakpa sekla ak di dkka.
+  idx=2173  CER=0.529
+  REF:  Opan Farida, M.M.
+  PRED: Jan rira, tt
+  idx=1504  CER=0.533
+  REF:  Elon Widiastuti
+  PRED: 2 tiistti
+
+[single_line_worst]
+  idx=3351  CER=0.929
+  REF:  5 Agustus 1452
+  PRED: 2 .
+  idx=5604  CER=0.900
+  REF:  04-03-1813
+  PRED: 24
+  idx=5289  CER=0.900
+  REF:  05-06-1504
+  PRED: 24
+
+[multiline_best]
+  idx=5858  CER=0.835
+  REF:  Mungkin untuk beberapa hari ini cuacanya akan tetap dingin.\nMary dapat memahami bahasa Mandarin.
+  PRED: Baaaaaaaaaa k th d.
+  idx=4717  CER=0.857
+  REF:  Gratis\nuntuk masyarakat Uni Eropa.\nKami selesai sebelum matahari terbit kok.\nAyah kami merokok di malam hari.
+  PRED: Aaaa a aa aa a a.
+  idx=6285  CER=0.865
+  REF:  Mereka kasihan.\nAku sudah muak denganmu.\nIbuku adalah seorang guru SMA.\nSiapa pun bisa melakukan itu.
+  PRED: Aaaaaaaaaa aa.
+
+[multiline_median]
+  idx=6570  CER=0.931
+  REF:  Bolehkah saya mencoba mengenakan\nini?\nKita makan untuk hidup, bukan hidup\nuntuk makan\nTernyata itu memang benar.
+  PRED: Aaaaaa a.
+  idx=1668  CER=0.932
+  REF:  Malam ini dingin sekali!\nMary mengajar di sekolah Kurcaci di hutan Peri.
+  PRED: Aaa  .
+  idx=4470  CER=0.932
+  REF:  Makan banyak sayuran.\ndimana kah tempat yang paling bagus di dunia?\nAku akan bersamamu selama yang kamu mau.\nAnakku belum bisa berhitung penjumlahan dengan baik.\nApakah\nkamu penerjemah?\nJangan memerah! Minum obat!
+  PRED: Aaa a a a a aa.
+
+[multiline_worst]
+  idx=3880  CER=0.985
+  REF:  Ribuan orang mengunjungi kota itu.\nDia tepat di sini.\nMereka menjanjikan perubahan.\nKejelasan lebih penting\ndaripada kesederhanaan.
+  PRED: Aa.
+  idx=3754  CER=0.983
+  REF:  Tahun ini tahun kabisat.\nDalam satu tahun\nada empat musim.
+  PRED: B.
+  idx=3955  CER=0.983
+  REF:  Ambulans tiba beberapa menit kemudian.\nSaya\nterlalu muda.
+  PRED: B.
+

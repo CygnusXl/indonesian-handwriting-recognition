@@ -1,0 +1,3 @@
+image_file,participant_id,reference_text,line_type,handwriting_condition,capture_condition
+P01_s01.jpg,P01,Saya belajar di perpustakaan setiap sore.,single-line,neat,good photo
+P01_m01.jpg,P01,Hari ini cuaca sangat cerah.\nKami pergi ke taman kota.,multiline,average,good photo

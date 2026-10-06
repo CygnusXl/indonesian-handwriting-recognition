@@ -59,3 +59,15 @@ results/models/*
 
 results/line_segmentation_preview/
 results/line_segmentation_v2/
+
+# Real-world evaluation: raw photos may contain personal handwriting
+evaluation/photos/*
+!evaluation/photos/.gitkeep
+
+# Allow the deployment model (about 29 MB) to be committed on purpose
+!models/final_model.pt
+
+# Optional example images exported from OpenHand-Synth: check the dataset
+# licence before removing this line
+app/examples/*
+!app/examples/README.md

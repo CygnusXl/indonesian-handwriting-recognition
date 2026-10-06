@@ -73,7 +73,7 @@ Unchanged:
 - Epochs: 10
 - Validation/test distributions
 
-Status: **Implemented; training pending.**
+Status: **Trained and evaluated** (corpus CER 81.36%, WER 98.37%, exact 0.00%, macro-CER 70.09%; reported from the standardized comparison). Detailed subgroup analysis: `python src/analyze_model.py --model experiment3` -> `results/analysis/experiment3_analysis_summary.txt`.
 
 Run:
 
@@ -85,10 +85,11 @@ See \`experiment_3.md\` for the methodology.
 
 ## Standardized comparison
 
-After Experiment 3 training is completed, run:
+Run the unified analysis for all models, then build the report tables/figures:
 
 \`\`\`bash
-python src/compare_experiments.py
+python src/analyze_model.py --model all
+python src/report_assets.py
 \`\`\`
 
 The standardized comparison uses the same 208 CTC-feasible Indonesian test samples and reports corpus-level CER/WER as the primary overall metrics. Macro-CER remains a secondary diagnostic measure.

@@ -1,0 +1,29 @@
+{
+  "exported_utc": "2026-10-06T14:45:55+00:00",
+  "source_experiment": "baseline",
+  "label": "Baseline",
+  "source_checkpoint": "baseline_best.pt",
+  "source_checkpoint_sha256": "c9a6f7271c39ea00f82dbafbd69d7d0d470d9738b11da3b52ffd0c45b9b70c4f",
+  "exported_file": "final_model.pt",
+  "exported_file_sha256": "2a584b032b26a5cf1b200d4b74e12a12a6812a8cc3d6be59f6ef6397c4d17243",
+  "exported_file_bytes": 29206170,
+  "parameters": 7296710,
+  "architecture": "cnn_bilstm",
+  "input_height": 128,
+  "input_width": 1024,
+  "ctc_timesteps": 256,
+  "decoding": "CTC greedy",
+  "num_classes": 70,
+  "training_epoch_of_best_checkpoint": 10,
+  "best_validation_cer": 0.6956001197246333,
+  "torch_version": "2.14.1+cu130",
+  "test_metrics": {
+    "samples": 208,
+    "corpus_cer": 0.6878877400295421,
+    "corpus_wer": 0.8507549361207898,
+    "exact_match": 0.0625,
+    "macro_cer": 0.4128347034036996,
+    "collapse_count": 60
+  },
+  "test_metrics_source": "results/analysis/baseline_analysis.json"
+}

@@ -1,6 +1,9 @@
+import csv
 import os
+import random
 import time
 
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -38,6 +41,47 @@ BEST_MODEL_PATH = os.path.join(
 
 IMAGE_HEIGHT = 128
 IMAGE_WIDTH = 1024
+
+# Added after the reported baseline run (which was NOT seeded). A fixed
+# seed makes re-training repeatable on the same hardware/software, but
+# the reported baseline checkpoint comes from the earlier unseeded run.
+SEED = 42
+
+HISTORY_PATH = os.path.join(
+    "results",
+    "baseline_history.csv"
+)
+
+
+def set_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+
+def save_history(history, path):
+    """Write the per-epoch history as CSV (same format as Experiments 1-3)."""
+
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+
+    with open(path, "w", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerow(
+            ["epoch", "train_loss", "validation_loss", "validation_cer"]
+        )
+
+        for epoch in range(len(history["train_loss"])):
+            writer.writerow(
+                [
+                    epoch + 1,
+                    history["train_loss"][epoch],
+                    history["validation_loss"][epoch],
+                    history["validation_cer"][epoch],
+                ]
+            )
 
 
 # ============================================================
@@ -447,6 +491,8 @@ def validate(
 # ============================================================
 
 def main():
+
+    set_seed(SEED)
 
     print("=" * 70)
     print(
@@ -883,7 +929,12 @@ def main():
                 "vocabulary_id_to_char":
                     vocabulary.id_to_char,
                 "num_classes":
-                    vocabulary.num_classes
+                    vocabulary.num_classes,
+                "architecture": "cnn_bilstm",
+                "image_height": IMAGE_HEIGHT,
+                "image_width": IMAGE_WIDTH,
+                "ctc_timesteps": IMAGE_WIDTH // 4,
+                "seed": SEED,
             }
 
             torch.save(
@@ -916,6 +967,10 @@ def main():
         f"Best checkpoint: "
         f"{BEST_MODEL_PATH}"
     )
+
+    save_history(history, HISTORY_PATH)
+
+    print(f"History saved to: {HISTORY_PATH}")
 
     print()
     print("Training history:")

@@ -1,0 +1,155 @@
+ERROR ANALYSIS: Baseline (baseline)
+======================================================================
+Checkpoint:        checkpoints/baseline_best.pt
+Checkpoint SHA256: c9a6f7271c39ea00f82dbafbd69d7d0d470d9738b11da3b52ffd0c45b9b70c4f
+Checkpoint epoch:  10
+Best validation CER (from checkpoint): 0.6956001197246333
+Parameters:        7,296,710
+Input:             128 x 1024 (CTC time steps 256)
+Test set:          208 common samples (CTC-feasible at 256 time steps)
+Inference speed:   5.7 ms/image on NVIDIA GeForce RTX 3060 Ti (batch size 2)
+
+PRIMARY METRICS (corpus-level)
+----------------------------------------------------------------------
+Corpus CER:  68.79%
+Corpus WER:  85.08%
+Exact match: 6.25%
+
+SECONDARY METRICS
+----------------------------------------------------------------------
+Macro-CER (mean of per-sample CER): 41.28%
+Severe prediction collapse: 60/208 (28.85%)
+Empty predictions: 0
+Mean prediction/reference length ratio: 0.700
+
+MULTILINE
+----------------------------------------------------------------------
+group                                 n   cCER%   mCER%   cWER%   EM%  coll
+False                               137   17.14   17.08   58.14   9.5     0
+True                                 71   90.32   87.99   99.55   0.0    60
+
+TEXT LENGTH
+----------------------------------------------------------------------
+group                                 n   cCER%   mCER%   cWER%   EM%  coll
+Short (1-30)                         84   17.22   17.72   60.98  11.9     0
+Medium (31-60)                       57   25.99   23.86   58.90   5.3     2
+Long (61-100)                        18   70.86   68.78   93.64   0.0     9
+Very long (101+)                     49   92.08   91.85  100.00   0.0    49
+
+AUGMENTED NOISE
+----------------------------------------------------------------------
+group                                 n   cCER%   mCER%   cWER%   EM%  coll
+False                               106   66.93   42.52   85.89   1.9    32
+True                                102   70.68   40.00   84.24  10.8    28
+
+TEXT SOURCE
+----------------------------------------------------------------------
+group                                 n   cCER%   mCER%   cWER%   EM%  coll
+faker-date                           18   18.65   18.60   58.14  11.1     0
+faker-name                           20   18.18   17.94   79.25   5.0     0
+tatoeba                              99   16.92   16.63   55.93  10.1     0
+tatoeba-multiline                    71   90.32   87.99   99.55   0.0    60
+
+NEATNESS (CONFOUNDED)
+----------------------------------------------------------------------
+group                                 n   cCER%   mCER%   cWER%   EM%  coll
+Messy (61-70)                        31   61.64   36.27   81.72   9.7     7
+Moderate (71-80)                     52   62.23   35.41   80.44   5.8    12
+Neat (81-90)                         65   70.40   47.27   88.00   6.2    19
+Very messy (50-60)                   15   58.38   25.66   72.13  13.3     3
+Very neat (91-95)                    45   77.76   48.08   90.55   2.2    19
+
+PEN LINE WIDTH
+----------------------------------------------------------------------
+group                                 n   cCER%   mCER%   cWER%   EM%  coll
+1                                    43   69.04   45.79   87.63   0.0    15
+2                                    49   71.03   42.93   86.79  10.2    15
+3                                    54   67.51   39.60   84.03   5.6    14
+4                                    49   68.88   41.42   83.50   6.1    14
+5                                     8   63.07   24.15   80.00  12.5     1
+6                                     5   61.85   30.67   75.00  20.0     1
+
+MULTILINE X TEXT LENGTH
+----------------------------------------------------------------------
+group                                 n   cCER%   mCER%   cWER%   EM%  coll
+multiline / Long (61-100)            13   85.12   84.92   98.36   0.0     9
+multiline / Medium (31-60)            9   72.03   71.38   95.00   0.0     2
+multiline / Very long (101+)         49   92.08   91.85  100.00   0.0    49
+single-line / Long (61-100)           5   27.25   26.81   82.35   0.0     0
+single-line / Medium (31-60)         48   15.38   14.95   51.80   6.2     0
+single-line / Short (1-30)           84   17.22   17.72   60.98  11.9     0
+
+WRITERS
+----------------------------------------------------------------------
+130 writers in the test set (max 4 samples per writer).
+Per-writer macro-CER: min 0.0% / median 31.6% / max 96.2%
+Most writers have very few test samples; per-writer values are descriptive only.
+
+REPRESENTATIVE EXAMPLES (reference -> prediction, CER)
+----------------------------------------------------------------------
+[single_line_best]
+  idx=76  CER=0.000
+  REF:  Dia memiliki rumahnya sendiri.
+  PRED: Dia memiliki rumahnya sendiri.
+  idx=1093  CER=0.000
+  REF:  12.10.1718
+  PRED: 12.10.1718
+  idx=2368  CER=0.000
+  REF:  Sudah jam setengah dua.
+  PRED: Sudah jam setengah dua.
+
+[single_line_median]
+  idx=3860  CER=0.143
+  REF:  Mahir sekali sampai kukira dia sudah profesional.
+  PRED: Mahir sekatisampai kukira dia sudah prpesiaai.
+  idx=5302  CER=0.143
+  REF:  Intan Simbolon
+  PRED: Antan Simbalon
+  idx=5528  CER=0.143
+  REF:  Jumat 12 Agustus 1244
+  PRED: Aumat 12 AMgustus 12444
+
+[single_line_worst]
+  idx=4434  CER=0.593
+  REF:  Sekolah sangat membosankan.
+  PRED: 2e kgtak aag at a ea beraaka.
+  idx=6276  CER=0.556
+  REF:  Pernahkah kamu melihat ini?
+  PRED: Braldat kuma aetdat inaii.
+  idx=3351  CER=0.500
+  REF:  5 Agustus 1452
+  PRED: Ri tustus 116
+
+[multiline_best]
+  idx=3741  CER=0.526
+  REF:  Tidak ada yang ingin duduk di sebelah Tom.\nIni\nes batu.
+  PRED: Aida ada kaa nan ddk di ekeahu iaa.
+  idx=751  CER=0.632
+  REF:  Dia terlihat sedikit letih.\nMustahil!
+  PRED: T aikat sedikit ku.
+  idx=3691  CER=0.667
+  REF:  Kamu mati.\nAnakin tidak suka pasir.
+  PRED: Aaaiak eka ai.
+
+[multiline_median]
+  idx=4683  CER=0.906
+  REF:  Kenapa kau membutuhkan ini?\nApakah itu anjingmu?\nAku suka semangka.\nMereka menang!
+  PRED: Aa a aa.
+  idx=6672  CER=0.906
+  REF:  Jangan buat keputusan\nsekarang!\nCium ini.\nKamu harus selalu ketuk pintu sebelum masuk ke kamar saya.\nKedengarannya menghabiskan waktu seorang diri selalu menyenangkan bagimu.\nTerima kasih atas sarannya!\nApa yang dilakukan ayahmu?
+  PRED: Aa aa a ea a aaaaa a a.
+  idx=1737  CER=0.907
+  REF:  Ada kucing.\nAku baru saja mulai.\nKami selalu patuh terhadap peraturan.\nKuncinya\nada di\natas meja.\nBisa berjalan.
+  PRED: Aa aaa a a.
+
+[multiline_worst]
+  idx=970  CER=0.982
+  REF:  Bersatu kita teguh. Bercerai kita runtuh\nKami telah melakukan yang kami bisa.\nSenapanku kosong.\nKami\nsemua\nmendapat bonus Hari Natal.\nDia tidak bisa melihat apa-apa tanpa kacamata.\nBayi ini usianya tiga minggu.
+  PRED: Aaaa.
+  idx=1626  CER=0.965
+  REF:  Kita mempunyai banyak kompetisi sekarang.\nYa ampun, arsitek\ngedung ini pasti\nsedang mabuk saat itu.\nDia bersolek.\nAku anak yang imut,\nkan?
+  PRED: Aaaaa.
+  idx=3673  CER=0.962
+  REF:  Apakah kamu ingin tetap muda selamanya?\nSatu, dua, tiga...\nPekerjaan saya\nmencuci.\nKamu\nboleh pergi ke mana pun yang kamu\nsuka.\nUna lebih tua daripada Sakila.\nKalian harus menolong teman-teman kalian.
+  PRED: Aa a aa.
+

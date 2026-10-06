@@ -1,0 +1,7 @@
+# Minimal dependencies for the hosted demo (CPU only, no training stack).
+# Streamlit Community Cloud reads this file because it sits next to app.py.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+streamlit>=1.50
+numpy
+Pillow

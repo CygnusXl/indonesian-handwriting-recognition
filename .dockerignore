@@ -1,0 +1,8 @@
+.git
+checkpoints
+data
+notebooks
+results
+evaluation/photos
+**/__pycache__
+.pytest_cache
