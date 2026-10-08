@@ -57,5 +57,8 @@ Wi-Fi can also open `http://<your-PC-ip>:8501` if you start Streamlit with
   kept in their own session and downloaded by them as CSV, not stored on the server.
   Collect those CSV files from testers and place them in `evaluation/results/`.
 - The sidebar already tells visitors that the model was trained on synthetic
-  handwriting and works best on one line per image; keep that visible.
+  handwriting and that accuracy on real photos is unmeasured; keep that visible.
+- The app now needs `opencv-python-headless` (in `app/requirements.txt`) for photo
+  preprocessing; it runs on CPU. Latency on large photos on a free hosted CPU has not
+  been measured; photos are limited to 2400 px on the long side internally.
 - Do not publish `evaluation/photos/` (it may contain people's handwriting).

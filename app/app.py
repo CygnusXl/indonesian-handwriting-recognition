@@ -5,8 +5,11 @@ Run from the repository root:
 
     streamlit run app/app.py
 
-Pipeline: uploaded image -> preprocessing (same function as training)
--> CNN-BiLSTM -> CTC greedy decoding -> recognised text.
+Pipeline (default "D"): photograph -> orientation / perspective / deskew /
+illumination / contrast / notebook-ruling suppression -> handwriting-line
+detection -> one crop per line -> the (unchanged) CNN-BiLSTM line recognizer
+with CTC greedy decoding -> lines joined in reading order.
+"A" is the original single-line pipeline, kept for comparison.
 """
 
 import csv
@@ -55,8 +58,9 @@ def load_examples():
 
 st.title("✍️ Indonesian Handwriting Recognition")
 st.caption(
-    "Deep learning demo (CNN + BiLSTM + CTC) that converts an image of "
-    "Indonesian handwriting into digital text."
+    "Deep learning demo (CNN + BiLSTM + CTC line recogniser) that converts "
+    "a photo of handwriting into digital text. Photos are preprocessed and "
+    "split into lines before recognition."
 )
 
 # ------------------------------------------------------------
@@ -98,9 +102,10 @@ with st.sidebar:
 
     st.warning(
         "Trained only on SYNTHETIC handwriting (OpenHand-Synth). "
-        "Accuracy on real handwriting photos can be much lower. "
-        "The model is designed for ONE line of text per image; "
-        "multiline text was its main weakness."
+        "Accuracy on real handwriting photos can be much lower and has "
+        "NOT been measured here. The model itself reads ONE line at a "
+        "time; for photographed pages the app first finds and crops the "
+        "lines."
     )
 
     st.caption(
@@ -108,11 +113,41 @@ with st.sidebar:
         "not stored by the app."
     )
 
-    auto_contrast = st.checkbox(
-        "Auto-contrast (not used in training)",
+    st.header("Pipeline")
+
+    pipeline = st.selectbox(
+        "Processing pipeline",
+        list(logic.PIPELINE_CHOICES),
+        index=list(logic.PIPELINE_CHOICES).index(logic.DEFAULT_PIPELINE),
+        format_func=lambda key: logic.PIPELINE_CHOICES[key],
+        help="D is the default for photographs of pages. A is the original "
+        "single-line pipeline (use it for a tight crop of one line). "
+        "Which pipeline reads better on YOUR photos has to be measured: "
+        "see evaluation/real_world/README.md.",
+    )
+
+    rotation_label = st.selectbox(
+        "Page rotation",
+        ["Auto", "0 (as is)", "90 left", "180", "90 right"],
+        help="Auto corrects sideways pages and leaves upright ones alone. "
+        "If automatic orientation guesses wrong, choose it manually.",
+    )
+    rotation = {"Auto": None, "0 (as is)": 0, "90 left": 90,
+                "180": 180, "90 right": 270}[rotation_label]
+
+    force = st.checkbox(
+        "Recognize anyway if no handwriting is found",
         value=False,
-        help="Stretches image contrast before recognition. Useful for "
-        "grey paper or dim photos. Not part of the trained pipeline.",
+        help="By default recognition is skipped when the image looks blank "
+        "or not like handwriting.",
+    )
+
+    auto_contrast = st.checkbox(
+        "Auto-contrast (pipeline A only)",
+        value=False,
+        disabled=(pipeline != "A"),
+        help="Stretches contrast for the original pipeline A. Pipelines "
+        "B-D already normalise illumination and contrast.",
     )
 
 # ------------------------------------------------------------
@@ -151,7 +186,7 @@ else:
     source = "example"
 
 if image_bytes is None:
-    st.info("Upload an image of one line of handwriting to begin.")
+    st.info("Upload an image of handwriting (one line, or a photographed notebook page) to begin.")
     st.stop()
 
 try:
@@ -162,68 +197,160 @@ except ValueError as error:
 
 fingerprint = logic.image_fingerprint(image_bytes)
 
-left, right = st.columns(2)
+options_key = (pipeline, rotation, force, auto_contrast if pipeline == "A" else False)
 
-with left:
-    st.subheader("Input")
-    st.image(image, width="stretch")
+st.subheader("1. Input image")
+st.image(image, width="stretch")
 
-    run = st.button("Recognize text", type="primary")
+run = st.button("Recognize text", type="primary")
 
 if run:
-    with st.spinner("Recognising..."):
+    with st.spinner("Preprocessing, finding lines and recognising..."):
+        if pipeline == "A":
+            value = logic.pr.recognize_legacy(
+                loaded, image,
+                logic.replace_spec(logic.pr.EXPERIMENTS["A"], auto_contrast),
+            )
+            value.warnings = logic.image_warnings(image) + value.warnings
+        else:
+            value = logic.recognize_photo(
+                loaded, image, pipeline=pipeline, force=force, rotation=rotation
+            )
+
         st.session_state["result"] = {
             "fingerprint": fingerprint,
-            "auto_contrast": auto_contrast,
-            "value": logic.recognize_image(
-                loaded, image, auto_contrast=auto_contrast
-            ),
+            "options": options_key,
+            "value": value,
         }
 
 state = st.session_state.get("result")
 result = (
     state["value"]
     if state and state["fingerprint"] == fingerprint
-    and state["auto_contrast"] == auto_contrast
+    and state["options"] == options_key
     else None
 )
 
-with right:
-    st.subheader("Recognised text")
+if result is None:
+    st.caption("Press **Recognize text**.")
+else:
+    spec = result.spec
 
-    if result is None:
-        st.caption("Press **Recognize text**.")
+    st.caption(f"Pipeline: {spec.describe()}")
+
+    message = logic.KIND_MESSAGES.get(result.kind)
+
+    if message:
+        (st.error if result.kind in ("no_handwriting", "not_handwriting") else st.info)(
+            message + (f" {result.reason}" if result.reason and result.kind
+                       in ("no_handwriting", "not_handwriting") else "")
+        )
+
+    for note in result.warnings:
+        st.warning(note)
+
+    # ---- 2. preprocessing ------------------------------------------------
+    if spec.legacy:
+        st.subheader("2. Preprocessing")
+        st.caption("Original pipeline: grayscale + resize to the model input. "
+                   "No page-level preprocessing and no line detection.")
     else:
-        for message in result.warnings:
-            st.warning(message)
+        st.subheader("2. Preprocessed image")
+        tabs = st.tabs(["Original", "Normalised", "Processed (used for detection)"])
 
+        with tabs[0]:
+            st.image(result.images["original"], width="stretch")
+        with tabs[1]:
+            st.image(result.images["normalized"], width="stretch")
+            st.caption("After orientation / perspective / deskew, illumination "
+                       "flattening, denoising and contrast normalisation.")
+        with tabs[2]:
+            st.image(result.images["processed"], width="stretch")
+            st.caption(
+                "Notebook-ruling suppression applied." if spec.preprocess.suppress_ruling
+                else "No ruling suppression in this pipeline (same as Normalised)."
+            )
+
+        for note in result.notes:
+            st.caption("• " + note)
+
+    # ---- 3. detected lines ----------------------------------------------
+    if "overlay" in result.images:
+        st.subheader("3. Detected handwriting lines")
+        st.image(result.images["overlay"], width="stretch")
+        st.caption(f"{result.n_lines} line(s) found, numbered top to bottom.")
+
+    # ---- 4. recognised text ------------------------------------------------
+    st.subheader("4. Recognised text")
+
+    if result.lines:
         st.text_area(
             "Result (select to copy)",
-            value=result.display_text,
-            height=140,
+            value=logic.page_display_text(result),
+            height=max(120, 40 * (result.n_lines + 1)),
             label_visibility="collapsed",
         )
 
-        columns = st.columns(2)
+        columns = st.columns(3)
 
         if result.confidence is not None:
             columns[0].metric(
                 "Model confidence (heuristic)",
                 f"{result.confidence * 100:.0f}%",
-                help="Mean probability of the characters the model "
-                "emitted. Not a calibrated probability of being correct; "
-                "outputs can be wrong even at high confidence.",
+                help="Mean probability of the characters the model emitted, "
+                "weighted by text length. A heuristic, NOT a calibrated "
+                "probability of being correct; outputs can be wrong even at "
+                "high confidence.",
             )
 
-        columns[1].metric("Time", f"{result.seconds * 1000:.0f} ms")
+        columns[1].metric("Lines", f"{result.n_lines}")
+        columns[2].metric("Time", f"{result.timings.get('total_s', 0) * 1000:.0f} ms")
 
-        with st.expander("What the model sees (after preprocessing)"):
-            st.image(result.canvas, width="stretch")
-            st.caption(
-                "The image is converted to grayscale, scaled to the "
-                "model's height/width and placed on a white canvas. "
-                "Tall (multiline) images are shrunk to fit."
-            )
+        if result.n_lines > 1:
+            with st.expander("Per-line results"):
+                for line in result.lines:
+                    confidence = (f"{line.confidence * 100:.0f}% (heuristic)"
+                                  if line.confidence is not None else "n/a")
+                    st.markdown(f"**Line {line.index + 1}** - confidence {confidence}")
+                    st.code(line.text or "(empty)", language=None)
+    else:
+        st.caption("No text was produced.")
+
+    # ---- debugging ---------------------------------------------------------
+    with st.expander("What the model sees"):
+        st.caption(
+            "Each image below is exactly what is fed to the recognizer: a crop "
+            "of one line, converted to grayscale, scaled to the model height and "
+            "placed on the white model canvas. If this does not look like a "
+            "clean line of dark writing, the problem is in preprocessing or "
+            "line detection, not in the model."
+        )
+
+        for line in result.lines:
+            for number, chunk in enumerate(line.chunks, 1):
+                if chunk.canvas is None:
+                    continue
+
+                label = f"Line {line.index + 1}" + (
+                    f" (part {number})" if len(line.chunks) > 1 else "")
+                detail = []
+
+                if chunk.fit_scale is not None and chunk.fit_scale < 0.99:
+                    detail.append(f"shrunk to {chunk.fit_scale * 100:.0f}% to fit the width")
+                if chunk.ink_height_fraction is not None:
+                    detail.append(f"writing is {chunk.ink_height_fraction * 100:.0f}% "
+                                  "of the model input height")
+
+                st.markdown(f"**{label}**" + (" - " + "; ".join(detail) if detail else ""))
+                st.image(chunk.canvas, width="stretch")
+                st.caption(f"Model output: {chunk.text or '(empty)'}")
+
+        t = result.timings
+        st.caption(
+            f"Timing: preprocessing {t.get('preprocess_s', 0) * 1000:.0f} ms, "
+            f"line detection {t.get('segment_s', 0) * 1000:.0f} ms, "
+            f"recognition {t.get('infer_s', 0) * 1000:.0f} ms."
+        )
 
 # ------------------------------------------------------------
 # Optional practical-evaluation logging
@@ -245,7 +372,8 @@ if result is not None:
         with st.form("evaluation_form", clear_on_submit=False):
             participant = st.text_input("Participant ID", value="P01")
             reference = st.text_area(
-                "True text (one line break per handwritten line)",
+                "True text (one line break per handwritten line; "
+                "line breaks are scored as spaces)",
                 value=reference_prefill,
             )
             line_type = st.selectbox(
@@ -275,10 +403,10 @@ if result is not None:
                     handwriting,
                     capture,
                     auto_contrast,
-                    reference.replace("\n", "\\n"),
-                    result.text,
+                    " ".join(reference.split()),
+                    result.text_oneline,
                     usefulness,
-                    result.seconds,
+                    result.timings.get("total_s", 0.0),
                     loaded.sha256,
                 )
                 if HOSTED:

@@ -5,3 +5,6 @@ torch
 streamlit>=1.50
 numpy
 Pillow
+# Photograph preprocessing and line detection (headless build: no GUI/libGL needed
+# in slim containers)
+opencv-python-headless
