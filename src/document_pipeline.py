@@ -805,7 +805,8 @@ def _split_rows(sub, ref_height):
     only if every resulting piece still contains a dense text band (its
     peak row-ink is at least half the blob's peak); otherwise the "piece"
     is just the sparse ascender/descender zone of one line and is merged
-    back. This keeps a single line from ever being sliced.
+    back (row ink is normalised by each piece's own width, so a short line
+    below a long one still counts as a text line). This keeps a single line from ever being sliced.
     """
 
     height = sub.shape[0]
@@ -828,11 +829,24 @@ def _split_rows(sub, ref_height):
         cuts.append(lo + int(np.argmin(profile[lo:hi])))
 
     cuts = sorted(set(cuts))
-    peak = float(profile.max())
+
+    def strength(a, b):
+        """Peak row-ink of a segment divided by its own horizontal extent, so a
+        short line is not judged weak merely because a longer line sits next
+        to it."""
+
+        part = sub[a:b]
+        cols = np.nonzero(part.any(axis=0))[0]
+        extent = (cols[-1] - cols[0] + 1) if len(cols) else 1
+
+        return float(profile[a:b].max()) / extent
 
     def weak_segment(boundaries):
-        for a, b in zip(boundaries[:-1], boundaries[1:]):
-            if b - a < 0.5 * ref_height or profile[a:b].max() < 0.5 * peak:
+        pairs = list(zip(boundaries[:-1], boundaries[1:]))
+        best = max(strength(a, b) for a, b in pairs)
+
+        for a, b in pairs:
+            if b - a < 0.5 * ref_height or strength(a, b) < 0.5 * best:
                 return (a, b)
         return None
 
@@ -1128,7 +1142,7 @@ def line_mask_in_crop(line, crop_shape, origin):
     return placed
 
 
-def split_line_into_chunks(crop_mask, max_aspect, ink_height, margin_x):
+def split_line_into_chunks(crop_mask, max_aspect, ink_height, margin_x, min_fit=0.6):
     """
     A model canvas is at most `max_aspect` times wider than tall (8 for
     128x1024). A long handwritten line exceeds that and would be shrunk
@@ -1142,7 +1156,10 @@ def split_line_into_chunks(crop_mask, max_aspect, ink_height, margin_x):
 
     crop_h, crop_w = crop_mask.shape
 
-    if crop_w <= max_aspect * crop_h:
+    # A line only slightly wider than the canvas is shrunk to fit (as the
+    # original pipeline does) rather than cut: cutting costs word context and
+    # adds edge artefacts. Cut only when shrinking would go below `min_fit`.
+    if crop_w <= max_aspect * crop_h / min_fit:
         return [(0, crop_w)]
 
     columns = crop_mask.any(axis=0)

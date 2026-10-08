@@ -173,3 +173,40 @@ def test_short_line_is_one_chunk():
     mask[10:50, 20:280] = True
 
     assert dp.split_line_into_chunks(mask, 8, 40, 20) == [(0, 300)]
+
+
+# ---- real dataset samples (committed figure of OpenHand-Synth images) -------------
+
+FIGURE = None
+
+
+def _figure_crop(box):
+    import os
+
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        "results", "indonesian_samples.png")
+
+    if not os.path.exists(path):
+        pytest.skip("results/indonesian_samples.png not available")
+
+    image = Image.open(path).convert("RGB")
+
+    return image.crop(tuple(int(v * 1.04) for v in box))
+
+
+def test_tightly_spaced_dataset_lines_are_not_merged():
+    # Regression: a short line under a longer one (lines 3 and 4 of the first
+    # figure sample) was merged into one box because its row ink was judged
+    # "weak" relative to the longer line next to it.
+    _, detection = detect(_figure_crop((0, 80, 1715, 470)))
+
+    assert len(detection.lines) == 4
+    assert [l.y0 for l in detection.lines] == sorted(l.y0 for l in detection.lines)
+
+
+@pytest.mark.parametrize("box", [(0, 580, 1715, 790), (0, 1000, 1715, 1180),
+                                 (0, 1420, 1715, 1600), (0, 1860, 1715, 2000)])
+def test_dataset_single_lines_stay_single(box):
+    _, detection = detect(_figure_crop(box))
+
+    assert len(detection.lines) == 1

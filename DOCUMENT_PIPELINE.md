@@ -15,9 +15,33 @@ synthetic-only training also limit accuracy can only be answered with real photo
 Measured geometry on one SYNTHETIC 1400x1900 page (4 lines, each about 50 px tall; not real
 handwriting, geometry only): pipeline A scales the page by 0.067, so a line is about 3 px
 tall inside the 128 px model input; pipeline D feeds each line at about 59-67% of the input
-height, the scale the model was trained on (`ChunkResult.ink_height_fraction`, shown in
-the app's "What the model sees"). The size of this gap on real photographs depends on how
-large the writing is in the photo.
+height (`ChunkResult.ink_height_fraction`, shown in the app's "What the model sees").
+
+## Checks on dataset samples (real model, tiny n, NOT a benchmark)
+
+`results/indonesian_samples.png` (committed) shows five OpenHand-Synth images. I cropped them
+out of that figure (screenshot resolution; whether they were in the training split is unknown)
+and ran the real `models/final_model.pt` on them. Observations, n = 1 multi-line image and
+3 single-line images with a reference:
+
+- Multi-line sample: pipeline A returns near-garbage for the whole page; pipelines C/D find the
+  4 lines and read most of 3 of them (the first letter of line 1 and line 4 are wrong or lost).
+  This is the failure mode the pipeline targets; it is one image.
+- Single-line samples (CER, whole-image A vs D): A 25.9%, D 31.1%. Differences are within what
+  3 images can show; D is **not** shown to be better than A on an already-cropped single line.
+  For a tight single-line crop, pipeline A is a legitimate choice.
+- Writing size matters a lot. Sweeping the vertical margin (so the writing fills 100% ... 20% of
+  the 128 px input height) on the same 3 lines: CER mean 0.44 at 100%, 0.35 at 67% (default),
+  0.34 at 50%, 0.44 at 33%, 0.65 at 25%, 0.76 at 20%. So text smaller than about a third of the
+  input height is read badly, which is consistent with pipeline A's ~5% on a whole page; between
+  50% and 67% there is no resolvable difference with this n, so the default was not retuned.
+  What ink-height fraction the TRAINING data had was not measured (the dataset is not reachable
+  from the build environment).
+- Two bugs found this way and fixed (regression tests in `tests/test_document_pipeline.py`):
+  tightly spaced lines where a short line sits under a longer one were merged into one box;
+  lines only slightly wider than 8:1 were needlessly cut into word chunks (now shrunk to fit,
+  like pipeline A, unless that would shrink them below 60%).
+- A synthetic-only benchmark had not caught either bug, which is why its numbers are optimistic.
 
 ## Stages (`src/document_pipeline.py`, `src/page_recognition.py`)
 
@@ -32,7 +56,7 @@ large the writing is in the photo.
 | 7. Contrast | soft percentile levels (no hard threshold: strokes keep their grey values) | `contrast`, `white_point` |
 | 8. Ruling suppression (D only) | long horizontal/vertical thin structures removed by a morphological opening estimate; strokes clearly darker than the rule are kept at full strength; vertical suppression only on page-like images | `suppress_ruling` |
 | 9. Line detection | ink mask -> connected components -> horizontal smearing into blobs -> splitting of over-tall blobs at ink valleys -> merging/attaching small marks -> sorted top to bottom. Result is *single line*, *multiple lines*, *no handwriting* (blank) or *not handwriting* (ink everywhere / noise) | `SegmentationConfig` |
-| 10. Crops | each line is cropped with a margin; a line wider than 8x its height is cut at word gaps into chunks that fit the 128x1024 canvas (a single over-long word is shrunk and flagged) | `margin`, `margin_x` |
+| 10. Crops | each line is cropped with a margin; a line needing more than ~1.7x shrink (wider than ~13x its height) is cut at word gaps into chunks that fit the 128x1024 canvas, a slightly-too-wide line is shrunk to fit like in pipeline A (a single over-long word is shrunk and flagged) | `margin`, `margin_x` |
 | 11. Recognition | the unchanged CNN-BiLSTM-CTC model on every crop (batched; GPU if the model is on GPU, otherwise CPU) | - |
 | 12. Join | chunks joined with spaces, lines joined with newlines in reading order | - |
 
