@@ -372,7 +372,7 @@ def _recognize_once(loaded, image, spec, rotation=None, force=False):
                     "the image; move closer or use a higher-resolution photo.")
             if not text:
                 result.warnings.append(f"Line {line.index + 1}: the model returned no characters.")
-            if any(c.fit_scale < 0.7 for c in chunks):
+            if any(c.fit_scale < 0.58 for c in chunks):
                 result.warnings.append(
                     f"Line {line.index + 1}: a very long word was shrunk to fit the model input.")
 

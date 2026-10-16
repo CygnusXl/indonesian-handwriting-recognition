@@ -132,7 +132,7 @@ def test_streamlit_ui_renders_with_model(monkeypatch, deployment_model):
 
     assert not app.exception
     assert not app.error
-    assert any("Upload an image" in i.value for i in app.info)
+    assert any("Upload an image" in m.value for m in app.markdown)
 
 
 def test_streamlit_hosted_mode_renders(monkeypatch, deployment_model):

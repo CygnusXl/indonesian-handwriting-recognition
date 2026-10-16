@@ -83,32 +83,33 @@ def test_recognize_photo_degrades_instead_of_crashing(random_loaded, monkeypatch
     assert any("failed" in w and "single-line" in w for w in result.warnings)
 
 
-def test_ui_shows_the_four_stages_and_heuristic_label(monkeypatch, model_file, photo_path):
+def test_ui_runs_automatically_and_shows_the_four_stages(monkeypatch, model_file, photo_path):
     monkeypatch.setenv("HTR_MODEL_PATH", model_file)
 
     app = make_app(photo_path).run()
 
     assert not app.exception
+    page = " ".join(m.value for m in app.markdown)
 
-    app.button[0].click().run()
+    for title in ("Your photo", "Cleaned up", "Lines found", "Recognised text"):
+        assert title in page
 
-    assert not app.exception
-    assert [h.value for h in app.subheader] == [
-        "1. Input image", "2. Preprocessed image",
-        "3. Detected handwriting lines", "4. Recognised text"]
-    assert any("several lines" in i.value for i in app.info)
+    assert 'class="paper"' in page and page.count('<span class="ln"') == 4
+    assert "several lines of handwriting" in page
     assert any("heuristic" in m.label.lower() for m in app.metric)
     assert [m.value for m in app.metric if m.label == "Lines"] == ["4"]
     assert any("What the model sees" in e.label for e in app.expander)
+    assert any(e.label == "Settings" for e in app.expander)
 
 
 def test_ui_pipeline_a_still_works(monkeypatch, model_file, photo_path):
     monkeypatch.setenv("HTR_MODEL_PATH", model_file)
 
     app = make_app(photo_path).run()
-    app.sidebar.selectbox[0].set_value("A").run()
-    app.button[0].click().run()
+    app.selectbox[0].set_value("A").run()
 
     assert not app.exception
-    assert any("Original single-line pipeline" in i.value for i in app.info)
-    assert any("not much wider than it is tall" in w.value for w in app.warning)
+    page = " ".join(m.value for m in app.markdown)
+
+    assert "Original single-line pipeline" in page
+    assert "not much wider than it is tall" in page

@@ -104,16 +104,19 @@ python src/export_final_model.py --model baseline   # creates models/final_model
 streamlit run app/app.py
 ```
 
-Upload a photo (one line or a notebook page) → *Recognize text*. The page shows the
-stages in order: **1. input → 2. preprocessed image** (original / normalised / processed
-tabs) **→ 3. detected lines** (numbered boxes) **→ 4. recognised text**, with the
-heuristic confidence (labelled as such; it is not a calibrated probability), warnings,
-per-line results, and a **"What the model sees"** expander showing the exact crops fed
-to the model. The sidebar offers the pipeline (A original, B improved preprocessing,
-C + line detection, **D + ruling suppression = default**), a manual page rotation, and
-"Recognize anyway" for images judged blank. It states the model's measured
-synthetic-test numbers and that it was trained on synthetic data. An optional form logs
-practical-evaluation results (line breaks are scored as spaces).
+Upload a photo (one line or a notebook page) and the app runs on its own. The page reads
+top to bottom like the pipeline: **1 your photo → 2 cleaned up** (processed / normalised
+tabs) **→ 3 lines found** (numbered boxes) **→ 4 recognised text**, shown on ruled paper with
+one row per detected line and its heuristic confidence (labelled as such; not a calibrated
+probability). Below: download or copy the text, a **"What the model sees"** expander with the
+exact crops fed to the model, and an optional evaluation form. *Settings* offers the
+pipeline (A original, B improved preprocessing, C + line detection, **D + ruling suppression =
+default**), a manual page rotation, and "Recognize anyway" for images judged blank. An
+"About this model" section states the measured synthetic-test numbers and that the model was
+trained on synthetic data. Theme: `app/style.css`, `app/ui_components.py`,
+`.streamlit/config.toml`.
+
+![The web app reading a four-line sample](app/screenshot.png)
 
 Recommended input: a flat, evenly lit photo taken from above, the page filling most of
 the frame, dark ink on light paper, handwriting at least ~25 px tall. See
