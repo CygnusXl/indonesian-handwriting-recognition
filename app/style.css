@@ -70,10 +70,10 @@ h1, h2, h3 { font-family: var(--display); color: var(--ink); letter-spacing: -0.
 }
 [data-testid="stFileUploader"] section:hover { background: var(--pen-wash); }
 [data-testid="stFileUploader"] small { color: var(--ink-soft); }
-[data-testid="stFileUploader"] button {
+[data-testid="stFileUploaderDropzone"] button {
   background: var(--pen); color: #fff; border: 0; border-radius: 8px; font-weight: 600;
 }
-[data-testid="stFileUploader"] button:hover { background: var(--pen-dark); color: #fff; }
+[data-testid="stFileUploaderDropzone"] button:hover { background: var(--pen-dark); color: #fff; }
 
 .empty { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 24px 28px; margin-top: 16px; }
 .empty h2 { margin: 0 0 4px; font-size: 24px; line-height: 1.25; }
