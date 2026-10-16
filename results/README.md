@@ -57,3 +57,7 @@ These are **legacy values** retained for traceability: the CER column is macro-C
 - \`experiment2_error_analysis_summary.txt\`
 - \`experiment_2.md\` in \`experiments/\`
 - \`experiment_3.md\` in \`experiments/\`
+
+## Line-level view with confidence intervals
+
+`python src/line_level_report.py` re-aggregates the saved per-sample predictions (no model is run) into single-line vs multiline tables with bootstrap 95% intervals and paired gaps to the baseline. Output: `results/analysis/line_level_report.md` and `.csv`. Baseline: single-line corpus CER 17.1% (14.4–20.0% by writer bootstrap) vs multiline 90.3% (88.9–91.5%); multiline samples hold 70.6% of the reference characters. The effect of the page pipeline's line splitting on the multiline samples is **not** measured here (needs the dataset images). Intervals cover test-set sampling noise only; there is one training run per model.
