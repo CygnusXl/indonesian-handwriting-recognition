@@ -42,6 +42,17 @@ st.set_page_config(
 
 st.markdown(ui.load_css(), unsafe_allow_html=True)
 
+# Light / dark appearance (dark is the default, as on main).
+if "dark_mode" not in st.session_state:
+    st.session_state["dark_mode"] = True
+
+with st.sidebar:
+    st.subheader("Appearance")
+    dark_mode = st.toggle("Dark mode", key="dark_mode")
+
+if dark_mode:
+    st.markdown(ui.load_dark_css(), unsafe_allow_html=True)
+
 
 @st.cache_resource(show_spinner="Loading model...")
 def get_model(path):
@@ -100,14 +111,19 @@ if choice == "Upload an image":
     if uploaded is not None:
         image_bytes = uploaded.getvalue()
 else:
-    labels = [f"{e['file']}" for e in examples]
-    picked = st.selectbox("Example", labels)
+    st.markdown("#### Test set examples (OpenHand-Synth)")
+    st.caption("Synthetic handwriting images from the dataset test split, not photographs. "
+               "Pick one to see how the model reads it.")
+
+    labels = [ui.example_label(i, e["reference"]) for i, e in enumerate(examples)]
+    picked = st.selectbox("Choose a test set sample", labels)
     entry = examples[labels.index(picked)]
 
     with open(os.path.join(EXAMPLES_DIR, entry["file"]), "rb") as file:
         image_bytes = file.read()
 
     reference_prefill = entry["reference"]
+    st.markdown(ui.ground_truth(reference_prefill), unsafe_allow_html=True)
 
 with st.expander("Settings"):
     columns = st.columns(2)

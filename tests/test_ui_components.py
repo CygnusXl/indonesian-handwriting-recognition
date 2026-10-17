@@ -46,3 +46,16 @@ def test_stylesheet_loads_and_keeps_streamlit_icons():
     css = ui.load_css()
 
     assert css.startswith("<style>") and "Material Symbols" in css
+
+
+def test_dark_stylesheet_loads_and_overrides_tokens():
+    css = ui.load_dark_css()
+
+    assert css.startswith("<style>") and "--page:" in css and "--ink:" in css
+
+
+def test_example_label_truncates_and_ground_truth_is_escaped():
+    assert ui.example_label(0, "Short") == 'Sample 1: "Short"'
+    assert ui.example_label(2, "x" * 60).endswith('..."') and len(ui.example_label(2, "x" * 60)) < 60
+    assert "&lt;b&gt;" in ui.ground_truth("<b>")
+    assert "<b>" not in ui.ground_truth("<b>")

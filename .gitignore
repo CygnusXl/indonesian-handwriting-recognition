@@ -67,8 +67,7 @@ evaluation/photos/*
 # Allow the deployment model (about 29 MB) to be committed on purpose
 !models/final_model.pt
 
-# Optional example images exported from OpenHand-Synth: check the dataset
-# licence before removing this line
+# Example images exported from OpenHand-Synth test set for demo
 app/examples/*
 !app/examples/README.md
 
@@ -81,3 +80,5 @@ evaluation/real_world/*
 evaluation/real_world/manual_lines/*
 !evaluation/real_world/manual_lines/.gitkeep
 results/segmentation_benchmark/
+!app/examples/examples.csv
+!app/examples/*.png

@@ -9,12 +9,34 @@ app injects unescaped model output into the page.
 import html
 import os
 
-STYLE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "style.css")
+HERE = os.path.dirname(os.path.abspath(__file__))
+STYLE_PATH = os.path.join(HERE, "style.css")
+DARK_STYLE_PATH = os.path.join(HERE, "style_dark.css")
 
 
 def load_css():
     with open(STYLE_PATH, encoding="utf-8") as file:
         return f"<style>{file.read()}</style>"
+
+
+def load_dark_css():
+    """Overrides the colour tokens and the Streamlit widgets for dark mode."""
+
+    with open(DARK_STYLE_PATH, encoding="utf-8") as file:
+        return f"<style>{file.read()}</style>"
+
+
+def example_label(index, reference, limit=36):
+    preview = reference if len(reference) <= limit else reference[:limit - 3] + "..."
+
+    return f'Sample {index + 1}: "{preview}"'
+
+
+def ground_truth(reference):
+    """The expected text of a dataset example, shown next to its image."""
+
+    return ('<div class="truth"><span class="truth-label">Expected text</span>'
+            f'<span class="truth-text">{html.escape(reference)}</span></div>')
 
 
 def hero(model_label, parameters=None):

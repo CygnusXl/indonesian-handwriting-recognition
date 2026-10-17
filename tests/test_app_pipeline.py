@@ -113,3 +113,31 @@ def test_ui_pipeline_a_still_works(monkeypatch, model_file, photo_path):
 
     assert "Original single-line pipeline" in page
     assert "not much wider than it is tall" in page
+
+
+def test_dark_mode_is_default_and_can_be_switched_off(monkeypatch, model_file, photo_path):
+    monkeypatch.setenv("HTR_MODEL_PATH", model_file)
+
+    app = make_app(photo_path).run()
+
+    assert not app.exception
+    assert app.toggle[0].value is True
+    assert "--page: #0e1424" in " ".join(m.value for m in app.markdown)
+
+    app.toggle[0].set_value(False).run()
+
+    assert not app.exception
+    assert "--page: #0e1424" not in " ".join(m.value for m in app.markdown)
+
+
+def test_example_picker_shows_expected_text(monkeypatch, model_file, photo_path):
+    monkeypatch.setenv("HTR_MODEL_PATH", model_file)
+
+    app = make_app(photo_path).run()
+    app.radio[0].set_value("Use an example").run()
+
+    assert not app.exception
+    page = " ".join(m.value for m in app.markdown)
+
+    assert 'class="truth"' in page and "Di mana tempat pemberhentian busnya?" in page
+    assert app.selectbox[0].options[0].startswith('Sample 1: "Di mana')
