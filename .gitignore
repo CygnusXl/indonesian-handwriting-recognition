@@ -82,3 +82,6 @@ evaluation/real_world/manual_lines/*
 results/segmentation_benchmark/
 !app/examples/examples.csv
 !app/examples/*.png
+
+# synthetic test images exported by src/pipeline_on_test_set.py (dataset licence: do not commit)
+evaluation/synthetic_test/
