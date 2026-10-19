@@ -43,6 +43,28 @@ and ran the real `models/final_model.pt` on them. Observations, n = 1 multi-line
   like pipeline A, unless that would shrink them below 60%).
 - A synthetic-only benchmark had not caught either bug, which is why its numbers are optimistic.
 
+## Pipeline on the 208 synthetic test images (run by Peter, 2026-10-19; real model)
+
+Command: `src/pipeline_on_test_set.py export`, then `src/evaluate_pipeline.py --experiments A C D`, then `summarize`. These are OpenHand-Synth **dataset images, not photographs**: this says nothing about real handwriting. One run, no confidence intervals for C/D (the A row reproduces the baseline's single-line/multiline numbers from `results/analysis/line_level_report.md`).
+
+| Pipeline | Group | n | Corpus CER | Corpus WER | Exact match |
+| --- | --- | ---: | ---: | ---: | ---: |
+| A (original) | all | 208 | 68.3% | 87.3% | 6.2% |
+| A | multiline | 71 | 90.3% | 99.6% | 0.0% |
+| A | single | 137 | 17.1% | 58.1% | 9.5% |
+| C (line splitting) | all | 208 | 28.8% | 75.9% | 1.4% |
+| C | multiline | 71 | 31.6% | 77.6% | 0.0% |
+| C | single | 137 | 22.2% | 71.9% | 2.2% |
+| D (C + ruling suppression) | all | 208 | 28.8% | 75.8% | 1.4% |
+| D | multiline | 71 | 31.6% | 77.6% | 0.0% |
+| D | single | 137 | 22.2% | 71.6% | 2.2% |
+
+**Observations.** (1) Line splitting cuts multiline CER from 90.3% to 31.6% on these images. (2) It makes single-line images worse: 17.1% to 22.2% CER, exact match 9.5% to 2.2%. (3) C and D are nearly identical here, as expected: there is no ruling in these images. (4) Failures of the splitting itself are visible in the log: a few multiline images were read as 1-2 lines (e.g. `multiline_1792`, `4031`, `5858`) and one single line was split into two (`single_369`, CER 1.5).
+
+**Observation on the single-line regression (6 dataset images only, n too small to conclude).** In the per-image log, C/D often drop or replace the first letter (`Dia` to `ia`, `Kereta` to `Jereta`, `1157-01-01` to `17657-01-0`) where A reads it. Reproduced on the six images in `app/examples`: pipeline B (same cleanup, whole image) reads those first letters correctly, so the cause is the crop, not the cleanup. The dataset's own images put the ink about 0.15 line heights from the left edge, while the C/D crop leaves 0.5 (`SegmentationConfig.margin_x`). Corpus CER on those 6 lines by margin: 0.50 -> 12.0%, 0.35 -> 12.6%, 0.25 -> 10.9%, 0.15 -> 10.9%, 0.10 -> 11.4%, 0.05 -> 12.6% (A: 10.3%).
+
+**Hypothesis (untested at scale).** The model has learned roughly where text starts on the canvas, so text that starts further right loses or garbles its first character. To test on all 208 images: `python src/evaluate_pipeline.py --images evaluation/synthetic_test --output evaluation/synthetic_test/results_mx025 --experiments A C D --margin-x 0.25` (also 0.15), then `python src/pipeline_on_test_set.py summarize --results results_mx025`. The default stays 0.5 until that run says otherwise.
+
 ## Stages (`src/document_pipeline.py`, `src/page_recognition.py`)
 
 | Stage | What is done | Configurable in |

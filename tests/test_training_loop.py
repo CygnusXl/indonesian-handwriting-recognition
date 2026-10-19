@@ -1,5 +1,6 @@
 """
-Smoke test of the training loop on a tiny RANDOM dataset (CPU, seconds).
+Smoke test of the training loop on a tiny RANDOM dataset (seconds; runs on the
+same device the training code uses, CPU or GPU).
 Checks that the loop runs, writes history + a loadable checkpoint with
 the configuration fields the app/evaluation rely on. The losses it
 produces are meaningless.
@@ -11,6 +12,7 @@ import torch
 from torch.utils.data import DataLoader, Dataset
 
 import htr_common as hc
+import train
 import train_baseline_extended as tbe
 from dataloader import collate_fn
 
@@ -43,7 +45,9 @@ def test_train_loop_writes_history_and_checkpoint(tmp_path):
     dataset = RandomDataset(vocabulary)
     loader = DataLoader(dataset, batch_size=2, collate_fn=collate_fn)
 
-    model = hc.build_model("cnn_bilstm", vocabulary.num_classes)
+    # train_one_epoch moves every batch to train.DEVICE, so the model must be there
+    # too (main() does the same); on a CPU-only machine this is a no-op.
+    model = hc.build_model("cnn_bilstm", vocabulary.num_classes).to(train.DEVICE)
 
     checkpoint_path = str(tmp_path / "ckpt.pt")
     history_path = str(tmp_path / "history.csv")

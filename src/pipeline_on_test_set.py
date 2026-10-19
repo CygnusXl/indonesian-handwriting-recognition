@@ -90,8 +90,8 @@ def summarize_rows(rows):
                 "exact_match": v["em"] / v["n"]} for k, v in totals.items()}
 
 
-def summarize(directory):
-    path = os.path.join(directory, "results", "per_image.csv")
+def summarize(directory, results="results"):
+    path = os.path.join(directory, results, "per_image.csv")
 
     with open(path, newline="", encoding="utf-8") as file:
         rows = list(csv.DictReader(file))
@@ -104,12 +104,12 @@ def summarize(directory):
                      f"{m['corpus_wer'] * 100:.1f}% | {m['exact_match'] * 100:.1f}% |")
 
     text = "\n".join(lines)
-    out = os.path.join(directory, "results", "by_group.md")
+    out = os.path.join(directory, results, "by_group.md")
 
     with open(out, "w", encoding="utf-8") as file:
         file.write("# Pipeline on synthetic test images, by group\n\nSynthetic dataset images, not photographs.\n\n" + text + "\n")
 
-    with open(os.path.join(directory, "results", "by_group.json"), "w", encoding="utf-8") as file:
+    with open(os.path.join(directory, results, "by_group.json"), "w", encoding="utf-8") as file:
         json.dump({f"{k[0]}|{k[1]}": v for k, v in result.items()}, file, indent=2)
 
     print(text)
@@ -120,9 +120,11 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("command", choices=["export", "summarize"])
     parser.add_argument("--directory", default=DEFAULT_DIR)
+    parser.add_argument("--results", default="results",
+                        help="results sub-folder of --directory to summarize (default: results)")
     args = parser.parse_args(argv)
 
-    export(args.directory) if args.command == "export" else summarize(args.directory)
+    export(args.directory) if args.command == "export" else summarize(args.directory, args.results)
 
 
 if __name__ == "__main__":

@@ -163,3 +163,19 @@ def test_main_exits_cleanly_without_images(tmp_path):
         ev.main(["--images", str(tmp_path), "--model", "unused.pt"])
 
     assert "No images" in str(error.value)
+
+
+def test_margin_override_changes_only_segmenting_experiments():
+    import page_recognition as pr
+
+    saved = dict(pr.EXPERIMENTS)
+
+    try:
+        ev.override_margin_x(0.2)
+
+        assert pr.EXPERIMENTS["C"].segmentation.margin_x == 0.2
+        assert pr.EXPERIMENTS["D"].segmentation.margin_x == 0.2
+        assert pr.EXPERIMENTS["A"] == saved["A"] and pr.EXPERIMENTS["B"] == saved["B"]
+    finally:
+        pr.EXPERIMENTS.clear()
+        pr.EXPERIMENTS.update(saved)

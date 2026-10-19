@@ -223,6 +223,21 @@ def save_debug(directory, result):
                 chunk.canvas.save(os.path.join(directory, f"{tag}_model_input.png"))
 
 
+def override_margin_x(margin_x):
+    """
+    Use another horizontal crop margin (x line height) for every experiment
+    that detects lines (C, D).  For diagnosis only: the default lives in
+    document_pipeline.SegmentationConfig.
+    """
+
+    import dataclasses
+
+    for key, spec in list(pr.EXPERIMENTS.items()):
+        if spec.segment:
+            pr.EXPERIMENTS[key] = dataclasses.replace(
+                spec, segmentation=dataclasses.replace(spec.segmentation, margin_x=margin_x))
+
+
 def run_pipeline_experiment(loaded, image, key):
     spec = pr.EXPERIMENTS[key]
     began = time.perf_counter()
@@ -483,12 +498,19 @@ def parse_args(argv=None):
                         help="output folder (default <images>/results)")
     parser.add_argument("--device", default="auto", choices=["auto", "cpu", "cuda"])
     parser.add_argument("--no-debug-images", action="store_true")
+    parser.add_argument("--margin-x", type=float, default=None,
+                        help="horizontal crop margin around each line, in line heights, for C/D "
+                        "(diagnostic override; default = SegmentationConfig.margin_x)")
 
     return parser.parse_args(argv)
 
 
 def main(argv=None):
     args = parse_args(argv)
+
+    if args.margin_x is not None:
+        override_margin_x(args.margin_x)
+        print(f"Horizontal crop margin overridden: {args.margin_x} line heights (C/D)")
 
     import app_logic as logic
 
