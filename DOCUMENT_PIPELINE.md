@@ -73,7 +73,7 @@ Command: `src/pipeline_on_test_set.py export`, then `src/evaluate_pipeline.py --
 
 (Exact match D: 1.4% at 0.50, 6.2% at 0.25, 5.8% at 0.15; WER 75.8%, 68.9%, 72.3%.) **Supported, but only in part:** a smaller margin helps both groups and recovers about 40% of the single-line gap to A (5.1 to 2.9 points). A gap of about 3 points remains, cause not yet identified. **Caveats:** the margin was chosen among three values on the same 208 images it is reported on, so the 0.25 figures are slightly optimistic; the images are synthetic; one run each. The default is now `margin_x = 0.25`; the "0.50" rows above are the earlier default, kept for traceability.
 
-**Next diagnostic (not run yet).** Run `--experiments A B C --margin-x 0.25`: B (cleanup, whole image) vs A shows what the cleanup costs on single lines; C vs B shows what cropping costs.
+**Where the remaining single-line gap comes from (Peter's run, `--experiments A B C --margin-x 0.25`).** Single-line corpus CER: A 17.1%, B 18.9%, C 20.0%. So about 1.8 points come with the cleanup (A to B) and 1.1 with the cropping (B to C). Multiline: A 90.3%, B 90.1%, C 29.6%. **Inference, not tested:** these dataset images are already clean and evenly lit, so the cleanup has nothing to fix and can only alter strokes; its value is meant for real photos, which are unmeasured. Whether the 1.8 and 1.1 are more than noise is checked by `pipeline_on_test_set.py summarize`, which now also prints paired bootstrap intervals (see "Paired change" in `by_group.md`); that output has not been recorded here yet.
 
 ## Stages (`src/document_pipeline.py`, `src/page_recognition.py`)
 

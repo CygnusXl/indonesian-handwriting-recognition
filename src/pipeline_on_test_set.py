@@ -90,6 +90,69 @@ def summarize_rows(rows):
                 "exact_match": v["em"] / v["n"]} for k, v in totals.items()}
 
 
+def paired_differences(rows, resamples=10000, seed=20261019):
+    """
+    Paired bootstrap over images: for every pair of experiments run on the
+    same images, the change in corpus CER (second minus first, in points) per
+    group with a 95% percentile interval.  Resamples whole images, using the
+    same images for both experiments.  Interval = test-set sampling noise
+    only (one run, one model).
+
+    Returns a list of dicts: first, second, group, n, diff, lo, hi.
+    """
+
+    import numpy as np
+
+    data = {}
+
+    for row in rows:
+        if str(row.get("has_ground_truth")).lower() != "true" or not row.get("reference_chars"):
+            continue
+
+        key = (row["experiment"], row["filename"])
+        data[key] = (row.get("gt_group") or "all", float(row["char_errors"]), float(row["reference_chars"]))
+
+    experiments = sorted({k[0] for k in data})
+    files = sorted({k[1] for k in data})
+    rng = np.random.default_rng(seed)
+    out = []
+
+    for i, first in enumerate(experiments):
+        for second in experiments[i + 1:]:
+            common = [f for f in files if (first, f) in data and (second, f) in data]
+
+            for group in ("single", "multiline", "all"):
+                names = [f for f in common if group == "all" or data[(first, f)][0] == group]
+
+                if len(names) < 2:
+                    continue
+
+                e1 = np.array([data[(first, f)][1] for f in names])
+                e2 = np.array([data[(second, f)][1] for f in names])
+                n = np.array([data[(first, f)][2] for f in names])
+                diff = (e2.sum() - e1.sum()) / n.sum()
+                pick = rng.integers(0, len(names), (resamples, len(names)))
+                boot = (e2[pick].sum(1) - e1[pick].sum(1)) / n[pick].sum(1)
+
+                out.append({"first": first, "second": second, "group": group, "n": len(names),
+                            "diff": float(diff), "lo": float(np.percentile(boot, 2.5)),
+                            "hi": float(np.percentile(boot, 97.5))})
+
+    return out
+
+
+def paired_table(differences):
+    lines = ["| From | To | Group | n | Change in CER | 95% CI | Within noise? |",
+             "| --- | --- | --- | ---: | ---: | --- | --- |"]
+
+    for d in differences:
+        noisy = "yes" if d["lo"] <= 0 <= d["hi"] else "no"
+        lines.append(f"| {d['first']} | {d['second']} | {d['group']} | {d['n']} | {d['diff'] * 100:+.1f} pt | "
+                     f"{d['lo'] * 100:+.1f} to {d['hi'] * 100:+.1f} | {noisy} |")
+
+    return "\n".join(lines)
+
+
 def summarize(directory, results="results"):
     path = os.path.join(directory, results, "per_image.csv")
 
@@ -104,15 +167,21 @@ def summarize(directory, results="results"):
                      f"{m['corpus_wer'] * 100:.1f}% | {m['exact_match'] * 100:.1f}% |")
 
     text = "\n".join(lines)
+    paired = paired_table(paired_differences(rows))
     out = os.path.join(directory, results, "by_group.md")
 
     with open(out, "w", encoding="utf-8") as file:
-        file.write("# Pipeline on synthetic test images, by group\n\nSynthetic dataset images, not photographs.\n\n" + text + "\n")
+        file.write("# Pipeline on synthetic test images, by group\n\nSynthetic dataset images, not photographs.\n\n" + text + "\n"
+                   "\n## Paired change in corpus CER between pipelines (bootstrap over images)\n\n"
+                   "Same images for both pipelines. Interval = test-set sampling noise only; one run per pipeline.\n\n"
+                   + paired + "\n")
 
     with open(os.path.join(directory, results, "by_group.json"), "w", encoding="utf-8") as file:
         json.dump({f"{k[0]}|{k[1]}": v for k, v in result.items()}, file, indent=2)
 
     print(text)
+    print("\nPaired change in corpus CER (second minus first), 95% bootstrap CI over images:")
+    print(paired)
     print(f"\nWrote {out}")
 
 
