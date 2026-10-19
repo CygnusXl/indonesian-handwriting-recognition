@@ -94,7 +94,7 @@ class SegmentationConfig:
     split_tall_factor: float = 1.7      # blobs taller than this x reference are split
     min_line_height_factor: float = 0.4
     margin: float = 0.25                # vertical margin around a line (x line height)
-    margin_x: float = 0.5               # horizontal margin (x line height)
+    margin_x: float = 0.25              # horizontal margin (x line height); 0.5 dropped first letters, see DOCUMENT_PIPELINE.md
     isolate_lines: bool = False         # blank everything outside the line's own ink
     not_handwriting_ink_fraction: float = 0.30
     max_components: int = 5000

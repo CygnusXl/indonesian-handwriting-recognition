@@ -61,9 +61,19 @@ Command: `src/pipeline_on_test_set.py export`, then `src/evaluate_pipeline.py --
 
 **Observations.** (1) Line splitting cuts multiline CER from 90.3% to 31.6% on these images. (2) It makes single-line images worse: 17.1% to 22.2% CER, exact match 9.5% to 2.2%. (3) C and D are nearly identical here, as expected: there is no ruling in these images. (4) Failures of the splitting itself are visible in the log: a few multiline images were read as 1-2 lines (e.g. `multiline_1792`, `4031`, `5858`) and one single line was split into two (`single_369`, CER 1.5).
 
-**Observation on the single-line regression (6 dataset images only, n too small to conclude).** In the per-image log, C/D often drop or replace the first letter (`Dia` to `ia`, `Kereta` to `Jereta`, `1157-01-01` to `17657-01-0`) where A reads it. Reproduced on the six images in `app/examples`: pipeline B (same cleanup, whole image) reads those first letters correctly, so the cause is the crop, not the cleanup. The dataset's own images put the ink about 0.15 line heights from the left edge, while the C/D crop leaves 0.5 (`SegmentationConfig.margin_x`). Corpus CER on those 6 lines by margin: 0.50 -> 12.0%, 0.35 -> 12.6%, 0.25 -> 10.9%, 0.15 -> 10.9%, 0.10 -> 11.4%, 0.05 -> 12.6% (A: 10.3%).
+**Observation on the single-line regression (6 dataset images only, n too small to conclude).** In the per-image log, C/D often drop or replace the first letter (`Dia` to `ia`, `Kereta` to `Jereta`, `1157-01-01` to `17657-01-0`) where A reads it. Reproduced on the six images in `app/examples`: pipeline B (same cleanup, whole image) reads those first letters correctly, so the cause is the crop, not the cleanup. The dataset's own images put the ink about 0.15 line heights from the left edge, while the C/D crop originally left 0.5 (`SegmentationConfig.margin_x`). Corpus CER on those 6 lines by margin: 0.50 -> 12.0%, 0.35 -> 12.6%, 0.25 -> 10.9%, 0.15 -> 10.9%, 0.10 -> 11.4%, 0.05 -> 12.6% (A: 10.3%).
 
-**Hypothesis (untested at scale).** The model has learned roughly where text starts on the canvas, so text that starts further right loses or garbles its first character. To test on all 208 images: `python src/evaluate_pipeline.py --images evaluation/synthetic_test --output evaluation/synthetic_test/results_mx025 --experiments A C D --margin-x 0.25` (also 0.15), then `python src/pipeline_on_test_set.py summarize --results results_mx025`. The default stays 0.5 until that run says otherwise.
+**Test of the margin hypothesis on all 208 images (Peter's machine, same model, A unchanged at 17.1% single / 90.3% multiline).** Corpus CER, pipeline D:
+
+| Horizontal crop margin | Single-line | Multiline | All |
+| --- | ---: | ---: | ---: |
+| 0.50 (old default) | 22.2% | 31.6% | 28.8% |
+| 0.25 | 20.0% | 29.6% | 26.7% |
+| 0.15 | 20.8% | 30.3% | 27.4% |
+
+(Exact match D: 1.4% at 0.50, 6.2% at 0.25, 5.8% at 0.15; WER 75.8%, 68.9%, 72.3%.) **Supported, but only in part:** a smaller margin helps both groups and recovers about 40% of the single-line gap to A (5.1 to 2.9 points). A gap of about 3 points remains, cause not yet identified. **Caveats:** the margin was chosen among three values on the same 208 images it is reported on, so the 0.25 figures are slightly optimistic; the images are synthetic; one run each. The default is now `margin_x = 0.25`; the "0.50" rows above are the earlier default, kept for traceability.
+
+**Next diagnostic (not run yet).** Run `--experiments A B C --margin-x 0.25`: B (cleanup, whole image) vs A shows what the cleanup costs on single lines; C vs B shows what cropping costs.
 
 ## Stages (`src/document_pipeline.py`, `src/page_recognition.py`)
 
