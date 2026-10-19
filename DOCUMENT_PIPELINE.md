@@ -59,7 +59,7 @@ Command: `src/pipeline_on_test_set.py export`, then `src/evaluate_pipeline.py --
 | D | multiline | 71 | 31.6% | 77.6% | 0.0% |
 | D | single | 137 | 22.2% | 71.6% | 2.2% |
 
-**Observations.** (1) Line splitting cuts multiline CER from 90.3% to 31.6% on these images. (2) It makes single-line images worse: 17.1% to 22.2% CER, exact match 9.5% to 2.2%. (3) C and D are nearly identical here, as expected: there is no ruling in these images. (4) Failures of the splitting itself are visible in the log: a few multiline images were read as 1-2 lines (e.g. `multiline_1792`, `4031`, `5858`) and one single line was split into two (`single_369`, CER 1.5).
+**Observations.** (1) Line splitting cuts multiline CER from 90.3% to 31.6% on these images. (2) With the original crop margin (0.5) it made single-line images worse: 17.1% to 22.2% CER, exact match 9.5% to 2.2%. The margin fix below reduces this, and the final paired test shows the remaining single-line difference is not clearly more than noise. (3) C and D are nearly identical here, as expected: there is no ruling in these images. (4) Failures of the splitting itself are visible in the log: a few multiline images were read as 1-2 lines (e.g. `multiline_1792`, `4031`, `5858`) and one single line was split into two (`single_369`, CER 1.5).
 
 **Observation on the single-line regression (6 dataset images only, n too small to conclude).** In the per-image log, C/D often drop or replace the first letter (`Dia` to `ia`, `Kereta` to `Jereta`, `1157-01-01` to `17657-01-0`) where A reads it. Reproduced on the six images in `app/examples`: pipeline B (same cleanup, whole image) reads those first letters correctly, so the cause is the crop, not the cleanup. The dataset's own images put the ink about 0.15 line heights from the left edge, while the C/D crop originally left 0.5 (`SegmentationConfig.margin_x`). Corpus CER on those 6 lines by margin: 0.50 -> 12.0%, 0.35 -> 12.6%, 0.25 -> 10.9%, 0.15 -> 10.9%, 0.10 -> 11.4%, 0.05 -> 12.6% (A: 10.3%).
 
@@ -73,7 +73,21 @@ Command: `src/pipeline_on_test_set.py export`, then `src/evaluate_pipeline.py --
 
 (Exact match D: 1.4% at 0.50, 6.2% at 0.25, 5.8% at 0.15; WER 75.8%, 68.9%, 72.3%.) **Supported, but only in part:** a smaller margin helps both groups and recovers about 40% of the single-line gap to A (5.1 to 2.9 points). A gap of about 3 points remains, cause not yet identified. **Caveats:** the margin was chosen among three values on the same 208 images it is reported on, so the 0.25 figures are slightly optimistic; the images are synthetic; one run each. The default is now `margin_x = 0.25`; the "0.50" rows above are the earlier default, kept for traceability.
 
-**Where the remaining single-line gap comes from (Peter's run, `--experiments A B C --margin-x 0.25`).** Single-line corpus CER: A 17.1%, B 18.9%, C 20.0%. So about 1.8 points come with the cleanup (A to B) and 1.1 with the cropping (B to C). Multiline: A 90.3%, B 90.1%, C 29.6%. **Inference, not tested:** these dataset images are already clean and evenly lit, so the cleanup has nothing to fix and can only alter strokes; its value is meant for real photos, which are unmeasured. Whether the 1.8 and 1.1 are more than noise is checked by `pipeline_on_test_set.py summarize`, which now also prints paired bootstrap intervals (see "Paired change" in `by_group.md`); that output has not been recorded here yet.
+**Where the remaining single-line gap comes from (Peter's run, `--experiments A B C --margin-x 0.25`).** Single-line corpus CER: A 17.1%, B 18.9%, C 20.0%. So about 1.8 points come with the cleanup (A to B) and 1.1 with the cropping (B to C). Multiline: A 90.3%, B 90.1%, C 29.6%. **Inference, not tested:** these dataset images are already clean and evenly lit, so the cleanup has nothing to fix and can only alter strokes; its value is meant for real photos, which are unmeasured. **Paired test (Peter's run, `summarize --results results_b`, bootstrap over images, default margin 0.25).** Change in corpus CER, second minus first, 95% CI:
+
+| From | To | Group | n | Change | 95% CI | Within noise? |
+| --- | --- | --- | ---: | ---: | --- | --- |
+| A | B | single | 137 | +1.7 pt | +0.4 to +3.1 | no |
+| A | B | multiline | 71 | -0.2 pt | -0.6 to +0.2 | yes |
+| A | B | all | 208 | +0.4 pt | -0.1 to +0.9 | yes |
+| A | C | single | 137 | +2.8 pt | -0.0 to +6.5 | yes |
+| A | C | multiline | 71 | -60.6 pt | -65.5 to -55.1 | no |
+| A | C | all | 208 | -41.5 pt | -46.8 to -35.5 | no |
+| B | C | single | 137 | +1.1 pt | -1.8 to +4.6 | yes |
+| B | C | multiline | 71 | -60.4 pt | -65.4 to -54.8 | no |
+| B | C | all | 208 | -41.9 pt | -47.2 to -35.9 | no |
+
+**Conclusions the data supports (synthetic dataset images, one run, one model).** (1) Line splitting is a large, clear gain on multiline images (about -60 points CER). (2) On single-line images the cleanup alone costs a small but detectable +1.7 points; the full pipeline C is +2.8 points with an interval that includes 0, so it is not shown to be worse or better than A there. (3) The single-line interval is wide because a few images fail badly (for example `single_369`, wrongly split into two lines). **Not supported by any data yet:** any claim about real photographs, where cleanup and ruling suppression are meant to help. Further tuning on these synthetic images is not worthwhile; the next evidence has to come from real photos.
 
 ## Stages (`src/document_pipeline.py`, `src/page_recognition.py`)
 
