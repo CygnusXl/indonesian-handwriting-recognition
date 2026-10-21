@@ -65,6 +65,13 @@ data**. This would change the project's language from Indonesian to English; see
 [`IAM_TRAINING.md`](IAM_TRAINING.md) for the status, licence note, commands and what is
 still unknown.
 
+### Translation (English to Indonesian)
+
+The app has a "Translate to Indonesian" button under the recognised text (`src/translation.py`). It
+sends the text, not the photo, to Google Translate through `deep-translator`, so it needs internet and
+is not tested against the live service from the development workspace. Recognition mistakes are
+translated as written; the text box lets you correct them first.
+
 ## 3. Dataset
 
 [OpenHand-Synth](https://huggingface.co/datasets/to-be/OpenHand-Synth), Indonesian

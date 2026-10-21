@@ -25,6 +25,7 @@ import torch  # noqa: E402
 
 import htr_common as hc  # noqa: E402
 import page_recognition as pr  # noqa: E402
+import translation  # noqa: E402
 
 
 DEFAULT_MODEL_PATH = os.path.join(ROOT, "models", "final_model.pt")
@@ -249,6 +250,19 @@ def replace_spec(spec, auto_contrast):
 
 def page_display_text(result):
     return hc.display_text(result.text)
+
+
+def translate_to_indonesian(text):
+    """
+    English -> Indonesian for the app's translate button. Returns
+    (translated_text, error_message_or_None); never raises, so a service
+    failure shows as a message instead of crashing the page.
+    """
+
+    try:
+        return translation.translate_text(text), None
+    except translation.TranslationError as error:
+        return "", str(error)
 
 
 def image_fingerprint(image_bytes):

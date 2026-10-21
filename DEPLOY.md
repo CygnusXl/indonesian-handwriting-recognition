@@ -62,3 +62,9 @@ Wi-Fi can also open `http://<your-PC-ip>:8501` if you start Streamlit with
   preprocessing; it runs on CPU. Latency on large photos on a free hosted CPU has not
   been measured; photos are limited to 2400 px on the long side internally.
 - Do not publish `evaluation/photos/` (it may contain people's handwriting).
+- The "Translate to Indonesian" button calls Google Translate through the
+  `deep-translator` package (listed in `app/requirements.txt`). It needs
+  internet access from the server, sends the recognised text (never the
+  photo) to Google, and is an unofficial free endpoint that can be
+  rate-limited. If it fails, the app shows a message instead of crashing.
+  Not tested from the development workspace: click it once after deploying.

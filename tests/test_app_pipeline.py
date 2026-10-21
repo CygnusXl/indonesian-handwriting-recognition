@@ -155,3 +155,36 @@ def test_ui_shows_paragraphs_for_a_page_with_paragraph_breaks(monkeypatch, model
     assert [m.value for m in app.metric if m.label == "Paragraphs"] == ["3"]
     assert [m.value for m in app.metric if m.label == "Lines"] == ["8"]
     assert " ".join(m.value for m in app.markdown).count('class="para-start"') == 2
+
+
+def test_translate_button_shows_translation_and_errors(model_file, photo_path, monkeypatch):
+    monkeypatch.setenv("HTR_MODEL_PATH", model_file)
+    import translation
+
+    monkeypatch.setattr(translation, "translate_text", lambda text: "TERJEMAHAN")
+
+    app = make_app(photo_path).run()
+    assert not app.exception
+
+    box = next(a for a in app.text_area if a.label.startswith("English text"))
+
+    # A random-weight model may read nothing; type text so the button is live.
+    box.set_value("Good morning").run()
+
+    button = next(b for b in app.button if b.label == "Translate to Indonesian")
+    assert not button.disabled
+
+    button.click()
+    app.run()
+    assert not app.exception
+    assert any("TERJEMAHAN" in m.value for m in app.markdown)
+
+    def refuse(text):
+        raise translation.TranslationError("service busy")
+
+    monkeypatch.setattr(translation, "translate_text", refuse)
+    box = next(a for a in app.text_area if a.label.startswith("English text"))
+    box.set_value("Good evening").run()
+    next(b for b in app.button if b.label == "Translate to Indonesian").click()
+    app.run()
+    assert any("service busy" in m.value for m in app.markdown)

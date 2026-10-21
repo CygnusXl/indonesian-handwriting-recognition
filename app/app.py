@@ -298,6 +298,44 @@ if result is not None:
 
         with st.expander("Copy as plain text"):
             st.code(text_out, language=None)
+
+        # ----- Translate English -> Indonesian -----
+        st.markdown("#### Translate to Indonesian")
+
+        source_text = st.text_area(
+            "English text to translate (fix recognition mistakes first)",
+            value=text_out,
+            key="translate_source_" + logic.image_fingerprint(text_out.encode("utf-8")),
+        )
+
+        st.caption(
+            "The text (not the photo) is sent to Google Translate. Mistakes in the "
+            "recognised text are translated as written. Line breaks inside a paragraph "
+            "become spaces."
+        )
+
+        if training["translation_hint"]:
+            st.caption(training["translation_hint"])
+
+        if st.button("Translate to Indonesian", disabled=not source_text.strip()):
+            with st.spinner("Translating..."):
+                translated, error = logic.translate_to_indonesian(source_text)
+
+            st.session_state["translation"] = {
+                "source": source_text, "output": translated, "error": error,
+            }
+
+        done = st.session_state.get("translation")
+
+        if done and done["source"] == source_text:
+            if done["error"]:
+                st.markdown(ui.status_banner("warn", done["error"]), unsafe_allow_html=True)
+            elif done["output"]:
+                st.markdown(ui.translation_block(done["output"]), unsafe_allow_html=True)
+                st.download_button(
+                    "Download translation .txt", done["output"],
+                    file_name="translation_id.txt", mime="text/plain",
+                )
     else:
         st.markdown(ui.paper_empty("Nothing was read from this image. See the notes above."),
                     unsafe_allow_html=True)

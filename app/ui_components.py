@@ -39,6 +39,17 @@ def ground_truth(reference):
             f'<span class="truth-text">{html.escape(reference)}</span></div>')
 
 
+def translation_block(text):
+    """The Indonesian translation, in the same panel style as the expected text."""
+
+    body = "<br>".join(
+        html.escape(line) for line in text.split("\n")
+    )
+
+    return ('<div class="truth"><span class="truth-label">Indonesian translation</span>'
+            f'<span class="truth-text">{body}</span></div>')
+
+
 def training_info(provenance=None):
     """
     Wording that depends on what the deployed model was trained on, read
@@ -61,6 +72,7 @@ def training_info(provenance=None):
                 "657 writers, clean scans) with photo-style augmentation, and reads "
                 "one line at a time."
             ),
+            "translation_hint": "",
             "metrics_label": "IAM test set",
             "metrics_caveat": (
                 "The test-set numbers above are measured on IAM scans, not on phone photos."
@@ -76,6 +88,10 @@ def training_info(provenance=None):
         "about_bullet": (
             "The model was trained only on synthetic handwriting (OpenHand-Synth) and "
             "reads one line at a time."
+        ),
+        "translation_hint": (
+            "This model was trained on Indonesian handwriting, so the recognised text "
+            "may not be English. Edit it before translating."
         ),
         "metrics_label": "Synthetic test set",
         "metrics_caveat": (
