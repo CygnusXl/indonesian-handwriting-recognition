@@ -89,6 +89,29 @@ Command: `src/pipeline_on_test_set.py export`, then `src/evaluate_pipeline.py --
 
 **Conclusions the data supports (synthetic dataset images, one run, one model).** (1) Line splitting is a large, clear gain on multiline images (about -60 points CER). (2) On single-line images the cleanup alone costs a small but detectable +1.7 points; the full pipeline C is +2.8 points with an interval that includes 0, so it is not shown to be worse or better than A there. (3) The single-line interval is wide because a few images fail badly (for example `single_369`, wrongly split into two lines). **Not supported by any data yet:** any claim about real photographs, where cleanup and ruling suppression are meant to help. Further tuning on these synthetic images is not worthwhile; the next evidence has to come from real photos.
 
+## First real photo: a cursive word on a ruled line (one image, 344 x 202 px)
+
+A friend's handwriting, "Proklamasi", photographed on ruled paper (used with permission; the photo is not in the repository). **n = 1: this is a case study, not a measurement.**
+
+**Two pipeline bugs it exposed, both fixed (observed, then verified on this image):**
+1. *One word cut into two "lines".* The dot of the "i" became its own 6 px blob; the typical line height was the plain median of blob heights, (67 + 6) / 2 = 36.5, so the 67 px word looked almost twice a line and was split. Now the typical height is weighted by ink (`_weighted_median`). Result: 1 line.
+2. *Pen strokes erased where the writing sits on the rule.* The base of "la" ran along the ruling for a few dozen pixels, passed the "continuous line" test and was removed with the rule. The ruling estimate is now capped at the page's typical ruling darkness + 40 (`_cap_structure`), so darker ink stays. Result: strokes intact.
+After both fixes the 6 dataset lines read as before (A 10.3%, D 10.9% CER, n = 6) and the synthetic geometry benchmark is unchanged.
+
+**What the pipeline could not fix: the model does not read this handwriting.** Reading of "Proklamasi":
+
+| Input | Output |
+| --- | --- |
+| A, original app path (whole photo) | `Kalbrerti.` |
+| B, cleanup only | `Rakerieri.` |
+| C, lines found, no ruling removal | `Soerssaerti` |
+| D, default, after both fixes | `Soessiarti` |
+| Hand-cropped tight crop, original pixels (A path) | `T d ga aa aa ga.` |
+| Hand crop framed like the training images (ink about 70% of height), A path | `Tbgersaai.` |
+| Same, contrast stretched | `Tbg rgsari.` |
+
+**Inference (supported by this one image):** with the lines found correctly, the strokes intact and a clean crop framed like the training images, the output is still wrong, so on this image the limit is the model, not the pipeline. **Hypothesis (untested):** formal cursive is far from the synthetic training handwriting. Testing it needs more real photos (print-style and cursive), and any retraining would need handwriting data this project does not have; do not retrain on the strength of one image.
+
 ## Stages (`src/document_pipeline.py`, `src/page_recognition.py`)
 
 | Stage | What is done | Configurable in |

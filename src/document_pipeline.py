@@ -269,6 +269,19 @@ def stretch_contrast(gray, white_point=0.88):
 # NOTEBOOK RULING SUPPRESSION
 # ============================================================
 
+def _cap_structure(structure, floor, slack=40, percentile=60):
+    """Limit a ruling estimate to the page's typical ruling darkness + slack."""
+
+    values = structure[structure > floor + 12]
+
+    if values.size < 50:
+        return structure
+
+    cap = int(min(255, np.percentile(values, percentile) + slack))
+
+    return np.minimum(structure, cap).astype(structure.dtype)
+
+
 def suppress_ruling(gray, kernel_frac=0.08):
     """
     Remove long horizontal (ruled lines) and vertical (margin lines)
@@ -317,6 +330,16 @@ def suppress_ruling(gray, kernel_frac=0.08):
         )
     else:
         vertical = np.zeros_like(horizontal)
+
+    # A pen stroke that runs ALONG a rule for a few dozen pixels (the base of
+    # cursive letters sitting on the line) is continuous enough to pass the
+    # opening and would be taken for ruling and erased. Real ruling is faint
+    # and about equally dark everywhere, so cap each structure estimate a
+    # little above the page's typical ruling darkness: darker than that is
+    # ink, and stays.
+    floor_h = float(np.median(horizontal))
+    horizontal = _cap_structure(horizontal, floor_h)
+    vertical = _cap_structure(vertical, float(np.median(vertical))) if page_like else vertical
 
     structures = np.maximum(horizontal, vertical)
     subtracted = cv2.subtract(dark, structures)
@@ -774,6 +797,14 @@ class LineDetection:
     info: dict = field(default_factory=dict)
 
 
+def _weighted_median(values, weights):
+    order = np.argsort(values)
+    values = np.asarray(values, dtype=float)[order]
+    cumulative = np.cumsum(np.asarray(weights, dtype=float)[order])
+
+    return float(values[int(np.searchsorted(cumulative, cumulative[-1] / 2.0))])
+
+
 def assign_paragraphs(lines, config=None):
     """
     Group lines into paragraphs from the PAGE LAYOUT alone (no recognition).
@@ -1010,15 +1041,19 @@ def detect_lines(mask, config=None):
     blob_count, blob_labels, blob_stats, _ = cv2.connectedComponentsWithStats(
         smeared, connectivity=8)
 
-    blob_heights = []
+    blob_heights, blob_ink = [], []
     for j in range(1, blob_count):
         x, y, w, h, _a = blob_stats[j]
         sub = clean[y:y + h, x:x + w] & (blob_labels[y:y + h, x:x + w] == j)
         rows = np.nonzero(sub.any(axis=1))[0]
         if len(rows):
             blob_heights.append(rows[-1] - rows[0] + 1)
+            blob_ink.append(int(sub.sum()))
 
-    median_blob = float(np.median(blob_heights)) if blob_heights else h_ref
+    # Ink-weighted median: an i-dot or a comma that ends up as its own tiny
+    # blob must not halve the typical line height (it made a single tall
+    # cursive word look "twice as tall as a line" and get cut in two).
+    median_blob = _weighted_median(blob_heights, blob_ink) if blob_heights else h_ref
     pitch = _estimate_pitch(clean, h_ref)
     info["line_pitch"] = pitch
 
