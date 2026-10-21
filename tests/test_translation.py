@@ -1,6 +1,8 @@
 """Translation module and the app's button, with a stand-in translator
 (the real service is not called)."""
 
+import os
+
 import pytest
 
 import app_logic as logic
@@ -49,7 +51,7 @@ def test_unbreakable_text_is_hard_cut():
     assert [len(p) for p in pieces] == [100, 100, 50]
 
 
-def test_service_failure_becomes_translation_error():
+def test_translator_failure_becomes_translation_error():
     def broken(text):
         raise ConnectionError("down")
 
@@ -70,16 +72,56 @@ def test_missing_package_message(monkeypatch):
     real_import = builtins.__import__
 
     def blocked(name, *args, **kwargs):
-        if name == "deep_translator":
+        if name == "transformers":
             raise ImportError("no")
         return real_import(name, *args, **kwargs)
 
+    monkeypatch.setattr(tr, "_OFFLINE", {})
     monkeypatch.setattr(builtins, "__import__", blocked)
 
     with pytest.raises(tr.TranslationError) as error:
         tr.translate_text("Hello")
 
     assert "not installed" in str(error.value)
+
+
+def test_model_load_failure_message(monkeypatch):
+    import transformers
+
+    def boom(*args, **kwargs):
+        raise OSError("offline")
+
+    monkeypatch.setattr(tr, "_OFFLINE", {})
+    monkeypatch.setattr(transformers.MarianTokenizer, "from_pretrained", boom)
+
+    with pytest.raises(tr.TranslationError) as error:
+        tr.translate_text("Hello")
+
+    assert "300 MB" in str(error.value) and "OSError" in str(error.value)
+
+
+def test_model_loads_lazily_and_only_when_letters_present(monkeypatch):
+    loads = []
+    monkeypatch.setattr(
+        tr, "load_offline_translator", lambda: loads.append(1) or fake
+    )
+
+    assert tr.translate_text("123 !!") == "123 !!"
+    assert loads == []
+
+    assert tr.translate_text("Hello") == "ID[Hello]"
+    assert tr.translate_text("a\n\nb") == "ID[a]\n\nID[b]"
+    assert len(loads) == 2  # once per call, never when nothing needs it
+
+
+@pytest.mark.skipif(
+    os.environ.get("HTR_TEST_TRANSLATION") != "1",
+    reason="downloads ~300 MB; run with HTR_TEST_TRANSLATION=1",
+)
+def test_real_offline_model_translates():
+    out = tr.translate_text("Good morning, my friend.")
+
+    assert "pagi" in out.lower()
 
 
 def test_app_logic_wrapper_never_raises(monkeypatch):

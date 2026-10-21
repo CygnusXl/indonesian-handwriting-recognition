@@ -8,5 +8,7 @@ Pillow
 # Photograph preprocessing and line detection (headless build: no GUI/libGL needed
 # in slim containers)
 opencv-python-headless
-# English -> Indonesian translation (calls Google Translate; needs internet)
-deep-translator
+# Offline English -> Indonesian translation (downloads a ~300 MB model on first use)
+transformers
+sentencepiece
+sacremoses

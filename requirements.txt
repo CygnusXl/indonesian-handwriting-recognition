@@ -8,7 +8,9 @@ opencv-python   # photograph preprocessing / line detection (the hosted app uses
 
 # Application and evaluation
 streamlit>=1.50
-deep-translator   # English -> Indonesian translation in the app (online)
+transformers      # offline English -> Indonesian translation in the app
+sentencepiece
+sacremoses
 jiwer
 pytest
 

@@ -62,9 +62,12 @@ Wi-Fi can also open `http://<your-PC-ip>:8501` if you start Streamlit with
   preprocessing; it runs on CPU. Latency on large photos on a free hosted CPU has not
   been measured; photos are limited to 2400 px on the long side internally.
 - Do not publish `evaluation/photos/` (it may contain people's handwriting).
-- The "Translate to Indonesian" button calls Google Translate through the
-  `deep-translator` package (listed in `app/requirements.txt`). It needs
-  internet access from the server, sends the recognised text (never the
-  photo) to Google, and is an unofficial free endpoint that can be
-  rate-limited. If it fails, the app shows a message instead of crashing.
-  Not tested from the development workspace: click it once after deploying.
+- The "Translate to Indonesian" button runs an offline model
+  (Helsinki-NLP/opus-mt-en-id, via `transformers`) inside the app; nothing is
+  sent to a translation service. The first click downloads about 300 MB and
+  loads the model (about 25 s on the development workspace). In an informal
+  run the whole process (Python, PyTorch, transformers and the model) used
+  about 1.1 GB of memory. Streamlit Community Cloud's free tier may not have
+  that much: if the app crashes or restarts when you click the button, either
+  run the app on your own PC or use Option 2 (Hugging Face Spaces) which gives
+  more memory. Not tested on either host.

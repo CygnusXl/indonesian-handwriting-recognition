@@ -68,9 +68,11 @@ still unknown.
 ### Translation (English to Indonesian)
 
 The app has a "Translate to Indonesian" button under the recognised text (`src/translation.py`). It
-sends the text, not the photo, to Google Translate through `deep-translator`, so it needs internet and
-is not tested against the live service from the development workspace. Recognition mistakes are
-translated as written; the text box lets you correct them first.
+runs the open model Helsinki-NLP/opus-mt-en-id (73 M parameters) inside the app, so the text is not
+sent to any service; the first use downloads about 300 MB. On the development workspace it translated
+four short test sentences fluently in about a second each; translation quality on real notes has not
+been measured, and it is not tested on Streamlit's free tier, which may not have enough memory
+(see `DEPLOY.md`). Recognition mistakes are translated as written; the text box lets you correct them first.
 
 ## 3. Dataset
 

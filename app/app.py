@@ -309,16 +309,17 @@ if result is not None:
         )
 
         st.caption(
-            "The text (not the photo) is sent to Google Translate. Mistakes in the "
-            "recognised text are translated as written. Line breaks inside a paragraph "
-            "become spaces."
+            "Translated on this server by an offline model; the text is not sent to any "
+            "other service. The first translation loads the model, which can take a minute. "
+            "Mistakes in the recognised text are translated as written. Line breaks inside "
+            "a paragraph become spaces."
         )
 
         if training["translation_hint"]:
             st.caption(training["translation_hint"])
 
         if st.button("Translate to Indonesian", disabled=not source_text.strip()):
-            with st.spinner("Translating..."):
+            with st.spinner("Translating (the first time this loads the model)..."):
                 translated, error = logic.translate_to_indonesian(source_text)
 
             st.session_state["translation"] = {
