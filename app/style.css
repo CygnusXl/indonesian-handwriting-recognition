@@ -170,3 +170,6 @@ h1, h2, h3 { font-family: var(--display); color: var(--ink); letter-spacing: -0.
 .truth { display: flex; flex-direction: column; gap: 2px; margin: 8px 0 4px; padding: 10px 14px; background: var(--pen-wash); border-left: 4px solid var(--pen); border-radius: 0 6px 6px 0; }
 .truth-label { font-size: 13px; color: var(--ink-soft); font-weight: 600; }
 .truth-text { font-size: 18px; line-height: 1.5; color: var(--ink); overflow-wrap: anywhere; }
+
+/* ---- paragraph break in the recognised text ----------------------------- */
+.paper li.para-start, [data-testid="stMarkdownContainer"] ol.paper li.para-start { margin-top: var(--pitch); border-top: 1px solid var(--rule); }

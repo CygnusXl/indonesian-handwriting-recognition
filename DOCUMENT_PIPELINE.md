@@ -109,6 +109,14 @@ Command: `src/pipeline_on_test_set.py export`, then `src/evaluate_pipeline.py --
 Adaptive/binary thresholding is deliberately **not** applied to the recognizer input: the
 mask is used only to find lines, the recognizer sees grey-level crops.
 
+## Paragraphs
+
+After the lines are found, `assign_paragraphs` groups them into paragraphs from the **page layout only** (no recognition): a new paragraph starts after a skipped line (line-to-line distance more than 1.6 x the median distance) or at a first line indented more than 1.0 x the median line height to the right of the left margin. The result text keeps a line break between lines and a blank line between paragraphs; scoring ignores both (whitespace-normalised).
+
+- **Checked (synthetic pages only, optimistic):** `src/evaluate_segmentation.py` has paragraph layouts (skipped line, indent only, both, none) under clean, ruled, shadow, noisy and skewed conditions: 30/30 pages correct for each layout and for both pipelines C and D. The thresholds were developed on the same generator.
+- **False positives on dataset images (one image only so far):** the one multiline dataset sample I have here is not split into paragraphs. To check all 71 multiline test images, re-run `evaluate_pipeline.py` on `evaluation/synthetic_test` and `pipeline_on_test_set.py summarize`; it now prints how many images were given more than one paragraph (the dataset's multiline images have none).
+- **Not checked on real handwriting.** Limits: needs at least 3 lines (gap rule) or 4 (indent rule); one-line paragraphs with normal spacing, centred titles, poems and multi-column pages are not recognised.
+
 ## Pipelines to compare
 
 `A` original, `B` improved preprocessing only, `C` + line segmentation, `D` + ruling

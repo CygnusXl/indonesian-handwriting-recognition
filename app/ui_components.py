@@ -106,12 +106,19 @@ def paper_text(lines):
     The recognised text on ruled paper: one row per detected line with its
     line number in the margin and the model's HEURISTIC confidence.
 
-    lines: iterable of (index, text, confidence_or_None)
+    lines: iterable of (index, text, confidence_or_None[, paragraph])
+    A new paragraph (when the optional 4th value changes) gets extra space above it.
     """
 
     rows = []
+    previous = None
 
-    for index, text, confidence in lines:
+    for entry in lines:
+        index, text, confidence = entry[:3]
+        paragraph = entry[3] if len(entry) > 3 else None
+        start = ' class="para-start"' if (previous is not None and paragraph is not None
+                                          and paragraph != previous) else ""
+        previous = paragraph if paragraph is not None else previous
         shown = html.escape(text) if text else '<span class="blank">(nothing read)</span>'
 
         if confidence is None:
@@ -122,7 +129,7 @@ def paper_text(lines):
                      f'calibrated probability): {percent}%"><span class="meter-track"><span class="meter-bar" '
                      f'style="width:{percent}%"></span></span><span class="meter-n">{percent}%</span></span>')
 
-        rows.append(f'<li><span class="ln" aria-label="Line {index + 1}">{index + 1}</span>'
+        rows.append(f'<li{start}><span class="ln" aria-label="Line {index + 1}">{index + 1}</span>'
                     f'<span class="txt">{shown}</span>{meter}</li>')
 
     return f'<ol class="paper" aria-label="Recognised text">{"".join(rows)}</ol>'

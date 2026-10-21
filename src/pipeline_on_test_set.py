@@ -141,6 +141,38 @@ def paired_differences(rows, resamples=10000, seed=20261019):
     return out
 
 
+def paragraph_rates(rows):
+    """
+    Share of images per (experiment, group) for which more than one paragraph
+    was detected. The dataset's multiline test images are sentences wrapped over
+    lines WITHOUT paragraph breaks, so for them this is a false-positive rate.
+    Returns {(experiment, group): (images_with_more_than_one, images)}.
+    """
+
+    counts = {}
+
+    for row in rows:
+        value = row.get("detected_paragraphs")
+
+        if value in (None, ""):
+            continue
+
+        key = (row["experiment"], row.get("gt_group") or "all")
+        many, total = counts.get(key, (0, 0))
+        counts[key] = (many + (int(float(value)) > 1), total + 1)
+
+    return counts
+
+
+def paragraph_table(counts):
+    lines = ["| Experiment | Group | Images | Detected more than one paragraph |", "| --- | --- | ---: | ---: |"]
+
+    for (experiment, group), (many, total) in sorted(counts.items()):
+        lines.append(f"| {experiment} | {group} | {total} | {many} ({many / total * 100:.0f}%) |")
+
+    return "\n".join(lines)
+
+
 def paired_table(differences):
     lines = ["| From | To | Group | n | Change in CER | 95% CI | Within noise? |",
              "| --- | --- | --- | ---: | ---: | --- | --- |"]
@@ -168,13 +200,18 @@ def summarize(directory, results="results"):
 
     text = "\n".join(lines)
     paired = paired_table(paired_differences(rows))
+    rates = paragraph_rates(rows)
+    paragraphs = paragraph_table(rates) if rates else ""
     out = os.path.join(directory, results, "by_group.md")
 
     with open(out, "w", encoding="utf-8") as file:
         file.write("# Pipeline on synthetic test images, by group\n\nSynthetic dataset images, not photographs.\n\n" + text + "\n"
                    "\n## Paired change in corpus CER between pipelines (bootstrap over images)\n\n"
                    "Same images for both pipelines. Interval = test-set sampling noise only; one run per pipeline.\n\n"
-                   + paired + "\n")
+                   + paired + "\n"
+                   + ("\n## Paragraphs detected per image\n\nThe dataset's multiline images have no paragraph breaks, "
+                      "so a value above 0 in the multiline rows is a false positive.\n\n" + paragraphs + "\n"
+                      if paragraphs else ""))
 
     with open(os.path.join(directory, results, "by_group.json"), "w", encoding="utf-8") as file:
         json.dump({f"{k[0]}|{k[1]}": v for k, v in result.items()}, file, indent=2)
@@ -182,6 +219,12 @@ def summarize(directory, results="results"):
     print(text)
     print("\nPaired change in corpus CER (second minus first), 95% bootstrap CI over images:")
     print(paired)
+
+    if paragraphs:
+        print("\nImages with more than one paragraph detected (multiline dataset images have none, "
+              "so this is a false-positive rate):")
+        print(paragraphs)
+
     print(f"\nWrote {out}")
 
 

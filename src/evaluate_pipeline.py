@@ -64,7 +64,7 @@ SMALL_SAMPLE = 20
 
 PER_IMAGE_COLUMNS = [
     "filename", "experiment", "preprocessing", "input_kind",
-    "detected_lines", "model_inputs", "true_lines",
+    "detected_lines", "detected_paragraphs", "model_inputs", "true_lines",
     "predicted_text", "heuristic_confidence",
     "preprocess_s", "segment_s", "inference_s", "total_s",
     "has_ground_truth", "reference_text", "out_of_vocabulary_chars",
@@ -310,6 +310,7 @@ def evaluate_folder(loaded, folder, experiments, truth, extras, out_dir,
                     preprocessing=spec.describe(),
                     input_kind=result.kind,
                     detected_lines=result.n_lines if spec.segment else "",
+                    detected_paragraphs=result.n_paragraphs if spec.segment else "",
                     model_inputs=result.n_chunks,
                     predicted_text=result.text_oneline,
                     heuristic_confidence=result.confidence,

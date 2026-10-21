@@ -96,6 +96,8 @@ class SegmentationConfig:
     margin: float = 0.25                # vertical margin around a line (x line height)
     margin_x: float = 0.25              # horizontal margin (x line height); 0.5 dropped first letters, see DOCUMENT_PIPELINE.md
     isolate_lines: bool = False         # blank everything outside the line's own ink
+    paragraph_gap_factor: float = 1.6   # line-to-line distance > factor x median distance starts a paragraph
+    paragraph_indent_factor: float = 1.0  # first line indented > factor x median line height starts one
     not_handwriting_ink_fraction: float = 0.30
     max_components: int = 5000
 
@@ -753,6 +755,7 @@ class LineBox:
     y1: int           # exclusive
     mask: np.ndarray  # bool, shape (y1-y0, x1-x0): this line's ink pixels
     ink_pixels: int
+    paragraph: int = 0   # paragraph number (0-based), see assign_paragraphs
 
     @property
     def width(self):
@@ -769,6 +772,60 @@ class LineDetection:
     lines: list
     reason: str = ""
     info: dict = field(default_factory=dict)
+
+
+def assign_paragraphs(lines, config=None):
+    """
+    Group lines into paragraphs from the PAGE LAYOUT alone (no recognition).
+    Sets `line.paragraph` (0-based) on every line and returns the number of
+    paragraphs.
+
+    A paragraph starts at a line when either
+      * the distance from the previous line (centre to centre) is larger than
+        `paragraph_gap_factor` x the median line-to-line distance (a skipped
+        line / extra space), or
+      * the line is indented to the right of the page's left margin by more
+        than `paragraph_indent_factor` x the median line height, while the
+        previous line was not indented.
+    The left margin is the median line start, so ragged handwriting is
+    tolerated; the gap rule needs at least 3 lines (2 distances) to know what
+    a normal distance is and the indent rule at least 4 lines.
+
+    Known limits: one-line paragraphs separated by normal spacing, centred
+    titles, poems and two-column pages are not recognised as such.
+    """
+
+    config = config or SegmentationConfig()
+
+    for line in lines:
+        line.paragraph = 0
+
+    if len(lines) < 3:
+        return 1 if lines else 0
+
+    centres = np.array([(l.y0 + l.y1) / 2 for l in lines], dtype=float)
+    distances = np.diff(centres)
+    typical = float(np.median(distances))
+
+    heights = np.array([l.height for l in lines], dtype=float)
+    ref_height = float(np.median(heights))
+    margin = float(np.median([l.x0 for l in lines]))
+
+    indented = [(l.x0 - margin) > config.paragraph_indent_factor * ref_height for l in lines]
+    use_indent = len(lines) >= 4
+
+    paragraph = 0
+
+    for i in range(1, len(lines)):
+        gap_break = typical > 0 and distances[i - 1] > config.paragraph_gap_factor * typical
+        indent_break = use_indent and indented[i] and not indented[i - 1]
+
+        if gap_break or indent_break:
+            paragraph += 1
+
+        lines[i].paragraph = paragraph
+
+    return paragraph + 1
 
 
 def _estimate_pitch(clean, h_ref):
@@ -1081,6 +1138,7 @@ def detect_lines(mask, config=None):
                              "Only tiny marks were found; no handwriting detected.", info)
 
     kind = "single_line" if len(lines) == 1 else "multi_line"
+    info["paragraphs"] = assign_paragraphs(lines, config)
 
     return LineDetection(kind, lines, "", info)
 

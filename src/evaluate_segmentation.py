@@ -103,6 +103,58 @@ def single_line_benchmark(seeds):
     return rows
 
 
+PARAGRAPH_LAYOUTS = {
+    # name: (paragraph breaks present, render options)
+    "skipped_line": (True, dict(skip_line=True, indent=0)),
+    "indent_only": (True, dict(skip_line=False, indent=110)),
+    "skipped_and_indent": (True, dict(skip_line=True, indent=110)),
+    "no_paragraphs": (False, dict()),
+}
+PARAGRAPH_CONDITIONS = ["clean", "ruled", "shadow", "noisy_blur", "skewed"]
+
+
+def paragraph_benchmark(seeds):
+    """
+    Pages with a known paragraph structure: the paragraph grouping must match
+    exactly (and pages without paragraph breaks must stay ONE paragraph).
+    Counts only pages where the line count was also right, because the
+    grouping is defined over lines.
+    """
+
+    import random
+
+    rows = []
+
+    for layout, (has_breaks, options) in PARAGRAPH_LAYOUTS.items():
+        for condition in PARAGRAPH_CONDITIONS:
+            for offset in range(seeds):
+                seed = FIRST_SEED + 2000 + offset
+                rng = random.Random(seed)
+                sizes = [rng.randint(2, 3) for _ in range(rng.randint(2, 3))]
+
+                if has_breaks:
+                    options_now = dict(sp.CONDITIONS[condition], paragraph_sizes=sizes, **options)
+                else:
+                    options_now = dict(sp.CONDITIONS[condition], n_lines=sum(sizes))
+
+                image, truth = sp.render_page(seed, **options_now)
+
+                for key in PIPELINES:
+                    _, detection = detect(image, key)
+                    found = [l.paragraph for l in detection.lines]
+                    expected = truth["paragraphs"]
+                    lines_ok = len(found) == truth["n_lines"]
+
+                    rows.append({
+                        "case": f"paragraphs_{layout}", "condition": condition, "seed": seed,
+                        "pipeline": key, "expected_paragraphs": len(set(expected)),
+                        "found_paragraphs": len(set(found)), "lines_correct": lines_ok,
+                        "ok": lines_ok and found == expected,
+                    })
+
+    return rows
+
+
 def empty_page_benchmark(seeds):
     """Blank paper / pure noise must be flagged, not 'read'."""
 
@@ -128,7 +180,7 @@ def empty_page_benchmark(seeds):
     return rows
 
 
-def summarise(page_rows, single_rows, empty_rows):
+def summarise(page_rows, single_rows, empty_rows, paragraph_rows=()):
     lines = []
 
     lines.append("| Condition | Pipeline | Pages | Line count correct | Orientation axis ok |")
@@ -148,6 +200,15 @@ def summarise(page_rows, single_rows, empty_rows):
         for case in sorted({r["case"] for r in rows}):
             for key in PIPELINES:
                 mine = [r for r in rows if r["case"] == case and r["pipeline"] == key]
+                lines.append(f"| {case} | {key} | {len(mine)} | {sum(r['ok'] for r in mine)}/{len(mine)} |")
+
+    if paragraph_rows:
+        lines += ["", "| Paragraph layout | Pipeline | Pages | Lines and paragraphs both correct |",
+                  "|---|---|---|---|"]
+
+        for case in sorted({r["case"] for r in paragraph_rows}):
+            for key in PIPELINES:
+                mine = [r for r in paragraph_rows if r["case"] == case and r["pipeline"] == key]
                 lines.append(f"| {case} | {key} | {len(mine)} | {sum(r['ok'] for r in mine)}/{len(mine)} |")
 
     return "\n".join(lines)
@@ -174,12 +235,14 @@ def main(argv=None):
     page_rows = page_benchmark(args.seeds)
     single_rows = single_line_benchmark(args.seeds)
     empty_rows = empty_page_benchmark(args.seeds)
+    paragraph_rows = paragraph_benchmark(args.seeds)
 
     write_csv(os.path.join(args.output, "pages.csv"), page_rows)
     write_csv(os.path.join(args.output, "single_line_crops.csv"), single_rows)
     write_csv(os.path.join(args.output, "empty_inputs.csv"), empty_rows)
+    write_csv(os.path.join(args.output, "paragraphs.csv"), paragraph_rows)
 
-    table = summarise(page_rows, single_rows, empty_rows)
+    table = summarise(page_rows, single_rows, empty_rows, paragraph_rows)
     header = (
         "# Synthetic segmentation benchmark\n\n"
         "SYNTHETIC pages (font-rendered text, known line counts). Tests the document "
@@ -192,7 +255,7 @@ def main(argv=None):
 
     print(header + table)
 
-    return page_rows, single_rows, empty_rows
+    return page_rows, single_rows, empty_rows, paragraph_rows
 
 
 if __name__ == "__main__":

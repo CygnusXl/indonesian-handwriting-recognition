@@ -111,6 +111,9 @@ def render_page(
     strike=False,
     pitch=None,
     size_ratio=0.36,
+    paragraph_sizes=None,
+    skip_line=True,
+    indent=0,
 ):
     """
     Returns (PIL RGB image, truth) where truth =
@@ -122,7 +125,16 @@ def render_page(
     rng = random.Random(seed)
     nprng = np.random.default_rng(seed)
 
+    if paragraph_sizes:
+        n_lines = sum(paragraph_sizes)
+
     n_lines = n_lines or rng.randint(2, 7)
+    # paragraph number of every line; with `paragraph_sizes`, a paragraph starts
+    # after a skipped ruled line (skip_line) and/or with its first line indented
+    paragraph_of = []
+
+    for number, size_ in enumerate(paragraph_sizes or [n_lines]):
+        paragraph_of += [number] * size_
     pitch = pitch or rng.randint(125, 150)
     size = int(pitch * size_ratio)
     top = 170
@@ -142,8 +154,12 @@ def render_page(
     for index in range(n_lines):
         text = _line_text(rng)
         layer = _draw_line_layer(text, size, rng, ink)
-        x = 170 + rng.randint(0, 25)
-        y = top + index * pitch - int(size * 0.95)
+        starts = paragraph_sizes and index > 0 and paragraph_of[index] != paragraph_of[index - 1]
+        first_of_paragraph = paragraph_sizes and (index == 0 or starts)
+        skipped = sum(1 for k in range(1, index + 1)
+                      if paragraph_of[k] != paragraph_of[k - 1]) if (paragraph_sizes and skip_line) else 0
+        x = 170 + rng.randint(0, 25) + (indent if first_of_paragraph and indent else 0)
+        y = top + (index + skipped) * pitch - int(size * 0.95)
         page.paste(layer, (x, y), layer)
 
         alpha = np.array(layer.split()[-1])
@@ -209,6 +225,7 @@ def render_page(
         "n_lines": n_lines,
         "boxes": None if geometric else boxes,
         "texts": texts,
+        "paragraphs": paragraph_of,
     }
 
     return page, truth

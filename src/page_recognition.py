@@ -97,6 +97,7 @@ class LineResult:
     text: str = ""
     confidence: float = None
     chunks: list = field(default_factory=list)
+    paragraph: int = 0             # 0-based, from the page layout (see dp.assign_paragraphs)
 
 
 @dataclass
@@ -121,6 +122,10 @@ class PageResult:
     @property
     def n_chunks(self):
         return sum(len(line.chunks) for line in self.lines)
+
+    @property
+    def n_paragraphs(self):
+        return len({line.paragraph for line in self.lines}) if self.lines else 0
 
     @property
     def text_oneline(self):
@@ -250,6 +255,20 @@ def _quality_warnings(info):
     return warnings
 
 
+def join_paragraphs(lines):
+    """Lines of one paragraph are joined with a line break, paragraphs with a blank line."""
+
+    parts = []
+
+    for position, line in enumerate(lines):
+        if position:
+            parts.append("\n\n" if line.paragraph != lines[position - 1].paragraph else "\n")
+
+        parts.append(line.text)
+
+    return "".join(parts)
+
+
 def _build_line_inputs(stages, detection, spec, model_config):
     """
     Crop every detected line (splitting over-long lines at word gaps) and
@@ -364,7 +383,8 @@ def _recognize_once(loaded, image, spec, rotation=None, force=False):
             confidence = _weighted_confidence([(c.text, c.confidence) for c in chunks])
 
             result.lines.append(LineResult(
-                line.index, (line.x0, line.y0, line.x1, line.y1), text, confidence, chunks))
+                line.index, (line.x0, line.y0, line.x1, line.y1), text, confidence, chunks,
+                paragraph=line.paragraph))
 
             if line.height < 14:
                 result.warnings.append(
@@ -376,7 +396,7 @@ def _recognize_once(loaded, image, spec, rotation=None, force=False):
                 result.warnings.append(
                     f"Line {line.index + 1}: a very long word was shrunk to fit the model input.")
 
-        result.text = "\n".join(line.text for line in result.lines)
+        result.text = join_paragraphs(result.lines)
 
     elif use_whole_image:
         height, width = model_config["image_height"], model_config["image_width"]

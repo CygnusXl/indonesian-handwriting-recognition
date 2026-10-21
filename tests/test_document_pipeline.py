@@ -210,3 +210,51 @@ def test_dataset_single_lines_stay_single(box):
     _, detection = detect(_figure_crop(box))
 
     assert len(detection.lines) == 1
+
+
+# ---- paragraph grouping (layout only) -------------------------------------
+
+def _boxes(rows):
+    """rows: [(x0, centre_y)] -> LineBoxes 60 px tall."""
+    import numpy as np
+
+    return [dp.LineBox(i, x0, int(cy - 30), x0 + 500, int(cy + 30), np.ones((60, 500), bool), 100)
+            for i, (x0, cy) in enumerate(rows)]
+
+
+def test_paragraphs_split_at_a_skipped_line():
+    lines = _boxes([(100, 100), (100, 200), (100, 300), (100, 500), (100, 600), (100, 800)])
+
+    assert dp.assign_paragraphs(lines) == 3
+    assert [l.paragraph for l in lines] == [0, 0, 0, 1, 1, 2]
+
+
+def test_paragraphs_split_at_an_indented_first_line():
+    lines = _boxes([(100, 100), (100, 200), (100, 300), (190, 400), (100, 500), (100, 600)])
+
+    assert dp.assign_paragraphs(lines) == 2
+    assert [l.paragraph for l in lines] == [0, 0, 0, 1, 1, 1]
+
+
+def test_even_ragged_lines_stay_one_paragraph():
+    lines = _boxes([(100, 100), (112, 200), (95, 300), (108, 400), (90, 500)])
+
+    assert dp.assign_paragraphs(lines) == 1
+
+
+def test_too_few_lines_to_judge_are_one_paragraph():
+    assert dp.assign_paragraphs(_boxes([(100, 100), (100, 400)])) == 1
+    assert dp.assign_paragraphs([]) == 0
+
+
+def test_detect_lines_finds_paragraphs_on_a_synthetic_page():
+    import page_recognition as pr
+    import synthetic_pages as sp
+
+    for options in (dict(skip_line=True, indent=0), dict(skip_line=False, indent=110)):
+        image, truth = sp.render_page(1000, ruled=True, paragraph_sizes=[3, 2, 3], **options)
+        spec = pr.EXPERIMENTS["D"]
+        stages = dp.preprocess_document(image, spec.preprocess)
+        detection = dp.detect_lines(stages.mask, spec.segmentation)
+
+        assert [l.paragraph for l in detection.lines] == truth["paragraphs"]

@@ -141,3 +141,17 @@ def test_example_picker_shows_expected_text(monkeypatch, model_file, photo_path)
 
     assert 'class="truth"' in page and "Di mana tempat pemberhentian busnya?" in page
     assert app.selectbox[0].options[0].startswith('Sample 1: "Di mana')
+
+
+def test_ui_shows_paragraphs_for_a_page_with_paragraph_breaks(monkeypatch, model_file, tmp_path):
+    monkeypatch.setenv("HTR_MODEL_PATH", model_file)
+    path = tmp_path / "paragraphs.jpg"
+    page, _ = sp.render_page(1000, ruled=True, paragraph_sizes=[3, 2, 3])
+    page.convert("RGB").save(path, quality=90)
+
+    app = make_app(str(path)).run()
+
+    assert not app.exception
+    assert [m.value for m in app.metric if m.label == "Paragraphs"] == ["3"]
+    assert [m.value for m in app.metric if m.label == "Lines"] == ["8"]
+    assert " ".join(m.value for m in app.markdown).count('class="para-start"') == 2

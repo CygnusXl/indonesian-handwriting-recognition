@@ -43,3 +43,13 @@ def test_paired_differences_only_use_images_run_in_both_pipelines():
     rows = [_pi("A", "x", 1, 10), _pi("A", "y", 1, 10), _pi("B", "x", 2, 10)]
 
     assert p.paired_differences(rows, resamples=50) == []                  # one common image: too few
+
+
+def test_paragraph_rates_count_images_with_more_than_one_paragraph():
+    rows = [{"experiment": "D", "gt_group": "multiline", "detected_paragraphs": v} for v in ("1", "1", "2", "1")]
+    rows.append({"experiment": "A", "gt_group": "multiline", "detected_paragraphs": ""})   # A: no detection
+
+    counts = p.paragraph_rates(rows)
+
+    assert counts == {("D", "multiline"): (1, 4)}
+    assert "1 (25%)" in p.paragraph_table(counts)

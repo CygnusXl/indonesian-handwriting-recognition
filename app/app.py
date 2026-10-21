@@ -262,12 +262,12 @@ if result is not None:
 
     if result.lines:
         st.markdown(
-            ui.paper_text((l.index, logic.hc.display_text(l.text), l.confidence)
+            ui.paper_text((l.index, logic.hc.display_text(l.text), l.confidence, l.paragraph)
                           for l in result.lines),
             unsafe_allow_html=True,
         )
 
-        metrics = st.columns(3)
+        metrics = st.columns(4)
 
         if result.confidence is not None:
             metrics[0].metric(
@@ -279,7 +279,11 @@ if result is not None:
             )
 
         metrics[1].metric("Lines", f"{result.n_lines}")
-        metrics[2].metric("Time", f"{result.timings.get('total_s', 0) * 1000:.0f} ms")
+        metrics[2].metric(
+            "Paragraphs", f"{result.n_paragraphs}",
+            help="Guessed from the page layout only: a skipped line or an indented first "
+            "line starts a new paragraph. Not checked on real handwriting.")
+        metrics[3].metric("Time", f"{result.timings.get('total_s', 0) * 1000:.0f} ms")
 
         text_out = logic.page_display_text(result)
 

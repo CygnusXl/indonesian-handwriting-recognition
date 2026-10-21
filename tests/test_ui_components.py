@@ -59,3 +59,11 @@ def test_example_label_truncates_and_ground_truth_is_escaped():
     assert ui.example_label(2, "x" * 60).endswith('..."') and len(ui.example_label(2, "x" * 60)) < 60
     assert "&lt;b&gt;" in ui.ground_truth("<b>")
     assert "<b>" not in ui.ground_truth("<b>")
+
+
+def test_paper_marks_the_start_of_a_new_paragraph_only():
+    html_out = ui.paper_text([(0, "a", None, 0), (1, "b", None, 0), (2, "c", None, 1)])
+
+    assert html_out.count('class="para-start"') == 1
+    assert html_out.index('class="para-start"') > html_out.index(">b<")
+    assert 'class="para-start"' not in ui.paper_text([(0, "a", None), (1, "b", None)])

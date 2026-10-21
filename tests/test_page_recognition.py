@@ -160,3 +160,15 @@ def test_grayscale_rgba_and_palette_images_are_accepted(random_loaded):
         result = pr.recognize_page(random_loaded, variant, pr.EXPERIMENTS["D"], force=True)
 
         assert result.timings["total_s"] > 0
+
+
+def test_join_paragraphs_uses_blank_line_between_paragraphs_only():
+    lines = [pr.LineResult(0, text="a", paragraph=0), pr.LineResult(1, text="b", paragraph=0),
+             pr.LineResult(2, text="c", paragraph=1)]
+
+    assert pr.join_paragraphs(lines) == "a\nb\n\nc"
+
+    result = pr.PageResult(spec=pr.EXPERIMENTS["D"], lines=lines, text=pr.join_paragraphs(lines))
+
+    assert result.n_paragraphs == 2
+    assert result.text_oneline == "a b c"          # scoring ignores the paragraph structure
