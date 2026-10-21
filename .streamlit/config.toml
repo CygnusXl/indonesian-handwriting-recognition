@@ -5,3 +5,13 @@ enableXsrfProtection = true
 
 [browser]
 gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
+
+[theme]
+base = "light"
+primaryColor = "#2a3ba0"
+backgroundColor = "#eef1f6"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#18213d"

@@ -1,0 +1,243 @@
+"""
+Run the PAGE PIPELINE (experiments A/C/D) on the 208 OpenHand-Synth TEST
+images and report single-line vs multiline separately.
+
+This answers: "what does the pipeline's line splitting do to the multiline
+numbers?"  The images are SYNTHETIC dataset images, not photographs; this is
+not evidence about real handwriting.
+
+STATUS: `summarize` and the grouping are unit-tested (tests/test_pipeline_on_test_set.py)
+and rely on evaluate_pipeline.py copying the `group` column of ground_truth.csv into
+per_image.csv as `gt_group`.  `export` has NOT been run: it needs the dataset download,
+which was not reachable when this was written.  No numbers from this script exist yet.
+
+Step 1 - export the test images + ground truth (needs `datasets`, internet):
+
+    python src/pipeline_on_test_set.py export
+
+Step 2 - run the pipeline (GPU or CPU, a few minutes):
+
+    python src/evaluate_pipeline.py --images evaluation/synthetic_test \
+        --output evaluation/synthetic_test/results --experiments A C D
+
+Step 3 - split the results into single-line / multiline:
+
+    python src/pipeline_on_test_set.py summarize
+
+Experiment A here is "one model call on the whole image with the
+pipeline's own preprocessing"; it should land close to, but need not equal,
+the 68.79% baseline from analyze_model.py (different preprocessing path).
+"""
+
+import argparse
+import csv
+import json
+import os
+
+DEFAULT_DIR = os.path.join("evaluation", "synthetic_test")
+
+
+def export(directory):
+    import htr_common as hc
+    from dataset import IndonesianHandwritingDataset
+
+    dataset = IndonesianHandwritingDataset(split="test", ctc_timesteps=hc.COMMON_TEST_CTC_TIMESTEPS)
+
+    os.makedirs(directory, exist_ok=True)
+    rows = []
+
+    for i in dataset.indices:
+        sample = dataset.dataset[i]
+        group = "multiline" if hc.is_multiline(sample["text"]) else "single"
+        name = f"{group}_{i}.png"
+        sample["image"].convert("RGB").save(os.path.join(directory, name))
+        rows.append({"image_file": name, "reference_text": sample["text"], "group": group,
+                     "dataset_index": i, "writer_id": sample["writer_id"]})
+
+    with open(os.path.join(directory, "ground_truth.csv"), "w", newline="", encoding="utf-8") as file:
+        writer = csv.DictWriter(file, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+
+    print(f"Exported {len(rows)} images to {directory}")
+
+
+def summarize_rows(rows):
+    """
+    rows: per_image.csv rows from evaluate_pipeline.py.  Uses the error counts
+    it already wrote (char_errors / reference_chars / word_errors /
+    reference_words / exact_match) and the copied-through gt_group column.
+    Returns {(experiment, group): metrics}, with group "all" added.
+    """
+
+    totals = {}
+
+    for row in rows:
+        if str(row.get("has_ground_truth")).lower() != "true" or not row.get("reference_chars"):
+            continue
+
+        for group in (row.get("gt_group") or "all", "all"):
+            t = totals.setdefault((row["experiment"], group), {"n": 0, "ce": 0, "cn": 0, "we": 0, "wn": 0, "em": 0})
+            t["n"] += 1
+            t["ce"] += float(row["char_errors"])
+            t["cn"] += float(row["reference_chars"])
+            t["we"] += float(row["word_errors"])
+            t["wn"] += float(row["reference_words"])
+            t["em"] += str(row.get("exact_match")).lower() == "true"
+
+    return {k: {"n": v["n"], "corpus_cer": v["ce"] / v["cn"] if v["cn"] else None,
+                "corpus_wer": v["we"] / v["wn"] if v["wn"] else None,
+                "exact_match": v["em"] / v["n"]} for k, v in totals.items()}
+
+
+def paired_differences(rows, resamples=10000, seed=20261019):
+    """
+    Paired bootstrap over images: for every pair of experiments run on the
+    same images, the change in corpus CER (second minus first, in points) per
+    group with a 95% percentile interval.  Resamples whole images, using the
+    same images for both experiments.  Interval = test-set sampling noise
+    only (one run, one model).
+
+    Returns a list of dicts: first, second, group, n, diff, lo, hi.
+    """
+
+    import numpy as np
+
+    data = {}
+
+    for row in rows:
+        if str(row.get("has_ground_truth")).lower() != "true" or not row.get("reference_chars"):
+            continue
+
+        key = (row["experiment"], row["filename"])
+        data[key] = (row.get("gt_group") or "all", float(row["char_errors"]), float(row["reference_chars"]))
+
+    experiments = sorted({k[0] for k in data})
+    files = sorted({k[1] for k in data})
+    rng = np.random.default_rng(seed)
+    out = []
+
+    for i, first in enumerate(experiments):
+        for second in experiments[i + 1:]:
+            common = [f for f in files if (first, f) in data and (second, f) in data]
+
+            for group in ("single", "multiline", "all"):
+                names = [f for f in common if group == "all" or data[(first, f)][0] == group]
+
+                if len(names) < 2:
+                    continue
+
+                e1 = np.array([data[(first, f)][1] for f in names])
+                e2 = np.array([data[(second, f)][1] for f in names])
+                n = np.array([data[(first, f)][2] for f in names])
+                diff = (e2.sum() - e1.sum()) / n.sum()
+                pick = rng.integers(0, len(names), (resamples, len(names)))
+                boot = (e2[pick].sum(1) - e1[pick].sum(1)) / n[pick].sum(1)
+
+                out.append({"first": first, "second": second, "group": group, "n": len(names),
+                            "diff": float(diff), "lo": float(np.percentile(boot, 2.5)),
+                            "hi": float(np.percentile(boot, 97.5))})
+
+    return out
+
+
+def paragraph_rates(rows):
+    """
+    Share of images per (experiment, group) for which more than one paragraph
+    was detected. The dataset's multiline test images are sentences wrapped over
+    lines WITHOUT paragraph breaks, so for them this is a false-positive rate.
+    Returns {(experiment, group): (images_with_more_than_one, images)}.
+    """
+
+    counts = {}
+
+    for row in rows:
+        value = row.get("detected_paragraphs")
+
+        if value in (None, ""):
+            continue
+
+        key = (row["experiment"], row.get("gt_group") or "all")
+        many, total = counts.get(key, (0, 0))
+        counts[key] = (many + (int(float(value)) > 1), total + 1)
+
+    return counts
+
+
+def paragraph_table(counts):
+    lines = ["| Experiment | Group | Images | Detected more than one paragraph |", "| --- | --- | ---: | ---: |"]
+
+    for (experiment, group), (many, total) in sorted(counts.items()):
+        lines.append(f"| {experiment} | {group} | {total} | {many} ({many / total * 100:.0f}%) |")
+
+    return "\n".join(lines)
+
+
+def paired_table(differences):
+    lines = ["| From | To | Group | n | Change in CER | 95% CI | Within noise? |",
+             "| --- | --- | --- | ---: | ---: | --- | --- |"]
+
+    for d in differences:
+        noisy = "yes" if d["lo"] <= 0 <= d["hi"] else "no"
+        lines.append(f"| {d['first']} | {d['second']} | {d['group']} | {d['n']} | {d['diff'] * 100:+.1f} pt | "
+                     f"{d['lo'] * 100:+.1f} to {d['hi'] * 100:+.1f} | {noisy} |")
+
+    return "\n".join(lines)
+
+
+def summarize(directory, results="results"):
+    path = os.path.join(directory, results, "per_image.csv")
+
+    with open(path, newline="", encoding="utf-8") as file:
+        rows = list(csv.DictReader(file))
+
+    result = summarize_rows(rows)
+    lines = ["| Experiment | Group | n | Corpus CER | Corpus WER | Exact match |", "| --- | --- | ---: | ---: | ---: | ---: |"]
+
+    for (experiment, group), m in sorted(result.items()):
+        lines.append(f"| {experiment} | {group} | {m['n']} | {m['corpus_cer'] * 100:.1f}% | "
+                     f"{m['corpus_wer'] * 100:.1f}% | {m['exact_match'] * 100:.1f}% |")
+
+    text = "\n".join(lines)
+    paired = paired_table(paired_differences(rows))
+    rates = paragraph_rates(rows)
+    paragraphs = paragraph_table(rates) if rates else ""
+    out = os.path.join(directory, results, "by_group.md")
+
+    with open(out, "w", encoding="utf-8") as file:
+        file.write("# Pipeline on synthetic test images, by group\n\nSynthetic dataset images, not photographs.\n\n" + text + "\n"
+                   "\n## Paired change in corpus CER between pipelines (bootstrap over images)\n\n"
+                   "Same images for both pipelines. Interval = test-set sampling noise only; one run per pipeline.\n\n"
+                   + paired + "\n"
+                   + ("\n## Paragraphs detected per image\n\nThe dataset's multiline images have no paragraph breaks, "
+                      "so a value above 0 in the multiline rows is a false positive.\n\n" + paragraphs + "\n"
+                      if paragraphs else ""))
+
+    with open(os.path.join(directory, results, "by_group.json"), "w", encoding="utf-8") as file:
+        json.dump({f"{k[0]}|{k[1]}": v for k, v in result.items()}, file, indent=2)
+
+    print(text)
+    print("\nPaired change in corpus CER (second minus first), 95% bootstrap CI over images:")
+    print(paired)
+
+    if paragraphs:
+        print("\nImages with more than one paragraph detected (multiline dataset images have none, "
+              "so this is a false-positive rate):")
+        print(paragraphs)
+
+    print(f"\nWrote {out}")
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument("command", choices=["export", "summarize"])
+    parser.add_argument("--directory", default=DEFAULT_DIR)
+    parser.add_argument("--results", default="results",
+                        help="results sub-folder of --directory to summarize (default: results)")
+    args = parser.parse_args(argv)
+
+    export(args.directory) if args.command == "export" else summarize(args.directory, args.results)
+
+
+if __name__ == "__main__":
+    main()

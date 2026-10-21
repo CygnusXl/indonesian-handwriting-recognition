@@ -1,12 +1,17 @@
 """
-Indonesian handwriting recognition - demo application.
+Indonesian handwriting recognition - web application.
 
 Run from the repository root:
 
     streamlit run app/app.py
 
-Pipeline: uploaded image -> preprocessing (same function as training)
--> CNN-BiLSTM -> CTC greedy decoding -> recognised text.
+Pipeline (default "D"): photograph -> orientation / perspective / deskew /
+illumination / contrast / notebook-ruling suppression -> handwriting-line
+detection -> one crop per line -> the (unchanged) CNN-BiLSTM line recognizer
+with CTC greedy decoding -> lines joined in reading order.
+"A" is the original single-line pipeline, kept for comparison.
+
+The look (ruled-paper theme) lives in app/style.css and app/ui_components.py.
 """
 
 import csv
@@ -20,6 +25,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import app_logic as logic  # noqa: E402
 import evaluation_log as elog  # noqa: E402
+import ui_components as ui  # noqa: E402
 
 # Set HTR_HOSTED=1 on a public deployment: results are then NOT written to
 # the server's disk; the visitor downloads their own evaluation CSV instead.
@@ -31,7 +37,21 @@ st.set_page_config(
     page_title="Indonesian Handwriting Recognition",
     page_icon="✍️",
     layout="wide",
+    initial_sidebar_state="collapsed",
 )
+
+st.markdown(ui.load_css(), unsafe_allow_html=True)
+
+# Light / dark appearance (dark is the default, as on main).
+if "dark_mode" not in st.session_state:
+    st.session_state["dark_mode"] = True
+
+with st.sidebar:
+    st.subheader("Appearance")
+    dark_mode = st.toggle("Dark mode", key="dark_mode")
+
+if dark_mode:
+    st.markdown(ui.load_dark_css(), unsafe_allow_html=True)
 
 
 @st.cache_resource(show_spinner="Loading model...")
@@ -50,161 +70,7 @@ def load_examples():
 
 
 # ------------------------------------------------------------
-# Theme & Custom CSS (Light / Dark mode support)
-# ------------------------------------------------------------
-
-if "dark_mode" not in st.session_state:
-    st.session_state["dark_mode"] = True
-
-with st.sidebar:
-    st.subheader("🎨 Appearance")
-    dark_mode = st.toggle("🌙 Dark Mode", value=st.session_state["dark_mode"], key="theme_toggle")
-    st.session_state["dark_mode"] = dark_mode
-
-if dark_mode:
-    theme_css = """
-    <style>
-    .stApp {
-        background-color: #0b0f19;
-        color: #f1f5f9;
-    }
-    .custom-card {
-        background-color: #161f30;
-        border: 1px solid #28354d;
-        border-radius: 12px;
-        padding: 1.25rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-    }
-    .step-card {
-        background-color: #111827;
-        border: 1px solid #1f2937;
-        border-radius: 10px;
-        padding: 0.85rem 1rem;
-        text-align: center;
-        height: 100%;
-    }
-    .custom-badge {
-        display: inline-block;
-        padding: 0.25rem 0.65rem;
-        font-size: 0.8rem;
-        font-weight: 600;
-        border-radius: 9999px;
-        background-color: rgba(99, 102, 241, 0.2);
-        color: #a5b4fc;
-        border: 1px solid rgba(99, 102, 241, 0.35);
-        margin-right: 0.4rem;
-    }
-    .ground-truth-box {
-        background-color: #111827;
-        border-left: 4px solid #10b981;
-        border-radius: 6px;
-        padding: 0.75rem 1rem;
-        margin-top: 0.5rem;
-        margin-bottom: 0.75rem;
-        font-family: monospace;
-        color: #34d399;
-    }
-    .tip-box {
-        background-color: rgba(245, 158, 11, 0.1);
-        border-left: 4px solid #f59e0b;
-        border-radius: 6px;
-        padding: 0.6rem 0.9rem;
-        margin-top: 0.5rem;
-        margin-bottom: 0.75rem;
-        color: #fbbf24;
-        font-size: 0.9rem;
-    }
-    .result-display {
-        background-color: #0d131f;
-        border: 1px solid #28354d;
-        border-radius: 8px;
-        padding: 1.2rem;
-        font-size: 1.25rem;
-        font-weight: 500;
-        line-height: 1.6;
-        color: #f8fafc;
-        margin-top: 0.5rem;
-        margin-bottom: 0.75rem;
-        word-break: break-word;
-    }
-    </style>
-    """
-else:
-    theme_css = """
-    <style>
-    .stApp {
-        background-color: #f8fafc;
-        color: #0f172a;
-    }
-    .custom-card {
-        background-color: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 1.25rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-    }
-    .step-card {
-        background-color: #f1f5f9;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        padding: 0.85rem 1rem;
-        text-align: center;
-        height: 100%;
-    }
-    .custom-badge {
-        display: inline-block;
-        padding: 0.25rem 0.65rem;
-        font-size: 0.8rem;
-        font-weight: 600;
-        border-radius: 9999px;
-        background-color: rgba(79, 70, 229, 0.1);
-        color: #4338ca;
-        border: 1px solid rgba(79, 70, 229, 0.25);
-        margin-right: 0.4rem;
-    }
-    .ground-truth-box {
-        background-color: #ecfdf5;
-        border-left: 4px solid #10b981;
-        border-radius: 6px;
-        padding: 0.75rem 1rem;
-        margin-top: 0.5rem;
-        margin-bottom: 0.75rem;
-        font-family: monospace;
-        color: #065f46;
-    }
-    .tip-box {
-        background-color: #fffbeb;
-        border-left: 4px solid #f59e0b;
-        border-radius: 6px;
-        padding: 0.6rem 0.9rem;
-        margin-top: 0.5rem;
-        margin-bottom: 0.75rem;
-        color: #92400e;
-        font-size: 0.9rem;
-    }
-    .result-display {
-        background-color: #f1f5f9;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        padding: 1.2rem;
-        font-size: 1.25rem;
-        font-weight: 500;
-        line-height: 1.6;
-        color: #0f172a;
-        margin-top: 0.5rem;
-        margin-bottom: 0.75rem;
-        word-break: break-word;
-    }
-    </style>
-    """
-
-st.markdown(theme_css, unsafe_allow_html=True)
-
-
-# ------------------------------------------------------------
-# Model Loading
+# Model
 # ------------------------------------------------------------
 
 try:
@@ -219,303 +85,292 @@ except Exception as error:  # corrupt / incompatible checkpoint
 
 provenance = loaded.provenance
 
-
 # ------------------------------------------------------------
-# Sidebar Details
-# ------------------------------------------------------------
-
-with st.sidebar:
-    st.subheader("⚙️ Settings")
-    auto_contrast = st.checkbox(
-        "Auto-contrast adjustment",
-        value=False,
-        help="Enhances contrast for faint pencil or low-light photos.",
-    )
-
-    st.divider()
-
-    with st.expander("ℹ️ About the Model", expanded=False):
-        st.write(
-            f"**Architecture**: CNN + BiLSTM + CTC  \n"
-            f"**Canvas**: {loaded.config['image_height']} × {loaded.config['image_width']} px  \n"
-            f"**Parameters**: {provenance.get('parameters', 0):,}  \n"
-            f"**Decoding**: Greedy CTC"
-        )
-
-        metrics = provenance.get("test_metrics")
-        if metrics:
-            st.markdown(f"**Test Set Performance ({metrics['samples']} synthetic samples):**")
-            st.write(
-                f"• Corpus CER: {metrics['corpus_cer'] * 100:.1f}%  \n"
-                f"• Corpus WER: {metrics['corpus_wer'] * 100:.1f}%  \n"
-                f"• Exact Match: {metrics['exact_match'] * 100:.1f}%"
-            )
-
-        st.caption(
-            "Trained on synthetic handwriting (OpenHand-Synth). "
-            "Optimized for one line of text per image."
-        )
-
-
-# ------------------------------------------------------------
-# Main Header & Casual-Friendly Quick Guide
+# Hero + input
 # ------------------------------------------------------------
 
-st.title("✍️ Indonesian Handwriting Recognition")
-st.markdown(
-    "Convert photos or scans of Indonesian handwriting into editable digital text with deep learning."
-)
-
-# 3-step friendly guide for casual visitors
-step_col1, step_col2, step_col3 = st.columns(3)
-with step_col1:
-    st.markdown(
-        """
-        <div class="step-card">
-            <strong>1. Choose Image</strong><br>
-            <span style="font-size:0.88rem; opacity:0.85;">Pick a test set sample or upload your own.</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-with step_col2:
-    st.markdown(
-        """
-        <div class="step-card">
-            <strong>2. Recognize</strong><br>
-            <span style="font-size:0.88rem; opacity:0.85;">Click "Recognize text" to run the model.</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-with step_col3:
-    st.markdown(
-        """
-        <div class="step-card">
-            <strong>3. Copy Text</strong><br>
-            <span style="font-size:0.88rem; opacity:0.85;">View, edit, and copy the recognized text.</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-st.write("")
-
-
-# ------------------------------------------------------------
-# Input Selection: Upload an image OR Test Set Examples
-# ------------------------------------------------------------
+st.markdown(ui.hero(provenance.get("label", "Trained model")), unsafe_allow_html=True)
 
 examples = load_examples()
 reference_prefill = ""
 image_bytes = None
-source = "upload"
 
 if examples:
-    choice = st.radio(
-        "Input",
-        ["Upload an image", "Use an example"],
-        horizontal=True,
-        help="Select 'Use an example' to test instantly without uploading files.",
-    )
+    choice = st.radio("Input", ["Upload an image", "Use an example"], horizontal=True)
 else:
     choice = "Upload an image"
 
 if choice == "Upload an image":
-    st.markdown(
-        """
-        <div class="tip-box">
-            💡 <strong>Tip for best results:</strong> The model is trained for <strong>one line of text</strong> per image. Crop tightly around the line on a plain background for highest accuracy.
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
     uploaded = st.file_uploader(
         "Upload a photo or scan of handwriting",
         type=["png", "jpg", "jpeg", "webp"],
+        help="One line or a whole notebook page. The photo is processed in memory "
+        "for this session and is not stored.",
     )
 
     if uploaded is not None:
         image_bytes = uploaded.getvalue()
-
 else:
-    st.markdown("### 📚 Test Set Examples (OpenHand-Synth)")
-    st.caption("Click any sample below to see how the model reads it:")
+    st.markdown("#### Test set examples (OpenHand-Synth)")
+    st.caption("Synthetic handwriting images from the dataset test split, not photographs. "
+               "Pick one to see how the model reads it.")
 
-    # Casual-friendly readable labels for the example options
-    example_options = []
-    for i, e in enumerate(examples):
-        ref_preview = e["reference"]
-        if len(ref_preview) > 36:
-            ref_preview = ref_preview[:33] + "..."
-        example_options.append(f"Sample {i + 1}: \"{ref_preview}\"")
+    labels = [ui.example_label(i, e["reference"]) for i, e in enumerate(examples)]
+    picked = st.selectbox("Choose a test set sample", labels)
+    entry = examples[labels.index(picked)]
 
-    picked = st.selectbox(
-        "Choose a test set sample",
-        example_options,
-        index=0,
-    )
-    picked_index = example_options.index(picked)
-    entry = examples[picked_index]
-
-    example_file_path = os.path.join(EXAMPLES_DIR, entry["file"])
-    with open(example_file_path, "rb") as file:
+    with open(os.path.join(EXAMPLES_DIR, entry["file"]), "rb") as file:
         image_bytes = file.read()
 
     reference_prefill = entry["reference"]
-    source = "example"
+    st.markdown(ui.ground_truth(reference_prefill), unsafe_allow_html=True)
 
+with st.expander("Settings"):
+    columns = st.columns(2)
 
-# If no image is provided yet, show prompt and stop cleanly
+    pipeline = columns[0].selectbox(
+        "Processing pipeline",
+        list(logic.PIPELINE_CHOICES),
+        index=list(logic.PIPELINE_CHOICES).index(logic.DEFAULT_PIPELINE),
+        format_func=lambda key: logic.PIPELINE_CHOICES[key],
+        help="D is the default for photos of pages. A is the original single-line "
+        "pipeline (the whole image is one input); use it for a tight crop of one "
+        "line. Which pipeline reads your photos better has to be measured: see "
+        "evaluation/real_world/README.md.",
+    )
+
+    rotation_label = columns[1].selectbox(
+        "Page rotation",
+        ["Auto", "0 (as is)", "90 left", "180", "90 right"],
+        help="Auto turns sideways pages upright and leaves upright pages alone. "
+        "If the automatic guess is wrong, choose the rotation yourself.",
+    )
+    rotation = {"Auto": None, "0 (as is)": 0, "90 left": 90,
+                "180": 180, "90 right": 270}[rotation_label]
+
+    force = columns[0].checkbox(
+        "Recognize anyway if no handwriting is found",
+        value=False,
+        help="By default recognition is skipped when the image looks blank "
+        "or not like handwriting.",
+    )
+
+    auto_contrast = columns[1].checkbox(
+        "Auto-contrast (pipeline A only)",
+        value=False,
+        disabled=(pipeline != "A"),
+        help="Stretches contrast for the original pipeline A. Pipelines B-D "
+        "already normalise illumination and contrast.",
+    )
+
 if image_bytes is None:
-    st.info("Upload an image of one line of handwriting to begin.")
-    st.stop()
+    st.markdown(ui.empty_state(), unsafe_allow_html=True)
+    image = None
+else:
+    try:
+        image = logic.open_user_image(io.BytesIO(image_bytes))
+    except ValueError as error:
+        st.markdown(ui.status_banner("stop", str(error)), unsafe_allow_html=True)
+        image = None
 
+result = None
 
-# ------------------------------------------------------------
-# Image Processing & Recognition
-# ------------------------------------------------------------
+if image is not None:
+    fingerprint = logic.image_fingerprint(image_bytes)
+    options_key = (pipeline, rotation, force, auto_contrast if pipeline == "A" else False)
 
-try:
-    image = logic.open_user_image(io.BytesIO(image_bytes))
-except ValueError as error:
-    st.error(str(error))
-    st.stop()
+    state = st.session_state.get("result")
 
-fingerprint = logic.image_fingerprint(image_bytes)
+    if not (state and state["fingerprint"] == fingerprint and state["options"] == options_key):
+        with st.spinner("Cleaning up the photo, finding lines and reading them..."):
+            if pipeline == "A":
+                value = logic.pr.recognize_legacy(
+                    loaded, image,
+                    logic.replace_spec(logic.pr.EXPERIMENTS["A"], auto_contrast),
+                )
+                value.warnings = logic.image_warnings(image) + value.warnings
+            else:
+                value = logic.recognize_photo(
+                    loaded, image, pipeline=pipeline, force=force, rotation=rotation
+                )
 
-left, right = st.columns([1, 1], gap="medium")
+        state = {"fingerprint": fingerprint, "options": options_key, "value": value}
+        st.session_state["result"] = state
 
-with left:
-    st.subheader("🖼️ Handwriting Image")
-    st.image(image, use_container_width=True)
-
-    if source == "example" and reference_prefill:
-        st.markdown(
-            f"""
-            <div class="ground-truth-box">
-                <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; font-weight:700;">Ground Truth (Expected Text):</span><br>
-                {reference_prefill}
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    run = st.button("✨ Recognize text", type="primary", use_container_width=True)
-
-if run:
-    with st.spinner("Recognising handwriting..."):
-        st.session_state["result"] = {
-            "fingerprint": fingerprint,
-            "auto_contrast": auto_contrast,
-            "value": logic.recognize_image(
-                loaded, image, auto_contrast=auto_contrast
-            ),
-        }
-
-state = st.session_state.get("result")
-result = (
-    state["value"]
-    if state and state["fingerprint"] == fingerprint
-    and state["auto_contrast"] == auto_contrast
-    else None
-)
-
-with right:
-    st.subheader("📝 Recognised Text")
-
-    if result is None:
-        st.caption("Press **✨ Recognize text** on the left to start.")
-    else:
-        for message in result.warnings:
-            st.warning(f"⚠️ {message}")
-
-        # Big readable result box
-        display_str = result.display_text if result.display_text.strip() else "(No text detected)"
-        st.markdown(
-            f"""
-            <div class="result-display">
-                {display_str}
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-        st.text_area(
-            "Editable text (select to copy)",
-            value=result.display_text,
-            height=100,
-            label_visibility="visible",
-        )
-
-        # Performance & Confidence metrics
-        metric_col1, metric_col2 = st.columns(2)
-
-        if result.confidence is not None:
-            metric_col1.metric(
-                "Confidence Score",
-                f"{result.confidence * 100:.0f}%",
-                help="Mean confidence of character emissions. Note that confidence can be high even with errors.",
-            )
-
-        metric_col2.metric("Processing Time", f"{result.seconds * 1000:.0f} ms")
-
-        # Visual inspect expander
-        with st.expander("🔍 What the model sees (Preprocessed 128×1024 Canvas)"):
-            st.image(result.canvas, use_container_width=True)
-            st.caption(
-                "The image is converted to grayscale, scaled to height 128, and padded onto a 128×1024 white canvas."
-            )
-
+    result = state["value"]
 
 # ------------------------------------------------------------
-# Optional Practical-Evaluation Logging (Research / User Study)
+# Results: photo -> cleaned up -> lines found -> text
 # ------------------------------------------------------------
 
 if result is not None:
-    with st.expander("🔬 Practical Evaluation: Record This Result (Optional)"):
+    spec = result.spec
+
+    message = logic.KIND_MESSAGES.get(result.kind)
+
+    if message:
+        stopped = result.kind in ("no_handwriting", "not_handwriting")
+        extra = f" {result.reason}" if stopped and result.reason else ""
+        st.markdown(ui.status_banner("stop" if stopped else "info", message + extra),
+                    unsafe_allow_html=True)
+
+    for note in result.warnings:
+        st.markdown(ui.status_banner("warn", note), unsafe_allow_html=True)
+
+    col_photo, col_clean, col_lines = st.columns(3)
+
+    with col_photo:
+        st.markdown(ui.step_header(1, "Your photo", "As uploaded."), unsafe_allow_html=True)
+        st.image(image, width="stretch")
+
+    with col_clean:
+        if spec.legacy:
+            st.markdown(ui.step_header(
+                2, "Cleaned up", "Pipeline A only converts to grayscale and resizes."),
+                unsafe_allow_html=True)
+        else:
+            st.markdown(ui.step_header(
+                2, "Cleaned up",
+                "Straightened, evenly lit, contrast normalised"
+                + (", ruled lines removed." if spec.preprocess.suppress_ruling else ".")),
+                unsafe_allow_html=True)
+
+            tabs = st.tabs(["Processed", "Normalised"])
+
+            with tabs[0]:
+                st.image(result.images["processed"], width="stretch")
+            with tabs[1]:
+                st.image(result.images["normalized"], width="stretch")
+
+            for note in result.notes:
+                st.caption(note)
+
+    with col_lines:
+        if "overlay" in result.images:
+            st.markdown(ui.step_header(
+                3, "Lines found", f"{result.n_lines} line(s), numbered top to bottom."),
+                unsafe_allow_html=True)
+            st.image(result.images["overlay"], width="stretch")
+        else:
+            st.markdown(ui.step_header(
+                3, "Lines found",
+                "Not used in this pipeline." if not result.lines or spec.legacy
+                else "No lines were detected."),
+                unsafe_allow_html=True)
+
+    st.markdown(ui.step_header(4, "Recognised text"), unsafe_allow_html=True)
+
+    if result.lines:
+        st.markdown(
+            ui.paper_text((l.index, logic.hc.display_text(l.text), l.confidence, l.paragraph)
+                          for l in result.lines),
+            unsafe_allow_html=True,
+        )
+
+        metrics = st.columns(4)
+
+        if result.confidence is not None:
+            metrics[0].metric(
+                "Model confidence (heuristic)",
+                f"{result.confidence * 100:.0f}%",
+                help="Mean probability of the characters the model emitted, weighted "
+                "by text length. A heuristic, NOT a calibrated probability of being "
+                "correct; outputs can be wrong even at high confidence.",
+            )
+
+        metrics[1].metric("Lines", f"{result.n_lines}")
+        metrics[2].metric(
+            "Paragraphs", f"{result.n_paragraphs}",
+            help="Guessed from the page layout only: a skipped line or an indented first "
+            "line starts a new paragraph. Not checked on real handwriting.")
+        metrics[3].metric("Time", f"{result.timings.get('total_s', 0) * 1000:.0f} ms")
+
+        text_out = logic.page_display_text(result)
+
+        actions = st.columns([1, 1, 3])
+        actions[0].download_button(
+            "Download .txt", text_out, file_name="recognised_text.txt", mime="text/plain")
+
+        with st.expander("Copy as plain text"):
+            st.code(text_out, language=None)
+    else:
+        st.markdown(ui.paper_empty("Nothing was read from this image. See the notes above."),
+                    unsafe_allow_html=True)
+
+    with st.expander("What the model sees"):
         st.caption(
-            "Enter what the handwriting REALLY says to calculate character and word error rates. "
+            "Each image is exactly what is fed to the recognizer: a crop of one line, "
+            "converted to grayscale, scaled to the model height and placed on a white "
+            "canvas. If it does not look like a clean line of dark writing, the problem "
+            "is in preprocessing or line detection, not in the model."
+        )
+
+        for line in result.lines:
+            for number, chunk in enumerate(line.chunks, 1):
+                if chunk.canvas is None:
+                    continue
+
+                label = f"Line {line.index + 1}" + (
+                    f" (part {number})" if len(line.chunks) > 1 else "")
+                detail = []
+
+                if chunk.fit_scale is not None and chunk.fit_scale < 0.99:
+                    detail.append(f"shrunk to {chunk.fit_scale * 100:.0f}% to fit the width")
+                if chunk.ink_height_fraction is not None:
+                    detail.append(f"writing is {chunk.ink_height_fraction * 100:.0f}% "
+                                  "of the model input height")
+
+                st.markdown(f"**{label}**" + (" - " + "; ".join(detail) if detail else ""))
+                st.image(chunk.canvas, width="stretch")
+                st.caption(f"Model output: {chunk.text or '(empty)'}")
+
+        t = result.timings
+        st.caption(
+            f"Pipeline: {spec.describe()}. Timing: preprocessing "
+            f"{t.get('preprocess_s', 0) * 1000:.0f} ms, line detection "
+            f"{t.get('segment_s', 0) * 1000:.0f} ms, recognition "
+            f"{t.get('infer_s', 0) * 1000:.0f} ms."
+        )
+
+# ------------------------------------------------------------
+# Optional practical-evaluation logging
+# ------------------------------------------------------------
+
+if result is not None:
+    with st.expander("Help evaluate: record this result (optional)"):
+        st.caption(
+            "Type what the handwriting REALLY says to measure the error "
+            "rate. Only text and settings are recorded, never the image. "
             + (
-                "On this hosted version, your results can be downloaded as a CSV below."
+                "On this hosted version nothing is saved on the server: "
+                "download your results as a CSV below."
                 if HOSTED
                 else "Saved locally to evaluation/results/app_sessions.csv."
             )
         )
 
         with st.form("evaluation_form", clear_on_submit=False):
-            eval_col1, eval_col2 = st.columns(2)
-            with eval_col1:
-                participant = st.text_input("Participant ID", value="P01")
-                line_type = st.selectbox(
-                    "Line type", ["single-line", "multiline"]
-                )
-                handwriting = st.selectbox(
-                    "Handwriting", ["neat", "average", "messy"]
-                )
-            with eval_col2:
-                capture = st.selectbox(
-                    "Capture condition",
-                    [
-                        "scan",
-                        "good photo",
-                        "dim or shadowed photo",
-                        "blurry photo",
-                        "synthetic example",
-                    ],
-                )
-                usefulness = st.slider(
-                    "How useful was the result? (1 = useless, 5 = very useful)",
-                    1,
-                    5,
-                    3,
-                )
-
+            participant = st.text_input("Participant ID", value="P01")
             reference = st.text_area(
-                "True text (one line break per handwritten line)",
+                "True text (one line break per handwritten line; "
+                "line breaks are scored as spaces)",
                 value=reference_prefill,
             )
-            submitted = st.form_submit_button("Save Evaluation")
+            line_type = st.selectbox(
+                "Line type", ["single-line", "multiline"]
+            )
+            handwriting = st.selectbox(
+                "Handwriting", ["neat", "average", "messy"]
+            )
+            capture = st.selectbox(
+                "Capture", ["scan", "good photo", "dim or shadowed photo",
+                            "blurry photo", "synthetic example"]
+            )
+            usefulness = st.slider(
+                "How useful was the result? (1 = useless, 5 = very useful)",
+                1, 5, 3,
+            )
+            submitted = st.form_submit_button("Save evaluation")
 
         if submitted:
             if not reference.strip():
@@ -528,21 +383,22 @@ if result is not None:
                     handwriting,
                     capture,
                     auto_contrast,
-                    reference.replace("\n", "\\n"),
-                    result.text,
+                    " ".join(reference.split()),
+                    result.text_oneline,
                     usefulness,
-                    result.seconds,
+                    result.timings.get("total_s", 0.0),
                     loaded.sha256,
                 )
                 if HOSTED:
                     st.session_state.setdefault("eval_rows", []).append(row)
                     st.success(
-                        f"Recorded in this session. Sample CER: {row['cer'] * 100:.1f}%"
+                        f"Recorded in this session. CER for this sample: "
+                        f"{row['cer'] * 100:.1f}%"
                     )
                 else:
                     elog.append_session(row)
                     st.success(
-                        f"Saved. Sample CER: {row['cer'] * 100:.1f}%"
+                        f"Saved. CER for this sample: {row['cer'] * 100:.1f}%"
                     )
 
         if HOSTED and st.session_state.get("eval_rows"):
@@ -552,8 +408,53 @@ if result is not None:
             writer.writerows(st.session_state["eval_rows"])
 
             st.download_button(
-                f"📥 Download my {len(st.session_state['eval_rows'])} recorded result(s) as CSV",
+                f"Download my {len(st.session_state['eval_rows'])} "
+                "recorded result(s) as CSV",
                 buffer.getvalue(),
                 file_name="my_evaluation_results.csv",
                 mime="text/csv",
             )
+
+# ------------------------------------------------------------
+# About
+# ------------------------------------------------------------
+
+st.markdown("## About this model")
+st.markdown(
+    ui.model_card(
+        provenance.get("label", "Trained model"),
+        provenance.get("parameters", 0),
+        f"{loaded.config['image_height']} x {loaded.config['image_width']} px",
+        provenance.get("test_metrics"),
+    ),
+    unsafe_allow_html=True,
+)
+
+about_left, about_right = st.columns(2)
+
+with about_left:
+    st.markdown("#### How it reads a page")
+    st.markdown(
+        "1. Straighten the photo and even out the lighting.\n"
+        "2. Remove notebook ruling (pipeline D).\n"
+        "3. Find each line of writing and crop it.\n"
+        "4. Read each crop with the line recognizer.\n"
+        "5. Join the lines in reading order."
+    )
+
+with about_right:
+    st.markdown("#### What to keep in mind")
+    st.markdown(
+        "- The model was trained only on synthetic handwriting (OpenHand-Synth) and "
+        "reads one line at a time.\n"
+        "- The test-set numbers above are measured on synthetic data, not on real photos.\n"
+        "- Confidence is a heuristic, not a probability of being correct.\n"
+        "- Underlines and strike-throughs may be removed with the ruling, so "
+        "crossed-out words can be read."
+    )
+
+st.markdown(
+    '<div class="site-foot">Deep Learning (COMP6826001) final project, BINUS University. '
+    "Photos are processed in memory for your session and are not stored.</div>",
+    unsafe_allow_html=True,
+)

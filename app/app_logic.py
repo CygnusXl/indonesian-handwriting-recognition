@@ -24,6 +24,7 @@ if SRC not in sys.path:
 import torch  # noqa: E402
 
 import htr_common as hc  # noqa: E402
+import page_recognition as pr  # noqa: E402
 
 
 DEFAULT_MODEL_PATH = os.path.join(ROOT, "models", "final_model.pt")
@@ -135,10 +136,10 @@ def image_warnings(image):
     if width / height < MULTILINE_ASPECT_WARNING:
         warnings.append(
             "This image is not much wider than it is tall, so it may "
-            "contain several lines of text. The model was developed for "
-            "ONE line of handwriting; multiline recognition was the "
-            "main weakness found in our experiments. Crop one line per "
-            "image for best results."
+            "contain several lines of text. The original pipeline (A) "
+            "feeds the whole image to a model built for ONE line, which "
+            "shrinks the writing; choose pipeline D (default) to detect and "
+            "recognise each line separately, or crop one line per image."
         )
 
     gray = np.array(hc.prepare_user_image(image), dtype=np.float32)
@@ -199,6 +200,55 @@ def recognize_image(loaded, image, auto_contrast=False, device="cpu"):
         warnings=warnings,
         seconds=time.perf_counter() - began,
     )
+
+
+# ------------------------------------------------------------
+# Photograph pipeline (preprocessing -> line detection -> recognizer)
+# ------------------------------------------------------------
+
+PIPELINE_CHOICES = {key: spec.label for key, spec in pr.EXPERIMENTS.items()}
+DEFAULT_PIPELINE = pr.DEFAULT_PIPELINE
+
+KIND_MESSAGES = {
+    "single_line": "Detected: one line of handwriting (not split).",
+    "multi_line": "Detected: several lines of handwriting; each line was "
+                  "recognised separately and joined top to bottom.",
+    "no_handwriting": "No handwriting was detected.",
+    "not_handwriting": "This does not look like handwriting.",
+    "legacy": "Original single-line pipeline (the whole image is one input).",
+    "whole_image": "The whole image was sent to the model as ONE line.",
+}
+
+
+def recognize_photo(loaded, image, pipeline=None, force=False, rotation=None):
+    """
+    Photograph -> text with the staged pipeline (see page_recognition).
+    `pipeline` is a key of page_recognition.EXPERIMENTS (default "D").
+    Returns a page_recognition.PageResult; never raises for ordinary bad input.
+    """
+
+    spec = pr.EXPERIMENTS[pipeline or DEFAULT_PIPELINE]
+
+    try:
+        return pr.recognize_page(loaded, image, spec, force=force, rotation=rotation)
+    except Exception as error:  # last-resort guard: degrade, do not crash the UI
+        result = pr.recognize_legacy(loaded, image, pr.EXPERIMENTS["A"])
+        result.fallback = True
+        result.warnings.append(
+            f"The staged pipeline failed ({type(error).__name__}: {error}); the original "
+            "single-line pipeline was used on the whole image instead."
+        )
+        return result
+
+
+def replace_spec(spec, auto_contrast):
+    from dataclasses import replace
+
+    return replace(spec, auto_contrast=bool(auto_contrast))
+
+
+def page_display_text(result):
+    return hc.display_text(result.text)
 
 
 def image_fingerprint(image_bytes):

@@ -1,0 +1,42 @@
+/* Dark mode: same ruled-paper design, night colours. Loaded after style.css. */
+:root {
+  --page: #0e1424;
+  --surface: #161f36;
+  --paper: #131b30;
+  --ink: #e8ecf8;
+  --ink-soft: #a3adc8;
+  --rule: #2c3a5c;
+  --margin: #e0776f;
+  --pen: #8ea2ff;
+  --pen-dark: #b4c1ff;
+  --pen-wash: #1d2849;
+  --warn-ink: #f3c46b;
+  --warn-wash: #3a2f14;
+  --stop-ink: #ff9f97;
+  --stop-wash: #3d1d1b;
+}
+.stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: var(--page); color: var(--ink); }
+[data-testid="stSidebar"], [data-testid="stSidebar"] > div { background: var(--surface); }
+.stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp p, .stApp li, .stApp label, .stApp span,
+.stApp [data-testid="stMarkdownContainer"], .stApp [data-testid="stCaptionContainer"] { color: var(--ink); }
+.stApp [data-testid="stCaptionContainer"], .step-cap, .hero-course, .tips span, .empty p { color: var(--ink-soft); }
+.stApp .chip { background: var(--paper); color: var(--pen-dark); }
+.stApp .banner-icon { color: #0e1424; }
+[data-testid="stFileUploader"] section { background: var(--surface); }
+[data-testid="stFileUploader"] section:hover { background: var(--pen-wash); }
+[data-testid="stFileUploaderDropzone"] button { background: var(--pen); color: #0e1424; }
+[data-testid="stFileUploaderDropzone"] button:hover { background: var(--pen-dark); color: #0e1424; }
+[data-baseweb="select"] > div, [data-baseweb="input"], [data-baseweb="textarea"], .stApp textarea, .stApp input {
+  background: var(--surface); color: var(--ink); border-color: var(--rule);
+}
+[data-baseweb="popover"] ul, [data-baseweb="menu"] { background: var(--surface); color: var(--ink); }
+[data-baseweb="tab-list"] { background: transparent; }
+[data-baseweb="tab"] { color: var(--ink-soft); }
+[aria-selected="true"][data-baseweb="tab"] { color: var(--ink); }
+[data-testid="stMetricValue"] { color: var(--ink); }
+.stApp pre, .stApp code { background: var(--surface); color: var(--ink); }
+.stButton > button, .stDownloadButton > button, [data-testid="stFormSubmitButton"] > button { background: var(--surface); color: var(--pen-dark); }
+.meter-track { background: #2c3a5c; }
+[data-testid="stImage"] img { background: #fff; }
+.stApp .step-no { background: var(--ink); color: var(--page); }
+[data-baseweb="tab-highlight"] { background: var(--pen); }

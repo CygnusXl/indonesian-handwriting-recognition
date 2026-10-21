@@ -1,0 +1,4 @@
+image_file,reference_text,capture_condition,notes
+example_photo_1.jpg,"first handwritten line
+second handwritten line",ruled notebook page,"replace this row with your own image; line breaks inside quotes are fine"
+example_photo_2.jpg,single line example,clean single line,"or write \n between lines: line one\nline two"

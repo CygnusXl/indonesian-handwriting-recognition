@@ -70,5 +70,18 @@ evaluation/photos/*
 # Example images exported from OpenHand-Synth test set for demo
 app/examples/*
 !app/examples/README.md
+
+# Real-world page photographs, hand crops and outputs may contain personal
+# handwriting: keep them local (README, template and .gitkeep stay tracked)
+evaluation/real_world/*
+!evaluation/real_world/README.md
+!evaluation/real_world/ground_truth_template.csv
+!evaluation/real_world/manual_lines/
+evaluation/real_world/manual_lines/*
+!evaluation/real_world/manual_lines/.gitkeep
+results/segmentation_benchmark/
 !app/examples/examples.csv
 !app/examples/*.png
+
+# synthetic test images exported by src/pipeline_on_test_set.py (dataset licence: do not commit)
+evaluation/synthetic_test/

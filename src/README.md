@@ -11,7 +11,9 @@ Modules import each other directly (`from dataset import ...`).
 | Training | `train.py` (baseline), `train_experiment1.py`, `train_experiment2.py`, `train_experiment3.py`, optional `train_baseline_extended.py` |
 | Evaluation / analysis | `analyze_model.py` (any model, common 208-sample test set), `report_assets.py` (tables + figures), `dataset_stats.py` |
 | Deployment | `export_final_model.py` -> `models/final_model.pt` |
-| Real-world evaluation | `evaluate_realworld.py`, `summarize_usability.py` |
+| Real-world evaluation | `evaluate_realworld.py` (line photos), `evaluate_pipeline.py` (page photos, pipelines A-D + E), `summarize_usability.py` |
+| Photograph pipeline | `document_pipeline.py` (preprocessing, ruling suppression, line detection, crops), `page_recognition.py` (pipelines A-D, calls the unchanged model) |
+| Synthetic component checks | `synthetic_pages.py`, `evaluate_segmentation.py` (geometry only, not real handwriting) |
 | Reproducibility | `record_environment.py` |
 | Legacy (kept for traceability) | `evaluate*.py`, `error_analysis*.py`, `compare_*.py`: superseded by `analyze_model.py`, which reproduces their numbers (see `tests/test_analyze_model.py`) |
 

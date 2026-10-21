@@ -4,7 +4,7 @@ datasets
 numpy
 matplotlib
 Pillow
-opencv-python
+opencv-python   # photograph preprocessing / line detection (the hosted app uses opencv-python-headless)
 
 # Application and evaluation
 streamlit>=1.50
