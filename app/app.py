@@ -1,5 +1,5 @@
 """
-Indonesian handwriting recognition - web application.
+Handwriting recognition - web application.
 
 Run from the repository root:
 
@@ -34,7 +34,7 @@ HOSTED = os.environ.get("HTR_HOSTED", "0") == "1"
 EXAMPLES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "examples")
 
 st.set_page_config(
-    page_title="Indonesian Handwriting Recognition",
+    page_title="Handwriting Recognition",
     page_icon="✍️",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -89,7 +89,12 @@ provenance = loaded.provenance
 # Hero + input
 # ------------------------------------------------------------
 
-st.markdown(ui.hero(provenance.get("label", "Trained model")), unsafe_allow_html=True)
+training = ui.training_info(provenance)
+
+st.markdown(
+    ui.hero(provenance.get("label", "Trained model"), provenance=provenance),
+    unsafe_allow_html=True,
+)
 
 examples = load_examples()
 reference_prefill = ""
@@ -426,6 +431,7 @@ st.markdown(
         provenance.get("parameters", 0),
         f"{loaded.config['image_height']} x {loaded.config['image_width']} px",
         provenance.get("test_metrics"),
+        provenance.get("test_metrics_label", training["metrics_label"]),
     ),
     unsafe_allow_html=True,
 )
@@ -445,9 +451,8 @@ with about_left:
 with about_right:
     st.markdown("#### What to keep in mind")
     st.markdown(
-        "- The model was trained only on synthetic handwriting (OpenHand-Synth) and "
-        "reads one line at a time.\n"
-        "- The test-set numbers above are measured on synthetic data, not on real photos.\n"
+        f"- {training['about_bullet']}\n"
+        f"- {training['metrics_caveat']}\n"
         "- Confidence is a heuristic, not a probability of being correct.\n"
         "- Underlines and strike-throughs may be removed with the ruling, so "
         "crossed-out words can be read."
