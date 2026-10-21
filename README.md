@@ -56,6 +56,22 @@ stages, parameters and limitations: [`DOCUMENT_PIPELINE.md`](DOCUMENT_PIPELINE.m
 Whether this improves recognition on real photographs has **not been measured yet**: run
 `src/evaluate_pipeline.py` on your own photos ([`evaluation/real_world/README.md`](evaluation/real_world/README.md)).
 
+## 2b. Training on English handwriting (IAM) - in progress, no results yet
+
+The synthetic-only model could not read a real cursive photo (one case). Code to train
+the same architecture on the IAM handwriting database (English, real writers) with
+photo-style augmentation is in place and unit-tested, but **has not been run on the real
+data**. This would change the project's language from Indonesian to English; see
+[`IAM_TRAINING.md`](IAM_TRAINING.md) for the status, licence note, commands and what is
+still unknown.
+
+### Translation (English to Indonesian)
+
+The app has a "Translate to Indonesian" button under the recognised text (`src/translation.py`). It
+sends the text, not the photo, to Google Translate through `deep-translator`, so it needs internet and
+is not tested against the live service from the development workspace. Recognition mistakes are
+translated as written; the text box lets you correct them first.
+
 ## 3. Dataset
 
 [OpenHand-Synth](https://huggingface.co/datasets/to-be/OpenHand-Synth), Indonesian

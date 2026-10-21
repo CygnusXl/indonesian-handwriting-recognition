@@ -258,3 +258,45 @@ def test_detect_lines_finds_paragraphs_on_a_synthetic_page():
         detection = dp.detect_lines(stages.mask, spec.segmentation)
 
         assert [l.paragraph for l in detection.lines] == truth["paragraphs"]
+
+
+# ---- regressions found on a real photo of a cursive word on a ruled line ----
+
+def test_suppress_ruling_keeps_a_stroke_running_along_the_rule():
+    import numpy as np
+
+    gray = np.full((120, 400), 235, np.uint8)
+    gray[79:81, :] = 205                       # faint ruling across the page
+    gray[78:82, 120:200] = 40                  # pen stroke along the rule, 80 px long
+
+    cleaned, _ = dp.suppress_ruling(gray)
+
+    kept = (cleaned[78:82, 125:195] < 128).mean()
+    ruling_gone = (cleaned[79:81, 10:100] > 225).mean()
+
+    assert kept > 0.8, kept
+    assert ruling_gone > 0.95, ruling_gone
+
+
+def test_typical_height_is_weighted_by_ink_so_a_dot_cannot_halve_it():
+    # real photo: word blob 67 px tall (3939 ink px) + the dot of an "i" as its own
+    # 6 px blob (28 ink px). The plain median was 36.5 and the word got cut in two.
+    assert dp._weighted_median([67, 6], [3939, 28]) == 67.0
+    assert dp._weighted_median([30, 30, 30, 6], [900, 900, 900, 20]) == 30.0
+    assert dp._weighted_median([10, 20, 30], [1, 1, 1]) == 20.0
+
+
+def test_a_tall_word_with_a_dot_stays_one_line():
+    import numpy as np
+
+    mask = np.zeros((200, 344), bool)
+    for x in range(40, 300, 22):
+        mask[104:128, x:x + 16] = True         # body letters
+    for x in (5, 110, 150):
+        mask[58:128, x:x + 6] = True           # tall ascenders (P, k, l)
+    mask[104:128, 5:300] |= np.tile(np.arange(295) % 22 < 18, (24, 1))   # joined baseline
+    mask[84:90, 311:316] = True                # the dot of an "i", its own tiny blob
+
+    detection = dp.detect_lines(mask)
+
+    assert len(detection.lines) == 1, [(l.y0, l.y1) for l in detection.lines]

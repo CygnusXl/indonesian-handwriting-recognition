@@ -39,9 +39,71 @@ def ground_truth(reference):
             f'<span class="truth-text">{html.escape(reference)}</span></div>')
 
 
-def hero(model_label, parameters=None):
+def translation_block(text):
+    """The Indonesian translation, in the same panel style as the expected text."""
+
+    body = "<br>".join(
+        html.escape(line) for line in text.split("\n")
+    )
+
+    return ('<div class="truth"><span class="truth-label">Indonesian translation</span>'
+            f'<span class="truth-text">{body}</span></div>')
+
+
+def training_info(provenance=None):
+    """
+    Wording that depends on what the deployed model was trained on, read
+    from the provenance file (key `training_data`). Models exported before
+    that key existed are the synthetic Indonesian baseline.
+    """
+
+    kind = (provenance or {}).get("training_data")
+
+    if kind == "iam":
+        return {
+            "notice_title": "Trained on IAM, English handwriting scans.",
+            "notice_body": (
+                "Accuracy on phone photos has not been measured yet, and other "
+                "languages or writing styles may be read poorly. Treat the output "
+                "as a draft and check it against the page."
+            ),
+            "about_bullet": (
+                "The model was trained on the IAM handwriting database (English, "
+                "657 writers, clean scans) with photo-style augmentation, and reads "
+                "one line at a time."
+            ),
+            "translation_hint": "",
+            "metrics_label": "IAM test set",
+            "metrics_caveat": (
+                "The test-set numbers above are measured on IAM scans, not on phone photos."
+            ),
+        }
+
+    return {
+        "notice_title": "Trained on synthetic handwriting only.",
+        "notice_body": (
+            "Accuracy on real handwriting photos has not been measured yet, so treat "
+            "the output as a draft and check it against the page."
+        ),
+        "about_bullet": (
+            "The model was trained only on synthetic handwriting (OpenHand-Synth) and "
+            "reads one line at a time."
+        ),
+        "translation_hint": (
+            "This model was trained on Indonesian handwriting, so the recognised text "
+            "may not be English. Edit it before translating."
+        ),
+        "metrics_label": "Synthetic test set",
+        "metrics_caveat": (
+            "The test-set numbers above are measured on synthetic data, not on real photos."
+        ),
+    }
+
+
+def hero(model_label, parameters=None, provenance=None):
     chips = ["Reads one line at a time", "Finds the lines in page photos", "Runs on CPU"]
     chip_html = "".join(f'<span class="chip">{html.escape(c)}</span>' for c in chips)
+    info = training_info(provenance)
 
     return f"""
 <section class="hero" aria-labelledby="hero-title">
@@ -56,9 +118,8 @@ def hero(model_label, parameters=None):
   </div>
 </section>
 <aside class="notice" role="note">
-  <strong>Trained on synthetic handwriting only.</strong>
-  Accuracy on real handwriting photos has not been measured yet, so treat the output
-  as a draft and check it against the page.
+  <strong>{html.escape(info["notice_title"])}</strong>
+  {html.escape(info["notice_body"])}
 </aside>
 """
 
@@ -139,7 +200,8 @@ def paper_empty(message):
     return f'<div class="paper paper-empty"><p>{html.escape(message)}</p></div>'
 
 
-def model_card(label, parameters, input_size, metrics=None):
+def model_card(label, parameters, input_size, metrics=None,
+               metrics_label="Synthetic test set"):
     rows = [("Model", label), ("Input", input_size)]
 
     if parameters:
@@ -148,7 +210,7 @@ def model_card(label, parameters, input_size, metrics=None):
     rows.append(("Decoding", "CTC greedy"))
 
     if metrics:
-        rows.append((f"Synthetic test set ({metrics['samples']} samples)",
+        rows.append((f"{metrics_label} ({metrics['samples']} samples)",
                      f"CER {metrics['corpus_cer'] * 100:.1f}% &middot; "
                      f"WER {metrics['corpus_wer'] * 100:.1f}% &middot; "
                      f"exact {metrics['exact_match'] * 100:.1f}%"))

@@ -1,5 +1,5 @@
 """
-Indonesian handwriting recognition - web application.
+Handwriting recognition - web application.
 
 Run from the repository root:
 
@@ -34,7 +34,7 @@ HOSTED = os.environ.get("HTR_HOSTED", "0") == "1"
 EXAMPLES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "examples")
 
 st.set_page_config(
-    page_title="Indonesian Handwriting Recognition",
+    page_title="Handwriting Recognition",
     page_icon="✍️",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -89,7 +89,12 @@ provenance = loaded.provenance
 # Hero + input
 # ------------------------------------------------------------
 
-st.markdown(ui.hero(provenance.get("label", "Trained model")), unsafe_allow_html=True)
+training = ui.training_info(provenance)
+
+st.markdown(
+    ui.hero(provenance.get("label", "Trained model"), provenance=provenance),
+    unsafe_allow_html=True,
+)
 
 examples = load_examples()
 reference_prefill = ""
@@ -293,6 +298,44 @@ if result is not None:
 
         with st.expander("Copy as plain text"):
             st.code(text_out, language=None)
+
+        # ----- Translate English -> Indonesian -----
+        st.markdown("#### Translate to Indonesian")
+
+        source_text = st.text_area(
+            "English text to translate (fix recognition mistakes first)",
+            value=text_out,
+            key="translate_source_" + logic.image_fingerprint(text_out.encode("utf-8")),
+        )
+
+        st.caption(
+            "The text (not the photo) is sent to Google Translate. Mistakes in the "
+            "recognised text are translated as written. Line breaks inside a paragraph "
+            "become spaces."
+        )
+
+        if training["translation_hint"]:
+            st.caption(training["translation_hint"])
+
+        if st.button("Translate to Indonesian", disabled=not source_text.strip()):
+            with st.spinner("Translating..."):
+                translated, error = logic.translate_to_indonesian(source_text)
+
+            st.session_state["translation"] = {
+                "source": source_text, "output": translated, "error": error,
+            }
+
+        done = st.session_state.get("translation")
+
+        if done and done["source"] == source_text:
+            if done["error"]:
+                st.markdown(ui.status_banner("warn", done["error"]), unsafe_allow_html=True)
+            elif done["output"]:
+                st.markdown(ui.translation_block(done["output"]), unsafe_allow_html=True)
+                st.download_button(
+                    "Download translation .txt", done["output"],
+                    file_name="translation_id.txt", mime="text/plain",
+                )
     else:
         st.markdown(ui.paper_empty("Nothing was read from this image. See the notes above."),
                     unsafe_allow_html=True)
@@ -426,6 +469,7 @@ st.markdown(
         provenance.get("parameters", 0),
         f"{loaded.config['image_height']} x {loaded.config['image_width']} px",
         provenance.get("test_metrics"),
+        provenance.get("test_metrics_label", training["metrics_label"]),
     ),
     unsafe_allow_html=True,
 )
@@ -445,9 +489,8 @@ with about_left:
 with about_right:
     st.markdown("#### What to keep in mind")
     st.markdown(
-        "- The model was trained only on synthetic handwriting (OpenHand-Synth) and "
-        "reads one line at a time.\n"
-        "- The test-set numbers above are measured on synthetic data, not on real photos.\n"
+        f"- {training['about_bullet']}\n"
+        f"- {training['metrics_caveat']}\n"
         "- Confidence is a heuristic, not a probability of being correct.\n"
         "- Underlines and strike-throughs may be removed with the ruling, so "
         "crossed-out words can be read."
